@@ -1,0 +1,65 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<section xmlns:xi="http://www.w3.org/2001/XInclude" id="governance">
+  <title>Governance</title>
+  <para>The fundamental and guiding principles for development are as follows.</para>
+  <itemizedlist>
+    <listitem>
+      <para><emphasis role="bold">Openness</emphasis> - This project is open, providing the same opportunity to all.  Everyone participate under same rules and there are no exception to this rule unless  a large majority of the community demands it.</para>
+    </listitem>
+    <listitem>
+      <para><emphasis role="bold">Transparent - </emphasis>Communication,    plans, ideas and decisions occur publicly, easily accessible to anyone. </para>
+    </listitem>
+    <listitem>
+      <para><emphasis role="bold">Meritocracy </emphasis>- Individuals will be rewarded with  increased responsibility and recognition by doing good work and high quality contributions within the project. No contribution is too small.</para>
+    </listitem>
+  </itemizedlist>
+  <section id="attitude">
+    <title>Etiquette</title>
+    <para>Use common sense, be polite and professional. </para>
+    <itemizedlist>
+      <listitem>
+        <para><ulink url="http://www.catb.org/~esr/faqs/smart-questions.html">Ask Question the Smart Way</ulink></para>
+      </listitem>
+      <listitem>
+        <para>There is nothing wrong with having strong opinions, but do not express them along with conclusions with so much certainty that others feel  pointless to disagree.</para>
+      </listitem>
+      <listitem>
+        <para>Take  time to phrase critique and disagreement  in a constructive and relevant way.  Show the ability to adopt the perspective of another&apos;s work. </para>
+      </listitem>
+      <listitem>
+        <para>Be collaborative and helpful toward fellow contributors. We are all one.</para>
+      </listitem>
+      <listitem>
+        <para>Avoid private and off-topic discussions in  public communication channels.</para>
+      </listitem>
+      <listitem>
+        <para>Public communication channels have  zero-tolerance policies  toward rude or insulting behavior.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="consensus_based_democracy">
+    <title>Consensus-based Democracy</title>
+    <para>Why are developer guidelines necessary? At first it may seem as a smart-ass/dictator thing to do, trying to write people on their nose. This is far from the truth. 
+
+</para>
+    <para>First, coding is a team effort. Developer guidelines are the ever-evolving pride and identity of the team, expressing their most current philosophy for collaboration and getting things done.   </para>
+    <para>Second, the power lies in hands of the team, free for developers to adopt their own styles and change these guidelines together, as a team. There is no such thing as “dictatorship” in this regard, tyranny and arrogance pretending to be a democracy will turn people off.
+
+</para>
+    <para>The purpose of developer guidelines is to encourage the team to maintain a certain level of consistency and quality throughout all aspects of the project. Having different ways and opinions of achieving similar things cause confusion, inconsistency, and in the end, segregation within the team. This must be avoided, the team cannot afford loosing focus and good contributors in frustration and agony.  </para>
+    <para>Do notice the emphasis on “guidelines” here, there will always be exceptions to every rule. Developers are expected to be thoughtful enough to care and take appropriate action  when these do not apply (within reasonable boundaries), maybe providing notice to the team of anomaly or ambiguity.</para>
+    <para>Individuals should not be afraid their opinions. But sometimes this cause strong philosophical disagreement to occur within the team. When this happens, the team accomplish consensus through voting. Individuals are expected to show good judgement resolving such conflicts, providing relevant justifying arguments from their point of view. If the conflict is resolved favoring a change of direction, individuals +1 voting for the proposal are expected to help making the change a reality.
+
+</para>
+    <para>The satisfaction of creativity is an energising motivator. The team should feel proud of their creations, not frustrated by overly-constraining rules.</para>
+  </section>
+  <section id="voting">
+    <title>Voting</title>
+    <para>TODO</para>
+  </section>
+  <section id="evolution">
+    <title>Roadmap</title>
+    <para>TODO</para>
+  </section>
+</section>

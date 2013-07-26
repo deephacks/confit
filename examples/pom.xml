@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi:ts=2:sw=2:expandtab: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-root</artifactId>
+    <version>0.15.0</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>confit-examples</artifactId>
+  <name>Confit Examples</name>
+  <description>Confit Examples</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-provider-jpa20</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-tck</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate.javax.persistence</groupId>
+      <artifactId>hibernate-jpa-2.0-api</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-entitymanager</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-core</artifactId>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-provider-jpa20</artifactId>
+      <type>test-jar</type>
+    </dependency>
+  </dependencies>
+</project>

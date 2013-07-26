@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<chapter id="intro">
+  <title>Introduction</title>
+  <para><emphasis role="italic">Work in progress. Trying to formulate and capture the essence of what the project tries to achieve.</emphasis></para>
+  <para><para>One aspect of building a successful business is the ability change rapidly.  But change is also related to difficulties, risks,  and costs.  Clearly more so in dynamic and elastic Cloud Computing environments where scale, diversity and complexity can be become painfully obvious  trying to change and adapt applications.   </para><para>Good architectures allow deferring design decisions but at some point a implementation specific decisions would need to be taken. Deciding on a  persistence layer is an important decision that involves a great deal of planning  and many people of different roles to get right. The choices to make are many and non-trivial.</para></para>
+  <para><itemizedlist>
+      <listitem>
+        <para>Data model. </para>
+        <para>Relational or object  database, NoSQL, LDAP, XML etc.</para>
+      </listitem>
+      <listitem>
+        <para>Vendor</para>
+        <para>Microsoft, Oracle, MySQL, Postegresql, MongoDB, Neo4j etc.</para>
+      </listitem>
+      <listitem>
+        <para>Persistence framework</para>
+        <para>JPA, Hibernate, JDBC, Spring DAO, MongoDB, JDO etc.</para>
+      </listitem>
+    </itemizedlist></para>
+  <para><para>After a decision have been taken a great deal of persistence specific code needs to be written.  A need for second persistence layer may surface along the way for speeding up testing.</para><para>Introducing new entities to the persistence layer throughout application lifecycle usually requires a signification deal of additional planning efforts. It is indeed a challenging task to get schema, queries, caching, tests and runtime integration right.</para></para>
+  <para>Projects usually devote a great deal of thought for developing a strategy  for switching persistence layer in case business demands it, meaning not coupling the domain too tightly to  specific persistence details.   But even if the plan seems solid hypothetically,  replacing the persistence layer is no quick or easy task.  </para>
+  <section id="mission">
+    <title>Mission statement and motivation</title>
+    <para>The mission of the project  is to  support long-running enterprise Java applications with a framework for handling  configuration changes without restarting themselves.</para>
+    <para>The framework also aid  developing applications that are decoupled from knowing how and where to store, retrieve and validate configuration.  </para>
+    <para>The aim is liberate applications to use configuration seamlessly on the terms of their particular environment without constraining  them    to Java SE,  EE, OSGi, Spring, CDI or 
+ any other programming model or framework. </para>
+  </section>
+  <section id="overview">
+    <title>Overview</title>
+    <para>TODO</para>
+  </section>
+  <section id="features">
+    <title>Features</title>
+    <para>To fill a relevant need in the Java community  and support building highly-available applications we believe that the following goals should be pursued. </para>
+    <para><itemizedlist>
+        <listitem>
+          <para>Productivity and Simplicity</para>
+          <para>Using configuration must be intuitive and non-intrusive; managed in a unified way to support developer productivity.  Configuration is published and discovered automatically when it become available and is also reusable in different contexts without burdening applications with portability issues.</para>
+        </listitem>
+        <listitem><para>Predictability and Clarity</para>Configuration is strongly-typed and give the capability to declaratively express the intents and rules under which circumstances the application can promise correct behaviour. Violations are handled reliably and does not disturb application behaviour. Valid changes are applied and exposed to applications in a consistent way.</listitem>
+        <listitem>
+          <para>Extendability and Portability</para>
+          <para>As applications  are developed in different shapes and sizes;  configuration should enable, not limit, a diversity  of platforms and technologies.  Applications are supported with the flexibility to  extend and customize a variety aspects locally and still be able to manage configuration in a central and unified way.</para>
+        </listitem>
+        <listitem>
+          <para>Performance and Scalability</para>
+          <para>Configuration should not be a limiting factor  to application performance.  It is quickly accessible to be able to meet service-level agreements in environments of  scale.</para>
+        </listitem>
+      </itemizedlist></para>
+  </section>
+  <section>
+    <title>Terminology</title>
+    <para>Configuration is a  general term that may have different meanings in different contexts. There is little meaning   trying to categorize  any ambiguity  between, for example, traditional configuration and provisioning data.</para>
+    <para>It is however useful to agree on a set of principles and constraints  in order to put the data which  we broadly call  configuration into application perspective.</para>
+    <itemizedlist>
+      <listitem>
+        <para>Configuration is considered read-mostly to human application operators/administrators   in the organization. This perspective  is referred to as the <emphasis role="bold">admin context</emphasis>.  </para>
+      </listitem>
+      <listitem>
+        <para>Configuration is considered read-only to   application developers. This  perspective is referred to as the <emphasis role="bold">runtime context</emphasis>.</para>
+      </listitem>
+      <listitem>
+        <para>Configuration never change from  events triggered by machine-to-machine communication or direct end-users/customers interaction with the application.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>Design</title>
+    <para><mediaobject>
+        <imageobject role="fo">
+          <imagedata align="center" fileref="resources/images/design.png" format="PNG"/>
+        </imageobject>
+        <imageobject role="html">
+          <imagedata align="center" fileref="images/design.png" format="PNG"/>
+        </imageobject>
+        <caption>
+          <para>High Level Architecture</para>
+        </caption>
+      </mediaobject></para>
+  </section>
+</chapter>

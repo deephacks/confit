@@ -1,0 +1,60 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<section xmlns:xi="http://www.w3.org/2001/XInclude" id="commits_bugs_issues">
+  <title>Commits and Bugs/Issues</title>
+  <itemizedlist>
+    <listitem>
+      <para>Make small commits, as small as reasonable. This makes them easy to review.</para>
+    </listitem>
+    <listitem>
+      <para>Each commit should have a commit message that explains very clearly what the commit sets out to achieve (unless this is clear from the for trivial changes). If there is a bug/issue related to the commit, indicate that in the message.</para>
+    </listitem>
+    <listitem>
+      <para>Do not mix concerns in commits. Have a commit for a single purpose.</para>
+    </listitem>
+    <listitem>
+      <para>Do <emphasis role="bold">NOT</emphasis> break builds for any commit. Always test  code before commit.</para>
+    </listitem>
+  </itemizedlist>
+  <section>
+    <title>Branching policy</title>
+    <para>The  project strongly prefers that active development happen in master branch. For this to work, master must always be stable. This means that master builds and tests pass at all times, but may not be release ready. </para>
+  </section>
+  <section id="bugs_how">
+    <title>How to report a bug</title>
+    <para/>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">
+            <para>Make sure the bug have not been reported earlier</para>
+          </emphasis></para>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Make it easy to reproduce the bug</emphasis></para>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <emphasis role="bold">
+          <para>One bug per report</para>
+        </emphasis>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Do not have development discussions in the bug tracker</emphasis></para>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Clearly separate fact from speculation</emphasis></para>
+        <para>TODO</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="bugs_where">
+    <title>How to fix bugs</title>
+    <para><ulink url="https://github.com/blog/831-issues-2-0-the-next-generation">Format</ulink> commit message according to convention and GitHub will automatically close associated bug and link the commit to the closure. </para>
+  </section>
+  <section>
+    <title>Feature requests</title>
+  </section>
+</section>

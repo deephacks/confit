@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN"
+   "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<section id="quick_start_guide" xmlns:xi="http://www.w3.org/2001/XInclude">
+  <title>Quick Start Guide</title>
+  <para>TODO</para>
+
+  <section id="user_requirements">
+    <title>Environment requirements</title>
+    <para>TODO</para>
+  </section>
+  
+</section>

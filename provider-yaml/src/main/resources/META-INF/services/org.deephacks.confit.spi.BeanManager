@@ -1,0 +1,2 @@
+#org.deephacks.confit.internal.core.runtime.DefaultBeanManager
+org.deephacks.confit.internal.core.yaml.YamlBeanManager

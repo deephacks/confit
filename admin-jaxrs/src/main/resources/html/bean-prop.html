@@ -1,0 +1,33 @@
+<td><div title="{{property.desc}}" ui-jq="tooltip">{{property.name}}</div></td>
+<td>{{property.type.substr(property.type.lastIndexOf('.') + 1)}}</td>
+<td>
+    <div ng-switch on="property.defaultValue">
+        <div ng-switch-when="null">
+            <p class="muted"><i>undefined</i></p>
+        </div>
+        <div ng-switch-default>
+            {{property.defaultValue}}
+        </div>
+    </div>
+</td>
+<td>
+    <div ng-switch on="property.enum">
+        <div ng-switch-when="true">
+            <select ng-model="bean.properties[property.name]">
+                <option ng-repeat="enum in property.enums">{{enum}}</option>
+            </select>
+        </div>
+        <div ng-switch-default>
+            <input type="text" ng-model="bean.properties[property.name]">
+        </div>
+    </div>
+
+</td>
+<td>
+    <button class="btn btn-mini" ng-click="edit(property.name)">
+        Edit
+    </button>
+    <button class="btn btn-mini" ng-click="clear(property.name)">
+        Clear
+    </button>
+</td>

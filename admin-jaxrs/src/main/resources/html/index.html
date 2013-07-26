@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html ng-app="ConfigAdmin" ng-controller="ConfigAdminController">
+<head>
+    <meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+    <title></title>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.3/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.1.3/angular-resource.min.js"></script>
+
+    <script src="js-3pp/angular-ui.min.js"></script>
+
+    <script src="js/app.js"></script>
+    <script src="js/directives.js"></script>
+    <script src="js/bean-controller.js"></script>
+    <script src="js/app-controller.js"></script>
+
+    <script src="js/tools4j-config-services.js"></script>
+    <script src="js/tools4j-config-property-service.js"></script>
+    <script src="js/paginate-services.js"></script>
+    <script src="js-3pp/bootstrap.min.js"></script>
+
+    <link rel="stylesheet" href="http://code.jquery.com/ui/1.10.1/themes/base/jquery-ui.css" />
+    <link href="css/bootstrap-combined.min.css" rel="stylesheet">
+    <link href="css/font-awesome.min.css" rel="stylesheet">
+    <link href="css/angular-ui.min.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+<div class="navbar">
+    <div class="navbar-inner">
+        <div class="container">
+            <a class="brand">Configuration</a>
+        </div>
+    </div>
+</div>
+<div>
+    <ul class="nav" >
+        <div class="container-fluid">
+            <div class="row-fluid">
+                <div class="span3">
+                    <div class="tabbable tabs-left">
+                        <ul class="nav nav-pills nav-stacked">
+                            <ul class="nav nav-pills nav-stacked" >
+                                <ul class="nav nav-pills nav-stacked">
+                                    <li ng-repeat="schema in schemas">
+                                        <a right-click="create(schema)"
+                                           href="#/bean-list/{{schema.schemaName}}">{{schema.schemaName}}</a>
+                                    </li>
+                                </ul>
+                            </ul>
+                        </ul>
+                    </div>
+                </div>
+                <div class="span9">
+                    <div ng-switch on="renderPath[ 1 ]">
+                        <div ng-switch-when="bean-create" ng-include=" 'bean-create.html' "></div>
+                        <div ng-switch-when="bean-list" ng-include=" 'bean-list.html' "></div>
+                        <div ng-switch-when="bean-detail" ng-include=" 'bean-detail.html' "></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </ul>
+</div>
+
+</body>
+</html>

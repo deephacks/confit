@@ -1,0 +1,68 @@
+<form name="form" ng-controller="bean-detail-controller" novalidate qn:validate="errors">
+
+    <h4>{{schemas[schemaName].schemaName}}</h4>
+    <p>{{schemas[schemaName].desc}}</p>
+
+    <div ng:show="form.$myServerErrors.bean.httpStatus >= 400" class="alert alert-error">
+        <p><i class="icon-warning-sign icon-large"></i> {{form.$myServerErrors.bean.msg}}</p>
+    </div>
+
+    <table class="table table-striped table-hover">
+        <thead>
+        <tr>
+            <th>Name</th>
+            <th>Type</th>
+            <th>Default</th>
+            <th>Value</th>
+            <th>Action</th>
+        </tr>
+        </thead>
+        <div ng-switch on="schemas[schemaName].singleton">
+            <div ng-switch-when="false">
+                <tr>
+                    <td>
+                        <b><u>
+                            <div title="{{schemas[schemaName].desc}}" ui-jq="tooltip">
+                                {{schemas[schemaName].idName}}
+                            </div>
+                        </u></b>
+                    </td>
+                    <td>String</td>
+                    <td><p class="muted"><i>undefined</i></p></td>
+                    <td>{{bean.id}}</td>
+                    <td>
+                        <button class="btn btn-mini" ng-disabled="true">
+                            Edit
+                        </button>
+                        <button class="btn btn-mini" ng-disabled="true">
+                            Clear
+                        </button>
+                    </td>
+                </tr>
+            </div>
+        </div>
+
+        <tr ng-include=" 'bean-prop.html' "
+            ng-repeat="property in schemas[schemaName].property">
+        </tr>
+
+        <tr ng-include=" 'bean-proplist.html' "
+            ng-repeat="property in schemas[schemaName].propertyList">
+        </tr>
+
+        <tr ng-include=" 'bean-ref.html' "
+            ng-repeat="property in schemas[schemaName].propertyRef">
+        </tr>
+
+        <tr ng-include=" 'bean-reflist.html' "
+            ng-repeat="property in schemas[schemaName].propertyRefList">
+        </tr>
+
+        <tr ng-include=" 'bean-refmap.html' "
+            ng-repeat="property in schemas[schemaName].propertyRefMap">
+        </tr>
+
+    </table>
+    <button ng-click="commit()" ng-disabled="!isDirty()">Commit</button>
+    <button ng-click="rollback()" ng-disabled="!isDirty()">Rollback</button>
+</form>

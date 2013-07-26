@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi:ts=2:sw=2:expandtab: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-root</artifactId>
+    <version>0.15.0</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>confit-api-runtime</artifactId>
+  <name>Confit API Runtime</name>
+  <description>Runtime APIs of Confit</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-api-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+  </dependencies>
+</project>

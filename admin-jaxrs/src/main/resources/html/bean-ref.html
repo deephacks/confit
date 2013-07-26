@@ -1,0 +1,21 @@
+<td><div title="{{property.desc}}" ui-jq="tooltip">{{property.name}}</div></td>
+<td>{{property.schemaName.substr(property.schemaName.lastIndexOf('.') + 1)}}</td>
+<td>
+    <div ng-switch on="property.defaultValue">
+        <div ng-switch-when="null">
+            <p class="muted"><i>undefined</i></p>
+        </div>
+        <div ng-switch-default>
+            {{property.defaultValue}}
+        </div>
+    </div>
+</td>
+<td><input type="text" ng-model="bean.properties[property.name]"></td>
+<td>
+    <button class="btn btn-mini" ng-click="edit(property.name)">
+        Edit
+    </button>
+    <button class="btn btn-mini" ng-click="clear(property.name)">
+        Clear
+    </button>
+</td>

@@ -1,0 +1,68 @@
+
+<td><div title="{{property.desc}}" ui-jq="tooltip">{{property.name}}</div></td>
+<td>{{property.schemaName.substr(property.schemaName.lastIndexOf('.') + 1)}}</td>
+<td>
+    <div ng-switch on="property.defaultValue">
+        <div ng-switch-when="null">
+            <p class="muted"><i>undefined</i></p>
+        </div>
+        <div ng-switch-default>
+            {{property.defaultValue}}
+        </div>
+    </div>
+</td>
+<td>
+
+    <select ng-model="bean[property.name]" ng-click="edit(property.name)">
+        <option ng-repeat="value in bean.properties[property.name]">{{value}}</option>
+    </select>
+
+</td>
+<td>
+    <a ng-click="edit(property.name)"
+       href="#modal-{{property.name}}"
+       role="button"
+       class="btn btn-mini"
+       data-toggle="modal">Edit</a>
+
+    <div id="modal-{{property.name}}" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+            <h3 id="myModalLabel">
+                {{property.collectionType}}
+                <{{property.schemaName.substr(property.schemaName.lastIndexOf('.') + 1)}}>
+                {{property.name}}
+            </h3>
+        </div>
+        <div class="modal-body">
+            <p>
+                <input ng-model="listValue">
+                <button class="btn btn-mini" ng-click="add(property.name, listValue)">
+                    Add
+                </button>
+            </p>
+            <p>
+                <select multiple="multiple" ng-model="bean.properties[property.name]" ng-click="edit(property.name)">
+                    <option ng-repeat="value in bean.properties[property.name]">{{value}}</option>
+                </select>
+            </p>
+            <p>
+                <button class="btn btn-mini" ng-click="remove(property.name)">
+                    Remove
+                </button>
+            </p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" data-dismiss="modal" aria-hidden="true">Close</button>
+        </div>
+    </div>
+    <!--
+    <button role="button" data-toggle="modal" class="btn btn-mini" ng-click="edit(property.name)" ng-disabled="bean.properties[property.name] != undefined">
+        Edit
+    </button>
+    -->
+    <button class="btn btn-mini" ng-click="clear(property.name)">
+        Clear
+    </button>
+</td>
+

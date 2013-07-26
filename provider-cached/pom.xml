@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi:ts=2:sw=2:expandtab: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-root</artifactId>
+    <version>0.15.0</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>confit-provider-cached</artifactId>
+  <name>Confit Provider Cached</name>
+  <description>Cached Cache Provider</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-api-model</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-provider-yaml</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-api-provider</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-api-runtime</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-core</artifactId>
+      <type>test-jar</type>
+    </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks.cached</groupId>
+      <artifactId>cached</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    <dependency>
+      <groupId>com.esotericsoftware.kryo</groupId>
+      <artifactId>kryo</artifactId>
+      <version>2.21</version>
+    </dependency>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit-tck</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>javassist</groupId>
+      <artifactId>javassist</artifactId>
+      <version>3.12.1.GA</version>
+    </dependency>
+    <dependency>
+      <groupId>com.google.caliper</groupId>
+      <artifactId>caliper</artifactId>
+      <version>0.5-rc1</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+</project>

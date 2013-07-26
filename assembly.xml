@@ -1,0 +1,36 @@
+<assembly>
+    <id>assembly</id>
+    <formats>
+        <format>tar.gz</format>
+        <format>zip</format>
+    </formats>
+    <fileSets>
+        <fileSet>
+          <directory></directory>
+          <outputDirectory>/</outputDirectory>
+          <includes>
+            <include>readme.txt</include>
+            <include>license.txt</include>
+          </includes>
+        </fileSet>
+        <fileSet>
+          <directory>config-docbkx/target/site</directory>
+          <outputDirectory></outputDirectory>
+          <includes>
+            <include>index.html</include>
+          </includes>
+        </fileSet>
+        <fileSet>
+          <directory>config-docbkx/target/site/pdf</directory>
+          <outputDirectory>pdf</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>config-docbkx/target/site/html</directory>
+          <outputDirectory>html</outputDirectory>
+        </fileSet>
+        <fileSet>
+          <directory>target/site/apidocs</directory>
+          <outputDirectory>api-javadoc</outputDirectory>
+        </fileSet>
+    </fileSets>
+</assembly>

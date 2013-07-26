@@ -1,0 +1,425 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<section xmlns:xi="http://www.w3.org/2001/XInclude" id="coding_conventions">
+  <title>Coding Conventions and Principles</title>
+  <section>
+    <title>Naming Conventions</title>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Class names should be nouns</emphasis></para>
+        <para>Try  keep class names simple and descriptive. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Exception class names should end with &quot;Exception&quot;</emphasis></para>
+        <para>Correct.</para>
+        <para><programlisting>public class ValidationException extends Exception ..</programlisting></para>
+        <para>Incorrect.</para>
+        <para><programlisting>public class ValidationError extends Exception ..
+public class PasswordInvalid extends Exception ..</programlisting></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Treat abbreviations as words naming every programming element</emphasis><table frame="all">
+            <title/>
+            <tgroup cols="2">
+              <colspec colname="c1"/>
+              <colspec colname="c2"/>
+              <thead>
+                <row>
+                  <entry>Correct</entry>
+                  <entry>Incorrect</entry>
+                </row>
+              </thead>
+              <tbody>
+                <row>
+                  <entry>getCompanyId</entry>
+                  <entry>getCompanyID</entry>
+                </row>
+                <row>
+                  <entry>class UUID</entry>
+                  <entry>class Uuid</entry>
+                </row>
+                <row>
+                  <entry>HttpBinding anHttpBinding = ..</entry>
+                  <entry>HTTPBinding anHTTPBinding = ..</entry>
+                </row>
+              </tbody>
+            </tgroup>
+          </table></para>
+        <para/>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Internal package name</emphasis></para>
+        <para>Internal implementation packages should be indicated as internal by including the &apos;internal&apos; immediately following the project name.</para>
+        <para>Correct.</para>
+        <para><programlisting>org.deephacks.&lt;projectname&gt;.internal.core.admin
+org.deephacks.&lt;projectname&gt;.internal.cache </programlisting></para>
+        <para>Incorrect.</para>
+        <para><programlisting>org.deephacks.internal.&lt;projectname&gt;.cache
+org.deephacks.&lt;projectname&gt;.admin.internal</programlisting></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Public static final fields have ALL_CAPS_WITH_UNDERSCORES</emphasis></para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>Style and Formatting</title>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Never uses tabs in text files </emphasis></para>
+        <para>Indentation should be 4 spaces for Java and 2 spaces for XML.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use NetBeans Lookup Library</emphasis></para>
+        <para>The <ulink url="http://wiki.netbeans.org/AboutLookup">NetBeans lookup library</ulink> is intended to solve how different service classes register to the system and how other parts of the system can look them up. </para>
+        <para>Using org.openide.util.Lookup is great a great way for decoupling interactions between classes acting as services.  </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use the <link linkend="setting_up_eclipse">Eclipse Code Templates</link></emphasis></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use TODO Comments</emphasis></para>
+        <para>This makes spotting ongoing work easy.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Do not use @version and @author tags </emphasis></para>
+        <para>Versions are tracked by Maven and the version control system.  Contributors are  credited  in the version control system, on project website, high level documentation and through social community meritocracy.</para>
+      </listitem>
+      <listitem>
+        <emphasis role="bold">
+          <para>Write short methods</para>
+        </emphasis>
+        <para>Methods should be small and focused, preferably with a single  responsibility. If a method exceeds around 40 lines of code, consider breaking it into multiple methods.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Javadoc</emphasis></para>
+        <para><para>Every class should have javadoc explaining its purpose and responsibilities. If you cannot think of a reasonable purpose, why create a new class? Every non-trivial method should have comments clearly explaining what it does, as well as arguments, return values and exceptions. Spend time writing comments that make code more informative. Do not include obvious documentation, comments should help understanding and readability,  not prevent it.</para><para>This is particularly important for interfaces that is part of the public API and SPI. Packages should consider having an package-info.java overview explaining its usage and relevant design decisions. Please read <ulink url="http://java.sun.com/j2se/javadoc/writingapispecs/index.html">Sun&apos;s Requirements for Writing Java API Specifications</ulink> for guidance.</para></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Be Consistent</emphasis></para>
+        <para>Take a few minutes to look at  code targeted for change and determine its style, then  follow it.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Do not expose more than needed </emphasis></para>
+        <para>Classes should be package-private by default. Only make classes and methods public if absolutely necessary. Convenience methods does not belong in the public API and SPI. When in doubt, keep it out. Restrict class interaction in order to minimize coupling among classes. </para>
+        <para>This is related to the  &quot;<ulink url="http://pragprog.com/articles/tell-dont-ask">Tell, Don&apos;t Ask</ulink>&quot; and &quot;<ulink url="http://www.cmcrossroads.com/bradapp/docs/demeter-intro.html">Law of Demeter</ulink>&quot; principle, which  increase flexibility for  future design changes. </para>
+        <para>Leave room for code and data formats grow, unwise early  choices can lock     designs   promising backward compatibility.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Always implement equals, hashcode and toString.</emphasis></para>
+        <para>This make  logging, collection handling and test assertions easier. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Organize constants</emphasis></para>
+        <para>Do not declare constants in arbitrary classes. Keep constants in one Constants file per package and use the Constants from other classes where needed. This give a quicker and organized overview of constants.</para>
+        <para><programlisting>package org.deephacks.confit.spi;
+
+final class Constants {
+    static final String EXAMPLE_A = ..;
+    static final String EXAMPLE_B = .. ;
+}</programlisting></para>
+        <para><programlisting>package org.deephacks.confit.internal.core;
+
+final class Constants {
+    static final String EXAMPLE_A = ..;
+    static final String EXAMPLE_B = .. ;
+}
+</programlisting></para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>API, SPI and internals</title>
+    <para>The Application Programmer Interface is arguably the highest quality artifact produced.</para>
+    <itemizedlist>
+      <listitem>
+        <para>The API are accessible for public usage by external clients. </para>
+      </listitem>
+      <listitem>
+        <para>The API have specifications that clearly describe intent and behaviour to clients. These specifications should be simple and written from perspective of clients unfamiliar with API elements.</para>
+      </listitem>
+      <listitem>
+        <para>The API keep clients loosely coupled and should therefore preferably be self-contained without forcing external third party library dependencies on clients. Classes and methods are public only if absolutely necessary. When in doubt, keep it out. This increase flexibility for evolution in the future. </para>
+      </listitem>
+      <listitem>
+        <para>The API is modular, separating its concerns cleanly and functionality is orthogonal. </para>
+      </listitem>
+      <listitem>
+        <para>The API always maintain a  clear distinction between public and internal modules,  in code and packaged archives. The API never have dependencies on internal programming elements or libraries.    </para>
+      </listitem>
+      <listitem>
+        <para>The API is maintained and supported, should be stable and preferably evolve in a backward and forward compatible way in order to not break clients.</para>
+      </listitem>
+    </itemizedlist>
+    <para>The  Service Provider  Interface is very similar to the Application Programmer Interface and  follow the same rules. The purpose of the SPI to allow replacing and/or extending core behaviour and functionality without affecting external API clients.</para>
+    <para>The SPI is  thus intended to be implemented by a different type of client, a service provider. This introduce different compatibility guidelines for the SPI - actually the exact opposite of the API. Adding methods to API interfaces is a compatible change  but adding methods to SPI interfaces is not.</para>
+    <itemizedlist>
+      <listitem>
+        <para>The API should be separate and not depend on the SPI since they are intended for different clients and evolve on different compatibility premises. The SPI is expected to have some interaction with the API and can be allowed to use it to avoid code duplication.</para>
+      </listitem>
+    </itemizedlist>
+    <para>Internals does not have the same strict rules associated. Rules can be relaxed, external clients are not intended to use internals and so code can evolve more easily with breaking stuff. Internals must not be documented  rigorously and the information is intended for developers, not external clients. This is not to say that code quality should be high. </para>
+    <para>The internals implement both API and SPI and plug together interaction between potential  service provider implementations. </para>
+  </section>
+  <section id="exceptions">
+    <title>Exception handling and robustness</title>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Don&apos;t catch Exception and Throwable</emphasis></para>
+        <para>It is almost always wrong to catch RuntimeException, Exception and Throwable because it means  error handling can catch exceptions that was never expected to get caught. The compiler will also not help  realizing that there was new exceptions  introduced after an library upgrade that may need to be handled differently.</para>
+        <para>The only place where this can be acceptable is in top level modules  where exceptions possibly want  to be hidden from UI. Bootstrap code also sometimes force aggressive catch behaviour to prevent  processes from crashing.</para>
+      </listitem>
+      <listitem>
+        <emphasis role="bold">
+          <para>Don&apos;t swallow exceptions</para>
+        </emphasis>
+        <para>Alternative ways of not swallowing exceptions depends on context.</para>
+        <para>- If the catch block can handle the exception in the catch clause, correct the error  and let processing proceed or retry.</para>
+        <para>- Throw the exception directly to the caller if the exception is part of the  API used by the caller.</para>
+        <para>- If the exception is not part of the  API, convert it into an API-exception and throw it. Be careful not to conceal the  source of error. Wrapping the original exception object  is not always appropriate, because it can cause ClassNotFoundException in the client code if communication occur  between unrelated class loaders. Copy the stack trace if suspecting these failures to  occur.</para>
+        <para>- Throw  RuntimeException including the original exception (or stack trace). This is last resort. The intention is to force propagation through the call stack to top level module and  crash. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Don&apos;t log exceptions if throwing exception to caller.</emphasis></para>
+        <para>See <link linkend="logging">logging</link> principles.</para>
+      </listitem>
+      <listitem><para><emphasis role="bold">Exceptions shall carry data.</emphasis></para>Do not hide the contextual reasons of why an exception occurred in text messages. It must be easy for catch clauses to extract relevant values from exceptions using get() methods.</listitem>
+      <listitem>
+        <para><emphasis role="bold">Use checked exceptions only for recoverable conditions </emphasis></para>
+        <para><para>Re-throwing exceptions are  a common  outcome in error situations. Always make exceptions unchecked if only a minority of callers are likely to able to recover from the exception.</para><para>An  end-user posting a form from a web page may cause a data input validation error deep in business code. This error is a good  candidate for a checked exception. Otherwise there is a risk that the exception  will  slip through and bubble up to general UI error handling   code and being concealed from the end-user. </para><para>But keep in mind that checked exceptions  may inappropriately expose  and couple  higher layers to lower layer implementation details if not propagated properly through the call stack. It may be confusing for external clients to handle  exceptions that is not part of the public API. This can be avoided by converting such exceptions to API exceptions.</para><para>Also keep in mind that adding new checked exceptions to  method signature throws clauses  (in  new API and SPI versions) breaks client code. </para></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Manage temporary conditions and failures gracefully</emphasis></para>
+        <para>Some catch blocks can  recover from   a temporary failure conditions without causing known side-effects, such as retriable timeout failures.   A temporary failure can escalate to an error situation if happening too often. Implementing back-off in  and retry mechanisms is appropriate in these situations. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Do not intrude on the runtime environment</emphasis></para>
+        <para>Do not make assumptions of the runtime environment. If a thread is needed to perform periodical housekeeping, it should *not* be silently spawned. External clients should be informed through API  specification and under which circumstances (and   how often) the thread is needed.  Clients will then  provide it when appropriate on behalf on the runtime environment. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Be rigorous about releasing resources </emphasis></para>
+        <para>Inspect resource    and failure handling  code rigorously to make sure that catch and finally blocks  release resources properly for all  request outcomes. </para>
+      </listitem>
+      <listitem>
+        <para id="fail_fast"><emphasis role="bold">Always fail fast</emphasis></para>
+        <para>Avoid slow responses (and unresponsiveness) from external network communication by always setting low connection timeouts  if possible. This will avoid the risk of putting the runtime environment in a unresponsive state (it &quot;hangs&quot;) caused  by shared resources  eventually being consumed and exhausted. Thread.wait() without a timeout should be avoided. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Limit memory consumption</emphasis></para>
+        <para>Do not consume more memory than necessary. Caches shall only consume a limited amount of memory. Java weak references or cache sizes  configurable by clients can be used for this purpose.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis id="alarms" role="bold">Alarms</emphasis></para>
+        <para><emphasis role="italic">Alarms are used in situations where the application have serious problems, possibly needing manual corrective actions. Alarms may be a motivation for sending a distress signal to a human administrator (allegedly sleeping at home), so use alarms with extreme caution and care.</emphasis> </para>
+        <para>Failures can roughly be   divided  into two  categories: temporary and permanent. Parts of the application may still be functional under  any of these situations.</para>
+        <para>- Temporary failures are recoverable failures, such as  sudden request disruption, inability to service certain requests, overload or  temporary network failures.   These kind of failures may escalate into alarming <link linkend="error_log">ERROR</link> logs if occurring too frequently (a decision taken  by  application code). </para>
+        <para>- Permanent failures are  critical  application-internal problems, making the application completely unable to handle some or all requests. The application cannot  spontanously recover from this situation by itself and is likely to need  human administrator  assistance, possibly performing disaster recovery measures, re-installation or removal/alteration of persistent data. Permanent  failures raises <link linkend="fatal_log">FATAL</link> alarm logs immediately. </para>
+        <para>Alarms are technically  <link linkend="error_log">ERROR</link> (temporary) and <link linkend="fatal_log">FATAL</link> (permanent) log messages in a predefined format. It is *essential* that these messages can be parsed  confidently by  external supervising health-check processes,   monitoring occurrence of these alarm messages in log files. Alarm message formats are therefore considered a public and crucial part  of either the API or SPI, ruled by even *harder* evolving compatibility requirements. Supervising health-check processes *must* not accidentally let alarm messages pass unnoticed after an upgrade.</para>
+        <para>The  external supervising process is responsible for deciding when and how to take appropriate action, and  in what situations. The supervisor may decide to send a informative  email describing the  problem. Or  as *absolute* last resort send a distress  signal  using SMS (or other direct communication channel) demanding immediate action from a human administrator. </para>
+        <para>All alarm messages must  be throttled by application code in order to not add overhead to a potentially hysteric and overloaded  runtime environment caused by enduring problems.  Remember to <link linkend="fail_fast">fail fast</link>, stepping back (rejecting immediately) doing only &quot;occascional&quot; retries. Alarm messages must only be logged *again* when doing these &quot;occascional&quot; retries to remind a potentially supervising health-check processes that the problem is still hurting end-user service. Be careful though, remember that this is a redundant repetition of an already convoyed alarm (do not spam this message), it may reach a human administrator mobile phone.</para>
+        <para>There are plans to provide a general purpose library for alarm handling. </para>
+        <para>TODO: alarm message format</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section id="logging">
+    <title>Logging</title>
+    <para><warning>
+        <para>Be sure to understand <link linkend="exceptions">exception and robustness principles</link> before reading this section!</para>
+      </warning></para>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Slf4j is used for logging</emphasis></para>
+        <para>There is no need for guarding log statements (isDebugEnabled) when using pattern substitution.</para>
+        <para> <programlisting>log.debug(&quot;Found {} records matching filter: &apos;{}&apos;&quot;, records, filter); </programlisting></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Never use Exception.printStackTrace</emphasis></para>
+        <para>Obviously, nobody will monitor System.out on a production system.</para>
+      </listitem>
+      <listitem>
+        <para><para><emphasis role="bold">Use concise and descriptive messages</emphasis></para></para>
+        <para>Always include   relevant contextual information in log messages. Include  name and value of information needed to diagnose faults. If possible, make messages easy to parse by utilities such as grep, awk and sed.</para>
+      </listitem>
+      <listitem><para><emphasis role="bold">Rarely log exceptions</emphasis></para><para>Logging exceptions before (re) throwing them further to the caller will  almost certainly cause redundant message output  since  caller,  container or bootstrap code probably will log them as well (or  worse, a combination) in the same log file. It is usually enough to only (re) throw the exception pointing to the error source.</para><para>Exceptions should never be logged on levels higher than DEBUG.</para><para>It may be appropriate to log exceptions in the following situations:</para><para>-  The catch block successfully recovered from  the  exception, without known side-effects.  Log the exception  on DEBUG and consider  log a (separate) WARN message. If this is a symptom that eventually may escalate into an alarm,  log a  WARN message using the alarm format of the failure. </para>- The exception is caught by bootstrap code or a thread spawned by the module *itself* performing asynchronous internal work. Log this on DEBUG level.</listitem>
+      <listitem>
+        <emphasis role="bold">
+          <para>Log carefully and conservatively.</para>
+        </emphasis>
+        <para>Silence is golden. Remember that there are probably many other  libraries doing logging simultaneously into  same log file.   When a program has nothing surprising to say, it should say nothing. Choose  log levels carefully and do not  unnecessarily (or accidentally) spam logs and exceptions into log files, possibly causing    an log data avalanche headache.</para>
+        <para>Message duplication  is to be avoided and make sure that no side-effects are cause by logging, such as NullPointerExceptions. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Logger names</emphasis></para>
+        <para>Loggers should have same name as the class. </para>
+      </listitem>
+      <listitem><para><emphasis role="bold">INFO</emphasis></para>These messages should be reasonably understandable by administrators. Used for logging public persistent state changes and public life-cycle events. This information should be logged by the module that reasonably believes it is the most authoritative to report the event (to avoid duplicate log statements).</listitem>
+      <listitem>
+        <para><emphasis role="bold">DEBUG</emphasis></para>
+        <para>Elaborate information regarding internal life-cycle events for different elements of the design.  Enabling this level should not make logs grow proportionally with number of requests (do not spontaneous  log what the application is doing on behalf of a specific user using DEBUG). Events are, for example, internal startup and shutdown messages, lazy cache-refresh events, internal periodic timeouts etc. </para>
+        <para>This level is also used to log exceptions  from temporary  and permanent failures. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">TRACE</emphasis></para>
+        <para>Mostly used for tracing request calls  that comes in and out from API, SPI and external systems (such as file storage, network etc), allowing for deep probing of data flows. Can also be used for tracing complex calculations/algorithms in event of potential malfunctioning.</para>
+        <para>This information can make  diagnosing faults in log files from untrusted systems easier. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">WARN</emphasis></para>
+        <para>Something unexpected happened that may have consequences for the user. The error is partial, temporary or  recoverable, but may turn into a ERROR alarm situation. Application is likely to  continue service requests for the time being. </para>
+      </listitem>
+      <listitem>
+        <para id="error_log"><emphasis role="bold">ERROR</emphasis></para>
+        <para>Indicate escalation of partial, temporary or  recoverable failures. </para>
+        <para>Log the error code and contextual information in  format specified by type of error. Also log the exception separately on DEBUG level.</para>
+        <para>See <link linkend="alarms">alarms</link> for more information.</para>
+      </listitem>
+      <listitem>
+        <para id="fatal_log"><emphasis role="bold">FATAL</emphasis></para>
+        <para>The application have seemingly permanent and critical  problems internally.</para>
+        <para>Log the error code and contextual information in  format specified by type of error. Also log the exception separately on DEBUG level.</para>
+        <para>See <link linkend="alarms">alarms</link> for more information.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>Configuration</title>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">Allow external clients to adapt to their current runtime environment</emphasis></para>
+        <para>Clients should be able to  adapt configuration sensibly to all their different test, stage or production runtime environments(s). </para>
+        <para>Configuration values are enforced in the following order.</para>
+        <orderedlist>
+          <listitem>System property<para>System properties take precedence using <ulink url="http://download.oracle.com/javase/6/docs/api/java/lang/System.html#setProperty(java.lang.String,%20java.lang.String)">System.getProperty</ulink> in the the following format:</para><para><programlisting>org.deephacks.tools4j.&lt;projectname&gt;.&lt;packagename&gt;[.*].&lt;propertyname&gt;</programlisting></para><para>For example:</para><para><programlisting>org.deephacks.confit.api.cache-timeout
+org.deephacks.confit.spi.validation.provider</programlisting></para></listitem>
+          <listitem>
+            <para>Configuration file</para>
+            <para>Configuration files must be available on class path using following filename format:</para>
+            <para><programlisting>org.deephacks.tools4j.&lt;projectname&gt;.&lt;packagename&gt;[.*].properties</programlisting></para>
+            <para>For example:</para>
+            <para><programlisting>org.deephacks.confit.api.properties
+org.deephacks.confit.spi.validation.properties</programlisting></para>
+            <para>File contents is parsed using the <ulink url="http://download.oracle.com/javase/6/docs/api/java/util/Properties.html">java.util.Properties</ulink> format.</para>
+          </listitem>
+          <listitem>
+            <para>Service Loader</para>
+            <para>TODO: a client should be able to store this configuration anywhere, a database or similar. Need a service loader for this purpose.</para>
+          </listitem>
+        </orderedlist>
+        <para>Clients should be allowed to configure what SPI service providers are used at runtime using <ulink url="http://download.oracle.com/javase/6/docs/api/java/util/ServiceLoader.html">java.util.ServiceLoader</ulink>. </para>
+      </listitem>
+      <listitem>
+        <emphasis role="bold">Always use default property values where possible</emphasis>
+        <para>Network resource addresses (databases for example) cannot usually   be assigned a sensible  default value because the  runtime environment is unknown.</para>
+      </listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>Third party library dependencies</title>
+    <para>There is a chance that external clients loads same library dependency with a different version (for a different purpose) in same class loader as the application. The external client will likely prefer their version of this dependency which may cause incompatibilities internally for Tools4j Config. </para>
+    <para>Third party library dependencies should therefore be clearly documented and  kept at minimum to avoid these problems. </para>
+    <para>This rule does not apply for tests. </para>
+    <para>Current third party library dependencies.</para>
+    <itemizedlist>
+      <listitem>slf4j</listitem>
+    </itemizedlist>
+  </section>
+  <section>
+    <title>Testing</title>
+    <para>Having too many and poorly written tests can  hurt code quality. Tests  can easily snowball into a chaotic maintenance nightmare that prevent refactoring,  making future improvements and feature implementations difficult and unproductive.  Tests should not fail like domino,   making small changes that does not affect externally observed behaviour. </para>
+    <itemizedlist>
+      <listitem>
+        <para><emphasis role="bold">JUnit is used for unit testing</emphasis></para>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Mockito is used for mocking</emphasis></para>
+        <para>TODO</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Test public behaviour, not implementation details </emphasis></para>
+        <para>Think black-box. Classes should first and foremost be tested  through publicly available  methods. Only conservatively test private methods, since it will increase the maintenance burden and make refactoring hard. </para>
+        <para>Prefer adding  tests to the API and SPI if possible. These tests also exercise  the code in  ways similar  to real external clients.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use mocks judiciously</emphasis></para>
+        <para>Tests should assert behaviour of a well-defined unit, that is, post-conditions (and side-effects)  for a given set of pre-conditions. Rarely  should it assert the &quot;dancing&quot; path between collaborators within the implementation of that unit. </para>
+        <para>Mocks  insist upon exact verification  of interaction with it, which couple tests tightly to  implementation details of the test subject. Tests written this way become &quot;brittle”, they fail when unrelated
+changes are made to the code.</para>
+        <para>Testing internal cache behavior  is good example where  mocking is appropriate, since the test cannot assert whether the cache hit or missed simply by looking at the return value.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use org.openide.util.test.MockLookup</emphasis> </para>
+        <para>MockLookup makes it easy to override the default implementations of a given service  using org.openide.util.Lookup, without any change to the objects
+that use the service. </para>
+        <para>This help writing classes that does not compromise  encapsulation  and remove the need for adding methods for setting mock services that are only used by tests. </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Do not duplicate fixture setup and code between tests</emphasis> </para>
+        <para>It may seem obvious, but this easily happens  when writing many similar tests that only  vary slightly  in terms of fixture and expectations. </para>
+        <para>It can  be appropriate to create  <ulink url="http://c2.com/cgi/wiki?TestDataBuilder">Test Data Builders</ulink>  that produce and manage fixtures to be used by test. Builders  have default values for objects they create, which enable tests to specify that little variation  needed and thus eliminate duplication. </para>
+        <para>Classes that serve as an interface for a  separate and noticeable   module in the architecture should consider providing a <ulink url="http://xunitpatterns.com/Fake%20Object.html">Fake Object</ulink> of itself that can be used by its users during testing in order to isolate certain domain boundaries.  A Fake Object is a very simple and lightweight version of the real class/module implementation. This  can, in comparison to  mocks, avoid duplication and help reduce the amount of fixture/behaviour code that needs to be written between tests. </para>
+        <para>Modules can provide Test Data Builder and Fake Object of their public classes     through a test library, rather than putting a mock-burden on  external clients.  Forcing external clients to mock interfaces may result in too  many (possibly incorrect and deviating) assumptions on implementation details.</para>
+        <para>Balance  this technique with good intuition and only apply it where appropriate. Keep in mind that creating too many Fake Objects can turn into a maintenance burden in itself.</para>
+        <para>JUnit Rules can be an excellent way for setting up  cross-cutting  test fixtures. Rules intercept test execution with pre and post hooks that can be used to inspect the method that is to be executed. This means that  it is possible to, for example, decorate test methods with annotations to  setup  behaviour fixtures. This  is an example on how this technique could be utilized.</para>
+        <para><programlisting>public class SomeTest {
+
+  @Rule
+  public FixtureRules rule = new FixtureRules();
+
+  @Test
+  <emphasis role="bold">@CustomerService(MALFUNCTIONING_FAKE)</emphasis>
+  <emphasis role="bold">@Concurrency(10)</emphasis>
+  public void myFirstTestMethod() throws {
+    ..
+  }
+
+  @Test
+  <emphasis role="bold">@Transactional(ROLLBACK)</emphasis>
+  public void mySecondTestMethod() throws {
+    ..
+  }
+  ...
+}
+</programlisting></para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Tests should be focused, robust and self-contained.</emphasis></para>
+        <para>Clearly document purpose of each test and do not assert post-conditions or side-effects that are not related to its purpose.</para>
+        <para>Tests should be independent and never rely on other tests for success. Tests do not depend on the order in which they are executed. Imaging what this would be like, doing casual development in Eclipse and trying to understand what behaviour  tests are intended verify.</para>
+        <para>Keep this in mind, especially when writing tests that involve persistent data. Write tests that does not rely on clean up code to execute after the test is finished. Test can be interrupted in the middle of execution which accidentally can leave data lying around. Ensuring that pre-conditions are satisfied *before* execution  tests tends to be more robust. </para>
+        <para>Or even better, not making too many assumptions   of current state of test subject. For example, adding  two persistent entities during a test, assert that those *specific* entities exist (using lenient  ordering) instead of asserting size == 2. Also making sure that primary and composite keys are generated uniquely by the test to avoid EntityExistsException.   </para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Test failure scenarios</emphasis></para>
+        <para>It is common to see test suites that exercise  applications under normal conditions, ignoring tests that analyse  how the application behave under influence uncertainty and unforeseen failures.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Use Unitils&apos;s assertion utilities</emphasis></para>
+        <para>Unitils is a library that have <ulink url="http://unitils.org/tutorial.html#Assertion_utilities">assertion utilities</ulink> that   greatly can reduce the amount of assertion code that needs to be written.</para>
+      </listitem>
+      <listitem>
+        <para><emphasis role="bold">Automation</emphasis></para>
+        <para>All tests should be automated and build and execute successfully on any machine that conform to development environment requirements.</para>
+      </listitem>
+    </itemizedlist>
+    <section>
+      <title>Unit testing</title>
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">How to write tests</emphasis></para>
+          <para>TODO</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Integration testing</title>
+      <itemizedlist>
+        <listitem>
+          <para><emphasis role="bold">How to write tests</emphasis></para>
+          <para>TODO</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+  </section>
+</section>

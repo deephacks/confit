@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi:ts=2:sw=2:expandtab: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-root</artifactId>
+    <version>0.15.0</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>confit-docbkx</artifactId>
+  <name>Confit Documentation</name>
+  <description>Tools4j Config Documentation</description>
+
+    <build>
+      <plugins>
+        <plugin>
+          <groupId>com.agilejava.docbkx</groupId>
+          <artifactId>docbkx-maven-plugin</artifactId>
+          <version>2.0.10</version>
+          <executions>
+            <execution>
+                <goals>
+                    <goal>generate-html</goal>
+                    <!-- uncomment when needed -->
+                    <!-- <goal>generate-pdf</goal> -->
+                </goals>
+                <phase>site</phase>
+            </execution>
+          </executions>
+          <dependencies>
+            <dependency>
+              <groupId>org.docbook</groupId>
+              <artifactId>docbook-xml</artifactId>
+              <version>4.4</version>
+              <scope>runtime</scope>
+            </dependency>
+          </dependencies>
+          <configuration>
+            <includes>index.xml</includes>
+            <chunkedOutput>true</chunkedOutput>
+            <xincludeSupported>true</xincludeSupported>
+            <foCustomization>${basedir}/src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+            <htmlCustomization>${basedir}/src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+            <htmlStylesheet>css/deephacks.css</htmlStylesheet>
+            <entities>
+              <entity>
+                <name>version</name>
+                <value>${project.version}</value>
+              </entity>
+            </entities>
+            <postProcess>
+              <copy todir="target/site">
+                <fileset dir="src/website">
+                  <include name="index.html" />
+                </fileset>
+              </copy>
+              <copy todir="target/site">
+                <fileset dir="target/docbkx">
+                  <include name="**/*.html" />
+                  <include name="**/*.pdf" />
+                </fileset>
+              </copy>
+              <copy todir="target/site/html">
+                <fileset dir="src/docbkx/resources">
+                  <include name="**/*.css" />
+                  <include name="**/*.png" />
+                  <include name="**/*.gif" />
+                  <include name="**/*.jpg" />
+                </fileset>
+              </copy>
+              <move file="target/site/pdf/index.pdf" tofile="target/site/pdf/confit-documentation.pdf" failonerror="false" />
+            </postProcess>
+          </configuration>
+        </plugin>
+      </plugins>
+    </build>
+</project>

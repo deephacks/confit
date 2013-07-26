@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE book PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<book xmlns:xi="http://www.w3.org/2001/XInclude">
+  <bookinfo>
+    <title>Tools4j Config</title>
+    <subtitle>Configuration Management for the Enterprise</subtitle>
+    <releaseinfo>
+<?eval Version ${project.version}?>    </releaseinfo>
+    <authorgroup>
+      <author>
+        <firstname>Kristoffer</firstname>
+        <surname>Sjögren</surname>
+      </author>
+    </authorgroup>
+  </bookinfo>
+  <toc/>
+  <xi:include href="intro.xml"/>
+  <xi:include href="user_documentation.xml"/>
+  <xi:include href="developer_guidelines.xml"/>
+</book>

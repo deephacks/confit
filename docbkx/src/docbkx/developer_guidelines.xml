@@ -1,0 +1,157 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!-- This document was created with Syntext Serna Free. --><!DOCTYPE bookinfo PUBLIC "-//OASIS//DTD DocBook XML V4.3//EN" "http://www.oasis-open.org/docbook/xml/4.3/docbookx.dtd" []>
+<chapter xmlns:xi="http://www.w3.org/2001/XInclude" id="developer_guidelines">
+  <title>Developer Guidelines</title>
+  <section>
+    <title>Overview</title>
+    <para>Tools4j Config is a true open-source project under the Apache License, Version 2.0. Developers interested in building better Configuration Management for Java are more than welcome to participate.</para>
+    <para>There are many ways to join the project. The most efficient and appreciated way to contribute is through code, bug fixes and documentation, but there are other ways. Get familiar with full contributors, give useful feedback, feature suggestions, donate graphics/look-n-feel  and more.  </para>
+    <para><para>The most important rule is &quot;<emphasis role="bold">Do No Harm</emphasis>&quot; and can be summarized as follows:</para><itemizedlist>
+        <listitem>
+          <para>Familiarize yourself with the existing code base and design.</para>
+        </listitem>
+        <listitem>
+          <para>Show good judgement in general and your own ability of what tasks to take on.</para>
+        </listitem>
+        <listitem>
+          <para>Work small and clean.</para>
+        </listitem>
+        <listitem>
+          <para>Be careful not to introduce bugs when coding.</para>
+        </listitem>
+        <listitem>
+          <para>Follow design conventions and principles.</para>
+        </listitem>
+        <listitem>
+          <para>Document your work.</para>
+        </listitem>
+      </itemizedlist></para>
+    <para><emphasis role="italic">This is the current reflection of the team, but nothing in this document is written in stone. Conventions and principles should not be source of frustration and unnecessary constraints. If you have suggestions that can improve the project in *any* way, do not be afraid to express your opinion. </emphasis></para>
+    <section>
+      <title>Design</title>
+      <para>TODO</para>
+    </section>
+    <section>
+      <title>Directory layout</title>
+      <para/>
+      <itemizedlist>
+        <listitem>
+          <para>api</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>spi</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>core</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>docbkx</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>examples</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>build</para>
+          <para>TODO</para>
+        </listitem>
+        <listitem>
+          <para>env</para>
+          <para>TODO</para>
+        </listitem>
+      </itemizedlist>
+    </section>
+    <section>
+      <title>Development environment setup</title>
+      <para>TODO</para>
+      <section>
+        <title>Tools</title>
+        <para>These are the suggested tools needed for doing developing. Some are required and others optional. Dependencies to newer Java and platform versions must be avoided. Development environment is preferably setup  in Linux, but Windows will probably work as well. If any conflicts would between these operating systems, Linux takes preference.</para>
+        <itemizedlist>
+          <listitem>
+            <para>Java 1.6.x (required)</para>
+          </listitem>
+          <listitem>
+            <para>Maven  3.x (required)</para>
+          </listitem>
+          <listitem>
+            <para>Eclipse 3.7 (&gt;= <ulink url="http://www.eclipse.org/downloads/download.php?file=/eclipse/downloads/drops/M20110729-1400/eclipse-SDK-M20110729-1400-win32.zip">M20110729-1400</ulink>) (optional)</para>
+            <para><emphasis role="italic">Make sure that Eclipse uses the same JRE version as the maven build. Development on other IDE&apos;s are also possible, but no guidance for doing this is available at the moment.</emphasis></para>
+          </listitem>
+          <listitem>
+            <para>Git 1.7.x (required)</para>
+          </listitem>
+          <listitem>
+            <para>EGit 1.x (optional) </para>
+            <para><emphasis role="italic">Eclipse Git integration. </emphasis> </para>
+          </listitem>
+          <listitem>
+            <para>FindBugs</para>
+            <para>Activate <ulink url="http://www.vogella.de/articles/Findbugs/article.html">FindBugs</ulink> in Eclipse when working and check bugs regularly. </para>
+          </listitem>
+          <listitem>
+            <para>Mylyn 3.6.0 (optional)</para>
+            <para>See Mylyn and GitHub <ulink url="http://wiki.eclipse.org/EGit/GitHub/UserGuide">userguide</ulink> for more information.</para>
+          </listitem>
+          <listitem>
+            <para>Syntext Serna Free 4.3.x (optional)</para>
+            <para><emphasis role="italic">Make DocBook editing a lot easier.</emphasis></para>
+          </listitem>
+          <listitem>
+            <para>yEd 3.8 (optional)</para>
+            <para><emphasis role="italic">Used for making architectural illustrations.</emphasis></para>
+          </listitem>
+        </itemizedlist>
+      </section>
+      <section>
+        <title>Obtaining Sources</title>
+        <para>Source code  is hosted in GitHub and can be obtained from the command line</para>
+        <para><programlisting>[~] $ git clone git://github.com/deephacks/tools4j.git tools4j</programlisting></para>
+      </section>
+      <section id="setting_up_eclipse">
+        <title>Setting up an Eclipse workspace</title>
+        <para><emphasis role="bold">Generate eclipse projects using Maven</emphasis><programlisting>[~/tools4j] $ mvn clean install eclipse:eclipse</programlisting></para>
+        <para><emphasis role="bold">Import eclipse projects</emphasis></para>
+        <para><emphasis role="bold">File</emphasis> &gt; <emphasis role="bold">Import</emphasis> &gt; <emphasis role="bold">Git</emphasis> &gt; <emphasis role="bold">Projects from Git</emphasis> &gt; <emphasis role="bold">Add</emphasis> ... Browse for git repository &gt; <emphasis role="bold">Import existing projects</emphasis></para>
+        <para><emphasis role="bold">Configuring Code Templates, Code Formatter and Code Cleanup</emphasis>
+        </para>
+        <para>It is mandatory for all Java code to have the same coding style. Eclipse Code Templates are used for this purpose.</para>
+        <para>In Eclipse, select <emphasis role="bold">Windows &gt; Preferences &gt; Code Style &gt; Java</emphasis>. 
+          <itemizedlist>
+            <listitem>
+              <para>Select <emphasis role="bold">Code Templates &gt; Import...</emphasis> Browse for this file: env/eclipse_code_template.xml</para>
+            </listitem>
+            <listitem>
+              <para>Select <emphasis role="bold">Formatter &gt; Import...</emphasis> Browse for this file: env/eclipse_code_style_formatter.xml</para>
+            </listitem>
+            <listitem>
+              <para>Select <emphasis role="bold">Clean Up &gt; Import...</emphasis> Browse for this file: env/eclipse_code_style_cleanup.xml</para>
+            </listitem>
+          </itemizedlist>
+        </para>
+      </section>
+      <section>
+        <title>Building and Testing</title>
+        <para>TODO<programlisting>[~/tools4j] $ mvn clean install</programlisting></para>
+      </section>
+    </section>
+    <section>
+      <title>Documentation</title>
+      <para>Use consistent terminology throughout documentation. Do not use several terms for describing the same thing.  Try to be as clear as possible by avoiding terms and phrases that carry ambiguity.</para>
+      <para>DocBook is used as primary source for high level documentation and can be generated in HTML and PDF format by executing the following commands</para>
+      <programlisting>[~/tools4j/config/config-docbkx] $ mvn docbkx:generate-pdf docbkx:generate-html</programlisting>
+    </section>
+    <section>
+      <title>Patch submission guidelines</title>
+      <para>TODO</para>
+    </section>
+  </section>
+  <xi:include href="commits_bugs_issues.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <xi:include href="coding_conventions.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <xi:include href="packaging_releases.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+  <xi:include href="governance.xml" xmlns:xi="http://www.w3.org/2001/XInclude"/>
+</chapter>
