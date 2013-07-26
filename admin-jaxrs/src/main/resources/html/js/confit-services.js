@@ -64,18 +64,18 @@ angular.module('confit-module', ['ngResource']).
                 });
             },
             getSchemas: function() {
-                var url = baseUrl + '/getschemas';
+                var url = baseUrl + '/getSchemas';
                 return $http({
                     method: 'GET',
                     url: url
                 });
             },
             createBean: function(bean) {
-                var url = baseUrl + '/createbean';
+                var url = baseUrl + '/createBean';
                 return $http.post(url, bean);
             },
             deleteBean: function(schemaName, id) {
-                var url = baseUrl + '/deletebean/'+schemaName +"/"+id;
+                var url = baseUrl + '/deleteBean/'+schemaName +"/"+id;
                 return $http({
                     url: url,
                     method: 'DELETE',
@@ -87,15 +87,15 @@ angular.module('confit-module', ['ngResource']).
                 });
             },
             getBean: function(schemaName, id) {
-                var url = baseUrl + '/getbean/' + schemaName + "/" + id;
+                var url = baseUrl + '/getBean/' + schemaName + "/" + id;
                 return $http.get(url);
             },
             listBeans: function(schemaName){
-                var url = baseUrl + '/listbeans/' + schemaName;
+                var url = baseUrl + '/listBeans/' + schemaName;
                 return $http.get(url);
             },
             paginateBeans: function(schemaName, start, max){
-                var url = baseUrl + '/paginatebeans/' + schemaName;
+                var url = baseUrl + '/query/' + schemaName;
                 var deferred = $q.defer();
                 $http({
                     url: url,
@@ -112,7 +112,7 @@ angular.module('confit-module', ['ngResource']).
                 return deferred.promise;
             },
             setBean: function(bean) {
-                var url = baseUrl + '/setbean';
+                var url = baseUrl + '/setBean';
                 return $http.post(url, bean);
             }
         }

@@ -68,7 +68,7 @@ ConfigAdmin.controller(
     "bean-detail-controller", function ($scope, $location, Property, $routeParams, Config) {
         $scope.id = $routeParams.id;
         $scope.schemaName = $routeParams.schemaName;
-        var schema = $scope.schemas[$scope.schemaName];
+        var schema = $scope.schemas.schemas[$scope.schemaName];
         Config.getBean($scope.schemaName, $scope.id ).success(function(bean){
             $scope.bean = bean;
             $scope.dirty = {};
@@ -133,13 +133,15 @@ ConfigAdmin.controller(
 ConfigAdmin.controller(
     "bean-create-controller", function ($scope, $location, $routeParams, Config, Property) {
         $scope.schemaName = $routeParams.schemaName;
-        var schema = $scope.schemas[$scope.schemaName];
+        // console.log(angular.toJson($scope.schemas.schemas[$scope.schemaName]));
+        var schema = $scope.schemas.schemas[$scope.schemaName];
+
         $scope.bean = {
             properties: {},
             schemaName: $scope.schemaName
         };
         $scope.dirty = {};
-        for(var i = 0; i < schema.propertyNames.length; i++){
+        for(var i = 0; i < schema.propertyNames.length; i++) {
             var propertyName = schema.propertyNames[i];
             $scope.dirty[propertyName] = false;
             $scope.bean.properties[propertyName] = [];

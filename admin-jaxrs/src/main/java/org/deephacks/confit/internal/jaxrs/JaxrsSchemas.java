@@ -10,10 +10,10 @@ import java.util.List;
 import java.util.Map;
 
 public class JaxrsSchemas {
-    private Collection<JaxrsSchema> schemas = new ArrayList<>();
+    private Map<String, JaxrsSchema> schemas = new HashMap<>();
 
     public void add(JaxrsSchema schema) {
-        this.schemas.add(schema);
+        this.schemas.put(schema.getSchemaName(), schema);
     }
 
     public void addAll(Collection<Schema> schemas) {
@@ -22,13 +22,13 @@ public class JaxrsSchemas {
         }
     }
 
-    public Collection<JaxrsSchema> getSchemas() {
+    public Map<String, JaxrsSchema> getSchemas() {
         return schemas;
     }
 
     public Map<String, Schema> toSchema() {
         Map<String, Schema> result = new HashMap<>();
-        for (JaxrsSchema schema : schemas) {
+        for (JaxrsSchema schema : schemas.values()) {
             result.put(schema.getSchemaName(), schema.toSchema());
         }
         return result;

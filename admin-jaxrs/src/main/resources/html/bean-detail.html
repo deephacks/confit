@@ -17,13 +17,13 @@
             <th>Action</th>
         </tr>
         </thead>
-        <div ng-switch on="schemas[schemaName].singleton">
+        <div ng-switch on="schemas.schemas[schemaName].singleton">
             <div ng-switch-when="false">
                 <tr>
                     <td>
                         <b><u>
-                            <div title="{{schemas[schemaName].desc}}" ui-jq="tooltip">
-                                {{schemas[schemaName].idName}}
+                            <div title="{{schemas.schemas[schemaName].desc}}" ui-jq="tooltip">
+                                {{schemas.schemas[schemaName].idName}}
                             </div>
                         </u></b>
                     </td>
@@ -43,23 +43,23 @@
         </div>
 
         <tr ng-include=" 'bean-prop.html' "
-            ng-repeat="property in schemas[schemaName].property">
+            ng-repeat="property in schemas.schemas[schemaName].property">
         </tr>
 
         <tr ng-include=" 'bean-proplist.html' "
-            ng-repeat="property in schemas[schemaName].propertyList">
+            ng-repeat="property in schemas.schemas[schemaName].propertyList">
         </tr>
 
         <tr ng-include=" 'bean-ref.html' "
-            ng-repeat="property in schemas[schemaName].propertyRef">
+            ng-repeat="property in schemas.schemas[schemaName].propertyRef">
         </tr>
 
         <tr ng-include=" 'bean-reflist.html' "
-            ng-repeat="property in schemas[schemaName].propertyRefList">
+            ng-repeat="property in schemas.schemas[schemaName].propertyRefList">
         </tr>
 
         <tr ng-include=" 'bean-refmap.html' "
-            ng-repeat="property in schemas[schemaName].propertyRefMap">
+            ng-repeat="property in schemas.schemas[schemaName].propertyRefMap">
         </tr>
 
     </table>

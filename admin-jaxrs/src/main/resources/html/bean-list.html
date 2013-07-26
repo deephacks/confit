@@ -1,6 +1,6 @@
 <form name="form" ng-controller="bean-list-controller" novalidate qn:validate="errors">
     <h3>{{schemaName}}</h3>
-    <p>{{schemas[schemaName].desc}}</p>
+    <p>{{schemas.schemas[schemaName].desc}}</p>
 
     <div ng:show="form.$myServerErrors.bean.httpStatus >= 400" class="alert alert-error">
         <p><i class="icon-warning-sign icon-large"></i> {{form.$myServerErrors.bean.msg}}</p>
@@ -21,7 +21,7 @@
         </ul>
     </div>
 
-    <div ng-switch on="schemas[schemaName].singleton">
+    <div ng-switch on="schemas.schemas[schemaName].singleton">
         <div ng-switch-when="true">
             <table class="table table-striped table-hover">
                 <thead>

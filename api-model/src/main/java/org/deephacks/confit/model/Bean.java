@@ -57,7 +57,12 @@ public final class Bean implements Serializable {
     private Bean(BeanId id, boolean isDefault) {
         Preconditions.checkNotNull(id);
         // make a defensive copy
-        this.id = BeanId.create(id.instanceId, id.schemaName);
+        if (id.isSingleton()) {
+            this.id = BeanId.createSingleton(id.getSchemaName());
+        } else {
+            this.id = BeanId.create(id.instanceId, id.schemaName);
+        }
+
         this.isDefault = isDefault;
     }
 
