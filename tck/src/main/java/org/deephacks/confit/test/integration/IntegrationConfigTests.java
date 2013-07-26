@@ -91,7 +91,7 @@ public class IntegrationConfigTests {
     public void test_create_set_merge_non_existing_property() {
         createDefault();
         observer.clear();
-        Bean bean = Bean.create(c1.getId());
+        Bean bean = Bean.create(c1.getBeanId());
         bean.addProperty("non_existing", "bogus");
         try {
             admin.create(bean);
@@ -116,14 +116,14 @@ public class IntegrationConfigTests {
         }
         try {
             bean = Bean.create(BeanId.create("c5", CHILD_SCHEMA_NAME));
-            bean.setReference("non_existing", c1.getId());
+            bean.setReference("non_existing", c1.getBeanId());
             admin.create(bean);
             fail("Not possible to set property names that does not exist in schema");
         } catch (AbortRuntimeException e) {
             assertThat(e.getEvent().getCode(), is(CFG111));
             assertThat(observer.getChanges().size(), is(0));
         }
-        bean = Bean.create(c1.getId());
+        bean = Bean.create(c1.getBeanId());
         bean.addProperty("non_existing", "bogus");
         try {
             admin.set(bean);
@@ -152,7 +152,7 @@ public class IntegrationConfigTests {
     public void test_create_single_then_get_list() {
         createThenGet(c1);
         createThenGet(c2);
-        listAndAssert(c1.getId().getSchemaName(), c1, c2);
+        listAndAssert(c1.getBeanId().getSchemaName(), c1, c2);
         createThenGet(p1);
         createThenGet(p2);
         listAndAssert(p1.getBeanId().getSchemaName(), p1, p2);
@@ -174,7 +174,7 @@ public class IntegrationConfigTests {
         createDefault();
         getAndAssert(c1);
         getAndAssert(c2);
-        listAndAssert(c1.getId().getSchemaName(), c1, c2);
+        listAndAssert(c1.getBeanId().getSchemaName(), c1, c2);
         getAndAssert(p1);
         getAndAssert(p2);
         listAndAssert(p1.getBeanId().getSchemaName(), p1, p2);

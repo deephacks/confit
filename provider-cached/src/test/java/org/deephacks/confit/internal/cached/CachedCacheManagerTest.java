@@ -76,7 +76,7 @@ public class CachedCacheManagerTest {
         // cache return correct configurable proxies
         assertEquals(gf.getBeanId(), grandfather.getBeanId());
         assertEquals(p.getBeanId(), parent.getBeanId());
-        assertEquals(c.getId(), child.getId());
+        assertEquals(c.getBeanId(), child.getBeanId());
 
 
     }

@@ -658,8 +658,12 @@ public class ConfigTestData {
             this.id = id;
         }
 
-        public BeanId getId() {
+        public BeanId getBeanId() {
             return BeanId.create(id, CHILD_SCHEMA_NAME);
+        }
+
+        public String getId() {
+            return id;
         }
 
         public Child() {

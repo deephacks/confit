@@ -235,7 +235,7 @@ public class ConfigCoreContextTest extends ConfigDefaultSetup {
         assertNotNull(children);
         assertThat(children.size(), is(1));
         Child child = children.get(0);
-        assertThat(child.getId().getInstanceId(), is("c10"));
+        assertThat(child.getBeanId().getInstanceId(), is("c10"));
         assertThat(child.getProp11(), is(1.1f));
     }
 
@@ -317,7 +317,7 @@ public class ConfigCoreContextTest extends ConfigDefaultSetup {
         List<Parent> parents = g.getProp7();
         assertThat(parents.size(), is(2));
         for (Parent p : parents) {
-            assertThat(p.getProp7().get(0).getId().getInstanceId(), is("c10"));
+            assertThat(p.getProp7().get(0).getBeanId().getInstanceId(), is("c10"));
             assertThat(p.getProp7().get(0).getProp11(), is(1.1f));
         }
     }

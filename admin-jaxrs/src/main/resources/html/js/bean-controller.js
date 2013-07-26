@@ -3,8 +3,10 @@
 
 ConfigAdmin.controller(
     "bean-list-controller", function ($scope, $location, $routeParams, Config, Paginate) {
+        // unbind scroll to prevent fetching beans since it may have been
+        // bound earlier by directive if user visited list-scroll page
+        angular.element(window).unbind("scroll");
         $scope.schemaName = $routeParams.schemaName;
-
         $scope.delete = function(schemaName, id){
             Config.deleteBean(schemaName, id).
                 success(function(){
@@ -108,6 +110,9 @@ ConfigAdmin.controller(
 
 ConfigAdmin.controller(
     "bean-detail-controller", function ($scope, $location, Property, $routeParams, Config) {
+        // unbind scroll to prevent fetching beans since it may have been
+        // bound earlier by directive if user visited list-scroll page
+        angular.element(window).unbind("scroll");
         $scope.id = $routeParams.id;
         $scope.schemaName = $routeParams.schemaName;
         var schema = $scope.schemas.schemas[$scope.schemaName];
@@ -174,6 +179,9 @@ ConfigAdmin.controller(
 
 ConfigAdmin.controller(
     "bean-create-controller", function ($scope, $location, $routeParams, Config, Property) {
+        // unbind scroll to prevent fetching beans since it may have been
+        // bound earlier by directive if user visited list-scroll page
+        angular.element(window).unbind("scroll");
         $scope.schemaName = $routeParams.schemaName;
         // console.log(angular.toJson($scope.schemas.schemas[$scope.schemaName]));
         var schema = $scope.schemas.schemas[$scope.schemaName];
