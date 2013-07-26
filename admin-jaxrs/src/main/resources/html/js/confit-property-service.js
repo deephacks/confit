@@ -5,7 +5,7 @@
 /*jslint browser: true*/
 /*global $, jQuery*/
 
-angular.module('tools4j-config-property-module', ['ngResource']).
+angular.module('confit-property-module', ['ngResource']).
     factory('Property', function($resource, $http, $q){
         return {
             editList: function(name, bean, dirty) {

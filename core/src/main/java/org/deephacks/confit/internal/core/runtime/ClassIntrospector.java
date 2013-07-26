@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.deephacks.confit.internal.core.Reflections.*;
+import static org.deephacks.confit.model.Events.CFG088_INVALID_DATA;
 
 public class ClassIntrospector {
     private Class<?> clazz;
@@ -22,8 +23,8 @@ public class ClassIntrospector {
     public ClassIntrospector(Class<?> clazz) {
         this.clazz = clazz;
         if(Modifier.isFinal(clazz.getModifiers())){
-            throw new UnsupportedOperationException(
-                    "Class ["+clazz+"] is final. Configurable classes are not allowed to be final since it " +
+            throw CFG088_INVALID_DATA(
+                    "Class [" + clazz + "] is final. Configurable classes are not allowed to be final since it " +
                             "breaks the API of proxies that extends configurable classes.");
         }
         fields = findFields(clazz);

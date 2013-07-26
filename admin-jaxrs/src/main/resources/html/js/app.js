@@ -4,8 +4,8 @@
 var ConfigAdmin = angular.module( "ConfigAdmin",
     [
         'ui',
-        'tools4j-config-module',
-        'tools4j-config-property-module',
+        'confit-module',
+        'confit-property-module',
         'paginate-module',
         'ngResource'
     ]);

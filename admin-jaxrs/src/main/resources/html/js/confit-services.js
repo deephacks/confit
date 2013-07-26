@@ -1,9 +1,9 @@
 /*jslint browser: true*/
 /*global $, jQuery*/
 
-angular.module('tools4j-config-module', ['ngResource']).
+angular.module('confit-module', ['ngResource']).
     factory('Config', function($resource, $http, $q){
-        var baseUrl = '/tools4j-config-admin';
+        var baseUrl = '/confit-admin';
         return {
             createConfig: function(className, bean) {
                 var url = baseUrl + '/create';

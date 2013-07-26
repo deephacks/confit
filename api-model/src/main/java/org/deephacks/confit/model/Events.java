@@ -54,6 +54,11 @@ public final class Events {
         return new AbortRuntimeException(event);
     }
 
+    public static AbortRuntimeException CFG088_INVALID_DATA(String msg) {
+        Event event = new Event(MODULE_NAME, CFG088, msg);
+        return new AbortRuntimeException(event);
+    }
+
     /**
      * {@value} - There was a modification conflict.
      */

@@ -63,9 +63,14 @@ public abstract class LookupProvider {
             }
 
             if (found != null && found.size() != 0) {
-                T object = (T) lookupPrefered(clazz, found);
-                if (object != null) {
-                    return Lists.newArrayList(object);
+                Optional<String> preferred = properties.get(clazz.getName());
+                if (!preferred.isPresent()) {
+                    return Lists.newArrayList(found);
+                } else {
+                    T object = (T) lookupPrefered(clazz, found);
+                    if (object != null) {
+                        return Lists.newArrayList(object);
+                    }
                 }
                 return new ArrayList<>();
             }

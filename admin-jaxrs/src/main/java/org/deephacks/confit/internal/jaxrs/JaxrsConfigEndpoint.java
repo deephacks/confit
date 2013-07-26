@@ -59,7 +59,7 @@ import static javax.ws.rs.core.MediaType.APPLICATION_JSON;
 public class JaxrsConfigEndpoint {
 
     /** address also used by angular.js web application */
-    public static final String PATH = "/tools4j-config-admin";
+    public static final String PATH = "/confit-admin";
 
     private AdminContext admin;
 

@@ -9,7 +9,6 @@ import org.deephacks.confit.internal.core.runtime.DefaultBeanManager;
 import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
 import org.deephacks.confit.internal.core.runtime.ObjectToBeanConverter;
 import org.deephacks.confit.jaxrs.AdminContextJaxrsProxy;
-import org.deephacks.confit.jaxrs.JettyServer;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -26,6 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
+import static org.deephacks.confit.model.Events.CFG088;
 import static org.deephacks.confit.model.Events.CFG090;
 import static org.deephacks.confit.model.Events.CFG101;
 import static org.deephacks.confit.test.ConfigTestData.*;
@@ -90,7 +90,6 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testGetSingleton() {
-        /*
         Optional<Singleton> optional = admin.get(Singleton.class);
         assertFalse(optional.isPresent());
         Singleton s = new Singleton();
@@ -99,21 +98,16 @@ public class JaxrsConfigEndpointTest {
         Optional<Bean> bean = admin.get(s.getBeanId());
         assertTrue(bean.isPresent());
         assertReflectionEquals(bs, bean.get(), LENIENT_ORDER);
-        */
     }
 
     @Test
     public void testGetObject() {
-        /*
         Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
         assertFalse(optional.isPresent());
         admin.createObject(g1);
         optional = admin.get(Grandfather.class, "g1");
-        if (!optional.isPresent()) {
-            fail("Instance should be present");
-        }
+        assertTrue(optional.isPresent());
         assertReflectionEquals(toBean(g1), toBean(optional.get()), LENIENT_ORDER);
-        */
     }
 
     @Test
@@ -134,7 +128,6 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testListObjects() {
-        /*
         Collection<Parent> objects = admin.list(Parent.class);
         assertThat(objects.size(), is(0));
         admin.createObjects(parents);
@@ -147,7 +140,6 @@ public class JaxrsConfigEndpointTest {
         } catch (AbortRuntimeException e) {
             assertThat(e.getEvent().getCode(), is(CFG101));
         }
-        */
     }
 
     @Test
@@ -214,23 +206,23 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testSetObject() {
-        /*
         try {
             admin.setObject("");
         } catch (AbortRuntimeException e) {
             // don't know if schema or instances were invalid from
             // a HTTP 404 response, hence CFG090 and not CFG101
-            assertThat(e.getEvent().getCode(), is(CFG090));
+            assertThat(e.getEvent().getCode(), is(CFG088));
         }
-
+        assertFalse(admin.get(Grandfather.class, "g1").isPresent());
         admin.createObject(g1);
+        g1 = new Grandfather("g1");
         g1.setProp1("testSetObject");
         admin.setObject(g1);
         Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
         assertTrue(optional.isPresent());
-        String value = optional.get().getProp1();
-        assertThat(value, is("testSetObject"));
-        */
+        assertThat(optional.get().getProp1(), is("testSetObject"));
+        assertNull(optional.get().getProp9());
+        assertNull(optional.get().getProp2());
     }
 
     @Test
@@ -276,9 +268,42 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testSetObjects() {
-        /*
-        admin.setObjects(Arrays.asList(new Child(), new Child()));
-        */
+        try {
+            admin.setObjects(Arrays.asList(new Grandfather("bogus")));
+        } catch (AbortRuntimeException e) {
+            // don't know if schema or instances were invalid from
+            // a HTTP 404 response, hence CFG090 and not CFG101/CDG304
+            assertThat(e.getEvent().getCode(), is(CFG090));
+        }
+
+        admin.createObjects(grandfathers);
+
+        // assert successful create
+        Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
+        assertTrue(optional.isPresent());
+
+        Grandfather g1 = new Grandfather("g1");
+        g1.setProp1("testSetObjects1");
+        Grandfather g2 = new Grandfather("g2");
+        g2.setProp1("testSetObjects2");
+        admin.setObjects(Arrays.asList(g1, g2));
+
+        // test g1
+        optional = admin.get(Grandfather.class, "g1");
+        assertTrue(optional.isPresent());
+        // assert that new value have been set
+        assertThat(optional.get().getProp1(), is("testSetObjects1"));
+        // assert that previously set value have been reset
+        assertNull(optional.get().getProp9());
+
+        // test g2
+        optional = admin.get(Grandfather.class, "g2");
+        assertTrue(optional.isPresent());
+        // assert that new value have been set
+        assertThat(optional.get().getProp1(), is("testSetObjects2"));
+        // assert that previously set value have been reset
+        assertNull(optional.get().getProp2());
+
     }
 
     @Test
@@ -311,14 +336,27 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void mergeObject()  {
-        /*
-        admin.mergeObject(new Child());
-        */
+        try {
+            admin.mergeObject("");
+        } catch (AbortRuntimeException e) {
+            // don't know if schema or instances were invalid from
+            // a HTTP 404 response, hence CFG090 and not CFG101
+            assertThat(e.getEvent().getCode(), is(CFG088));
+        }
+        assertFalse(admin.get(Grandfather.class, "g1").isPresent());
+        admin.createObject(g1);
+        g1 = new Grandfather("g1");
+        g1.setProp1("testSetObject");
+        admin.mergeObject(g1);
+        Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
+        assertTrue(optional.isPresent());
+        assertThat(optional.get().getProp1(), is("testSetObject"));
+        assertNotNull(optional.get().getProp9());
+        assertNotNull(optional.get().getProp2());
     }
 
     @Test
     public void testMergeBeans()  {
-
         try {
             admin.merge(Bean.create(BeanId.create("bogus", "bogus")));
         } catch (AbortRuntimeException e) {
@@ -362,9 +400,43 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testMergeObjects() {
-        /*
-        admin.mergeObjects(Arrays.asList(new Child(), new Child()));
-        */
+        try {
+            admin.mergeObjects(Arrays.asList(new Grandfather("bogus")));
+        } catch (AbortRuntimeException e) {
+            // don't know if schema or instances were invalid from
+            // a HTTP 404 response, hence CFG090 and not CFG101/CDG304
+            assertThat(e.getEvent().getCode(), is(CFG090));
+        }
+
+        admin.createObjects(grandfathers);
+
+        // assert successful create
+        Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
+        assertTrue(optional.isPresent());
+
+        Grandfather g1 = new Grandfather("g1");
+        g1.setProp1("testSetObjects1");
+        Grandfather g2 = new Grandfather("g2");
+        g2.setProp1("testSetObjects2");
+        admin.mergeObjects(Arrays.asList(g1, g2));
+
+        // test g1
+        optional = admin.get(Grandfather.class, "g1");
+        assertTrue(optional.isPresent());
+        // assert that new value have been set
+        assertThat(optional.get().getProp1(), is("testSetObjects1"));
+        // assert that previously set value have been reset
+        assertNotNull(optional.get().getProp9());
+
+        // test g2
+        optional = admin.get(Grandfather.class, "g2");
+        assertTrue(optional.isPresent());
+        // assert that new value have been set
+        assertThat(optional.get().getProp1(), is("testSetObjects2"));
+        // assert that previously set value have been reset
+        assertNotNull(optional.get().getProp2());
+
+
     }
 
     @Test

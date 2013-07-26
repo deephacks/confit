@@ -1,0 +1,2 @@
+org.deephacks.confit.internal.jaxrs.Serializers$DateTimeDeserializer
+org.deephacks.confit.internal.jaxrs.Serializers$DurationTimeDeserializer
