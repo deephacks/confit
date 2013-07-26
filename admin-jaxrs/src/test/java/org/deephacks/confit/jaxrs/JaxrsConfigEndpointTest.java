@@ -9,6 +9,7 @@ import org.deephacks.confit.internal.core.runtime.DefaultBeanManager;
 import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
 import org.deephacks.confit.internal.core.runtime.ObjectToBeanConverter;
 import org.deephacks.confit.jaxrs.AdminContextJaxrsProxy;
+import org.deephacks.confit.jaxrs.JettyServer;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;

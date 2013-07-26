@@ -1,8 +1,10 @@
-package org.deephacks.confit.internal.jaxrs;
+package org.deephacks.confit.jaxrs;
 
 import org.codehaus.jackson.map.DeserializationConfig;
 import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.admin.AdminContext;
+import org.deephacks.confit.internal.jaxrs.JaxrsConfigEndpoint;
+import org.deephacks.confit.internal.jaxrs.JaxrsConfigExceptionHandler;
 import org.deephacks.confit.test.ConfigTestData.Child;
 import org.deephacks.confit.test.ConfigTestData.Grandfather;
 import org.deephacks.confit.test.ConfigTestData.Parent;

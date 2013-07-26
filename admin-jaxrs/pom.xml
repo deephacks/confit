@@ -8,7 +8,7 @@
   </parent>
 
   <modelVersion>4.0.0</modelVersion>
-  <artifactId>tconfit-admin-jaxrs</artifactId>
+  <artifactId>confit-admin-jaxrs</artifactId>
   <name>Confit JAX-RS Admin</name>
   <description>JAX-RS administrative API for Confit</description>
   <dependencies>
