@@ -251,6 +251,7 @@ public class JaxrsConfigEndpoint {
     }
 
     @DELETE
+    @Consumes({ "*/*" })
     @Path("deleteBean/{schemaName}/{id}")
     public void deleteBean(@PathParam("schemaName") String schemaName,
                            @PathParam("id") String id) throws AbortRuntimeException {
@@ -258,6 +259,7 @@ public class JaxrsConfigEndpoint {
     }
 
     @DELETE
+    @Consumes({ "*/*" })
     @Path("deleteBeans/{schemaName}")
     public void deleteBeans(@PathParam("schemaName") String schemaName,
                             @QueryParam("id") final List<String> ids) throws AbortRuntimeException {
@@ -300,7 +302,8 @@ public class JaxrsConfigEndpoint {
             beanQuery.add(restriction);
         }
         List<Bean> beans = beanQuery.retrieve();
-        return new JaxrsBeans(beans);
+        JaxrsBeans jaxrsBeans = new JaxrsBeans(beans);
+        return jaxrsBeans;
     }
 
     private Bean toBean(JaxrsBean jaxrsBean) {

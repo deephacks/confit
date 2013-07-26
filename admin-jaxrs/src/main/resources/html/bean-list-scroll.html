@@ -1,0 +1,99 @@
+<form name="form" when-scrolled="loadMore()" ng-controller="bean-scroll-controller" novalidate qn:validate="errors">
+    <h3>{{schemaName}}</h3>
+    <p>{{schemas.schemas[schemaName].desc}}</p>
+
+    <div ng:show="form.$myServerErrors.bean.httpStatus >= 400" class="alert alert-error">
+        <p><i class="icon-warning-sign icon-large"></i> {{form.$myServerErrors.bean.msg}}</p>
+    </div>
+
+    <div ng-switch on="schemas.schemas[schemaName].singleton">
+        <div ng-switch-when="true">
+            <table class="table table-striped table-hover">
+                <thead>
+                </thead>
+                <tr ng-repeat="bean in items">
+                    <td>
+                        <a href="#/bean-detail/{{schemaName}}/{{schemaName}}">{{bean.id}}</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div ng-switch-default>
+            <form name="form" class="css-form">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    </thead>
+                    <tr ng-repeat="bean in items">
+
+                        <td>
+                            <a href="#/bean-detail/{{schemaName}}/{{bean.id}}">
+                                {{bean.id}}
+                            </a>
+                        </td>
+                        <td>
+                            <button class="btn btn-mini" ng-click="delete(schemaName, bean.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</form>
+<!--
+<div when-scrolled="loadMore()" ng-controller="bean-scroll-controller">
+
+
+    <div ng:show="form.$myServerErrors.bean.httpStatus >= 400" class="alert alert-error">
+        <p><i class="icon-warning-sign icon-large"></i> {{form.$myServerErrors.bean.msg}}</p>
+    </div>
+
+    <div ng-switch on="schemas.schemas[schemaName].singleton">
+        <div ng-switch-when="true">
+            <table class="table table-striped table-hover">
+                <thead>
+                </thead>
+                <tr ng-repeat="bean in items">
+                    <td>
+                        <a href="#/bean-detail/{{schemaName}}/{{schemaName}}">{{bean.id}}</a>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div ng-switch-default>
+            <form name="form" class="css-form">
+                <table class="table table-striped table-hover">
+                    <thead>
+                    </thead>
+                    <tr ng-repeat="bean in items">
+
+                        <td>
+                            <a href="#/bean-detail/{{schemaName}}/{{bean.id}}">
+                                {{bean.id}}
+                            </a>
+                        </td>
+                        <td>
+                            <button class="btn btn-mini" ng-click="delete(schemaName, bean.id)">
+                                Delete
+                            </button>
+                        </td>
+                    </tr>
+                </table>
+            </form>
+        </div>
+    </div>
+</div>
+-->
+
+<!--
+<div when-scrolled="loadMore()" ng-controller="bean-scroll-controller">
+
+    <h3>{{schemaName}}</h3>
+    <p>{{schemas.schemas[schemaName].desc}}</p>
+    <ul>
+        <li ng-repeat="i in items">{{i.id}}</li>
+    </ul>
+</div>
+
+-->

@@ -53,7 +53,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
     private final Client client;
     private final String host;
     private final int port;
-
+    private final AdminContext admin = AdminContext.get();
     private AdminContextJaxrsProxy(String host, int port) {
         client = ClientBuilder.newBuilder().build();
         this.host = host;
@@ -74,7 +74,11 @@ public class AdminContextJaxrsProxy extends AdminContext {
                 return Optional.absent();
             }
             JaxrsBean jaxrsBean = response.readEntity(JaxrsBean.class);
-            return Optional.of(jaxrsBean.toBean());
+            Optional<Schema> schema = admin.getSchema(beanId.getSchemaName());
+            if (!schema.isPresent()) {
+                throw Events.CFG101_SCHEMA_NOT_EXIST(beanId.getSchemaName());
+            }
+            return Optional.of(jaxrsBean.toBean(schema.get()));
         } finally {
             response.close();
         }
@@ -122,7 +126,8 @@ public class AdminContextJaxrsProxy extends AdminContext {
                 throw Events.CFG101_SCHEMA_NOT_EXIST(schemaName);
             }
             JaxrsBeans jaxrsBeans = response.readEntity(JaxrsBeans.class);
-            return jaxrsBeans.toBeans();
+            Map<String, Schema> schemas = admin.getSchemas();
+            return jaxrsBeans.toBeans(schemas);
         } finally {
             response.close();
         }
@@ -154,7 +159,8 @@ public class AdminContextJaxrsProxy extends AdminContext {
                 throw Events.CFG90_SCHEMA_OR_ID_NOT_EXIST();
             }
             JaxrsBeans beans = response.readEntity(JaxrsBeans.class);
-            return beans.toBeans();
+            Map<String, Schema> schemas = admin.getSchemas();
+            return beans.toBeans(schemas);
         } finally {
             response.close();
         }

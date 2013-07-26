@@ -55,12 +55,7 @@ angular.module('confit-module', ['ngResource']).
                 var url = baseUrl + '/delete/' + className + "/" + id;
                 return $http({
                     url: url,
-                    method: 'DELETE',
-                    headers: {
-                        // DELETE set content-type to xml and
-                        // this override does not work for some reason?
-                        'Content-Type': 'application/json'
-                    }
+                    method: 'DELETE'
                 });
             },
             getSchemas: function() {

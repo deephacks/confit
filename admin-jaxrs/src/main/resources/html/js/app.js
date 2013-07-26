@@ -34,6 +34,11 @@ ConfigAdmin.config(
             "/bean-list/:schemaName",
             {
                 action: "bean.bean-list"
+            })
+            .when(
+            "/bean-scroll/:schemaName",
+            {
+                action: "bean.bean-list-scroll"
             }
         )
     }

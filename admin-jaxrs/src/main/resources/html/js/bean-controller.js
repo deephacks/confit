@@ -65,6 +65,48 @@ ConfigAdmin.controller(
 );
 
 ConfigAdmin.controller(
+    "bean-scroll-controller", function ($scope, $location, $routeParams, Config, Paginate) {
+        $scope.schemaName = $routeParams.schemaName;
+        $scope.items = [];
+
+        $scope.delete = function(schemaName, id){
+            Config.deleteBean(schemaName, id).
+                success(function(){
+                    $scope.$broadcast( "requestContextChanged" );
+                }).error(function(data, status){
+                    $scope.errors = [
+                        { key: 'bean', httpStatus: status, msg: data }
+                    ];
+                });
+        }
+
+        var counter = 0;
+        $scope.loadMore = function() {
+            Config.paginateBeans($scope.pathParams.schemaName, counter, 100).then(
+                function(beans){
+                    $scope.beans = beans.beans;
+                    for (var i = 0; i < $scope.beans.length; i++) {
+                        $scope.items.push($scope.beans[i]);
+                    }
+                });
+            counter += 100;
+        };
+
+        $scope.loadMore();
+        $scope.$on(
+            "requestContextChanged",
+            function() {
+                $scope.schemaName = $scope.pathParams.schemaName;
+                $scope.errors = [];
+                $scope.items = [];
+                counter = 0;
+                $scope.loadMore();
+            }
+        );
+    }
+);
+
+ConfigAdmin.controller(
     "bean-detail-controller", function ($scope, $location, Property, $routeParams, Config) {
         $scope.id = $routeParams.id;
         $scope.schemaName = $routeParams.schemaName;

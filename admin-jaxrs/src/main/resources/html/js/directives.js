@@ -41,3 +41,15 @@ ConfigAdmin.directive('rightClick', function($parse) {
         });
     }
 });
+
+ConfigAdmin.directive('whenScrolled', function() {
+    return function(scope, element, attr) {
+        var raw = element[0];
+        angular.element(window).bind('scroll', function() {
+            var rectObject = raw.getBoundingClientRect();
+            if (rectObject.bottom < window.innerHeight) {
+                scope.$apply(attr.whenScrolled);
+            }
+        });
+    };
+});

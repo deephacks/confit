@@ -505,6 +505,17 @@ public class JaxrsConfigEndpointTest {
     }
 
     @Test
+    public void testReferences() {
+        Grandfather g = new Grandfather();
+        Parent p1 = new Parent("p1");
+        Child c1 = new Child("c1");
+        p1.setProp6(c1);
+        admin.createObjects(Arrays.asList(c1, p1));
+        Optional<Parent> p = admin.get(Parent.class, "p1");
+        System.out.println(p.get().getProp6());
+
+    }
+    @Test
     public void testQuery() {
         /*
         admin.newQuery("bogus").retrieve();
