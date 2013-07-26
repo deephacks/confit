@@ -1,6 +1,6 @@
 ![confit](https://raw.github.com/deephacks/confit/master/confit-logo-website.png)
 
-[![Build Status](https://travis-ci.org.deephacks.confit.png?branch=master)](https://travis-ci.org.deephacks.confit)
+[![Build Status](https://travis-ci.org/deephacks/confit.png?branch=master)](https://travis-ci.org/deephacks/confit)
 
 The mission of the project is to provide a simple, yet sophisticated and feature rich, configuration framework 
 for Java. Providing the ability of defining configuration decoupled from how and where to store, retrieve and validate 
