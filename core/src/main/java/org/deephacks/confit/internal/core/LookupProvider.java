@@ -144,7 +144,7 @@ public abstract class LookupProvider {
                         Object preferredInstance = Reflections.newInstance(preferred.get());
                         return Lists.newArrayList(clazz.cast(preferredInstance));
                     } catch (Exception ee) {
-                        throw new IllegalStateException("Could not find preferred instance ["+preferred+"] as specified property file.");
+                        throw new IllegalStateException("Could not find preferred instance ["+preferred.get()+"] as specified property file.", ee);
                     }
 
                 }
