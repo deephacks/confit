@@ -10,9 +10,8 @@ import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
@@ -20,7 +19,7 @@ public class ConfigCdiContext implements Context {
     private BeanManager bm;
     private ConfigContext ctx;
     private CreationalContext cctx = null;
-    private Map<Object, Object> cache = new HashMap<>();
+    private ConcurrentHashMap<Class<?>, Object> cache = new ConcurrentHashMap<>();
 
     public ConfigCdiContext(BeanManager bm) {
         this.bm = bm;
@@ -38,7 +37,14 @@ public class ConfigCdiContext implements Context {
         if (ctx == null) {
             ctx = lookupRuntimeContext();
         }
-        return (T) ctx.get(bean.getBeanClass());
+        final Object object;
+        if (cache.containsKey(bean.getBeanClass())) {
+            object = cache.get(bean.getBeanClass());
+        } else {
+            object = ctx.get(bean.getBeanClass());
+            cache.put(bean.getBeanClass(), object);
+        }
+        return (T) object;
     }
 
     @Override
@@ -50,7 +56,15 @@ public class ConfigCdiContext implements Context {
             ctx = lookupRuntimeContext();
         }
         Bean<T> bean = (Bean<T>) contextual;
-        return (T) ctx.get(bean.getBeanClass());
+
+        final Object object;
+        if (cache.containsKey(bean.getBeanClass())) {
+            object = cache.get(bean.getBeanClass());
+        } else {
+            object = ctx.get(bean.getBeanClass());
+            cache.put(bean.getBeanClass(), object);
+        }
+        return (T) object;
     }
 
     @Override

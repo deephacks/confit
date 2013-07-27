@@ -42,6 +42,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.deephacks.confit.model.Events.CFG102_NOT_CONFIGURABLE;
 import static org.deephacks.confit.model.Events.CFG303;
@@ -52,7 +53,7 @@ import static org.deephacks.confit.model.Events.CFG303;
  */
 @Singleton
 public final class ConfigCoreContext extends ConfigContext {
-    private Conversion conversion;
+    private static Conversion conversion;
     private static final Lookup lookup = Lookup.get();
     private SchemaManager schemaManager;
     private BeanManager beanManager;
@@ -62,6 +63,16 @@ public final class ConfigCoreContext extends ConfigContext {
     private SystemProperties properties = SystemProperties.instance();
     private static HashMap<BeanId, Bean> FILE_CONFIG;
     private static HashMap<Class<?>, Class<?>> initalized = new HashMap<>();
+    private static final ThreadLocal<String> RECURSION_SHORTCIRCUIT = new ThreadLocal<>();
+    private AtomicBoolean LOOKUP_DONE = new AtomicBoolean(false);
+
+    static {
+        conversion = Conversion.get();
+        conversion.register(new ObjectToBeanConverter());
+        conversion.register(new ClassToSchemaConverter());
+        conversion.register(new FieldToSchemaPropertyConverter());
+        conversion.register(new BeanToObjectConverter());
+    }
 
     @Inject
     private ConfigCore core;
@@ -106,7 +117,17 @@ public final class ConfigCoreContext extends ConfigContext {
         doLookup();
         Schema schema = getSchema(configurable);
         BeanId singleton = getSingletonId(schema, configurable);
-        Optional<Bean> bean = beanManager.getEager(singleton);
+        Optional<Bean> bean;
+        try {
+            if (configurable.getName().equals(RECURSION_SHORTCIRCUIT.get())) {
+                bean = Optional.absent();
+            } else {
+                RECURSION_SHORTCIRCUIT.set(configurable.getName());
+                bean = beanManager.getEager(singleton);
+            }
+        } finally {
+            RECURSION_SHORTCIRCUIT.set(null);
+        }
         if (!bean.isPresent()) {
             initFile(configurable);
             Bean fileBean = FILE_CONFIG.get(singleton);
@@ -255,16 +276,12 @@ public final class ConfigCoreContext extends ConfigContext {
     }
 
     public void doLookup() {
+        if (LOOKUP_DONE.get()) {
+            return;
+        }
         // core would already be injected in a cdi environment
         if (core == null) {
             core = new ConfigCore();
-        }
-        if (conversion == null) {
-            conversion = Conversion.get();
-            conversion.register(new ObjectToBeanConverter());
-            conversion.register(new ClassToSchemaConverter());
-            conversion.register(new FieldToSchemaPropertyConverter());
-            conversion.register(new BeanToObjectConverter());
         }
         schemaManager = lookup.lookup(SchemaManager.class, DefaultSchemaManager.class);
         beanManager = lookup.lookup(BeanManager.class, DefaultBeanManager.class);
@@ -273,7 +290,7 @@ public final class ConfigCoreContext extends ConfigContext {
             cacheManager = core.lookupCacheManager();
             notificationManager.register(new Observer(cacheManager));
         }
-
+        LOOKUP_DONE.set(true);
     }
 
     private Schema getSchema(Class<?> clazz) {

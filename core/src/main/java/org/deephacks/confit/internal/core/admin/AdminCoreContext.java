@@ -49,6 +49,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static org.deephacks.confit.internal.core.admin.SchemaValidator.validateSchema;
 import static org.deephacks.confit.model.Events.CFG301_MISSING_RUNTIME_REF;
@@ -62,6 +63,7 @@ public final class AdminCoreContext extends AdminContext {
     /** API class for JSR 303 1.0 bean validation */
     public static final String JSR303_1_0_CLASSNAME = "javax.validation.Validation";
     private static final Conversion conversion;
+    private AtomicBoolean LOOKUP_DONE = new AtomicBoolean(false);
 
     static {
         conversion = Conversion.get();
@@ -74,9 +76,9 @@ public final class AdminCoreContext extends AdminContext {
     @Inject
     private ConfigCore core;
     private static final Lookup lookup = Lookup.get();
-    private BeanManager beanManager = lookup.lookup(BeanManager.class, DefaultBeanManager.class);
-    private SchemaManager schemaManager = lookup.lookup(SchemaManager.class, DefaultSchemaManager.class);
-    private NotificationManager notificationManager = lookup.lookup(NotificationManager.class, DefaultNotificationManager.class);
+    private BeanManager beanManager;
+    private SchemaManager schemaManager;
+    private NotificationManager notificationManager;
     private Optional<Jsr303Validator> validator;
     private Optional<CacheManager> cacheManager;
 
@@ -534,10 +536,18 @@ public final class AdminCoreContext extends AdminContext {
     }
 
     private void doLookup() {
+        if (LOOKUP_DONE.get()) {
+            return;
+        }
         // core would already be injected in a cdi environment
         if (core == null) {
             core = new ConfigCore();
         }
+
+        beanManager = lookup.lookup(BeanManager.class, DefaultBeanManager.class);
+        schemaManager = lookup.lookup(SchemaManager.class, DefaultSchemaManager.class);
+        notificationManager = lookup.lookup(NotificationManager.class, DefaultNotificationManager.class);
+
         if (cacheManager == null) {
             cacheManager = core.lookupCacheManager();
             notificationManager.register(new Observer(cacheManager));
@@ -551,6 +561,7 @@ public final class AdminCoreContext extends AdminContext {
                 validator = Optional.absent();
             }
         }
+        LOOKUP_DONE.set(true);
     }
 
     private Collection<Bean> convertToBeans(Collection<?> objects) {

@@ -25,8 +25,8 @@ import org.junit.runner.RunWith;
 import java.util.List;
 
 @RunWith(FeatureTestsRunner.class)
-public class Jpa20BeanManagerIntegrationTest implements FeatureTests {
 
+public class Jpa20BeanManagerIntegrationTest implements FeatureTests {
     @Override
     public List<TestRound> build() {
         return IntegrationTestsBuilder.named(Jpa20BeanManagerIntegrationTest.class.getSimpleName())

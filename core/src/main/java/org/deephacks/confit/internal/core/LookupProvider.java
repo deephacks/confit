@@ -4,6 +4,7 @@ import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 
+import javax.enterprise.inject.CreationException;
 import javax.enterprise.inject.spi.CDI;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -14,6 +15,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class LookupProvider {
     protected final ConcurrentHashMap<Class<?>, Object> objectRegistry = new ConcurrentHashMap<>();
     protected final SystemProperties properties = SystemProperties.instance();
+    private static final ThreadLocal<String> RECURSION_SHORTCIRCUIT = new ThreadLocal<>();
 
     /**
     * Look up an object matching a given interface.
@@ -103,6 +105,9 @@ public abstract class LookupProvider {
                 // get first instance found
                 return CDI.current().select(clazz).get();
             } catch (Exception e) {
+                if (e instanceof CreationException) {
+                    throw e;
+                }
                 // may fail if CDI was not setup correctly
                 // which is acceptable so return nothing..
                 // fix: new Weld().initialize() at bootstrap
@@ -122,16 +127,25 @@ public abstract class LookupProvider {
             }
             // return all instances found
             try {
-                found = Lists.newArrayList(CDI.current().select(clazz));
-                if (found != null && found.size() != 0) {
-                    T object = (T) lookupPrefered(clazz, found);
-                    if (object != null) {
-                        return Lists.newArrayList(object);
+
+                if (clazz.getName().equals(RECURSION_SHORTCIRCUIT.get())) {
+                    return new ArrayList<>();
+                } else {
+                    RECURSION_SHORTCIRCUIT.set(clazz.getName());
+                    found = Lists.newArrayList(CDI.current().select(clazz));
+                    if (found != null && found.size() != 0) {
+                        T object = (T) lookupPrefered(clazz, found);
+                        if (object != null) {
+                            return Lists.newArrayList(object);
+                        }
+                        return new ArrayList<>();
                     }
                     return new ArrayList<>();
                 }
-                return new ArrayList<>();
             } catch (Exception e) {
+                if (e instanceof CreationException) {
+                    throw e;
+                }
                 // may fail if CDI was not setup correctly
                 // which is acceptable so return nothing..
                 // fix: new Weld().initialize() at bootstrap
@@ -149,6 +163,8 @@ public abstract class LookupProvider {
 
                 }
                 return new ArrayList<>();
+            } finally {
+                RECURSION_SHORTCIRCUIT.remove();
             }
         }
     }
