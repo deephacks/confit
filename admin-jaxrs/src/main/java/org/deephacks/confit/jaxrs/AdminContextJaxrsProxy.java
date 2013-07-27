@@ -14,6 +14,7 @@
 package org.deephacks.confit.jaxrs;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
@@ -53,15 +54,23 @@ public class AdminContextJaxrsProxy extends AdminContext {
     private final Client client;
     private final String host;
     private final int port;
+    private final String prefixUri;
+
     private final AdminContext admin = AdminContext.get();
-    private AdminContextJaxrsProxy(String host, int port) {
+
+    private AdminContextJaxrsProxy(String host, int port, String prefixUri) {
         client = ClientBuilder.newBuilder().build();
         this.host = host;
         this.port = port;
+        this.prefixUri = prefixUri;
     }
 
     public static AdminContextJaxrsProxy get(String host, int port) {
-        return new AdminContextJaxrsProxy(host, port);
+        return new AdminContextJaxrsProxy(host, port, "");
+    }
+
+    public static AdminContextJaxrsProxy get(String host, int port, String uriPrefix) {
+        return new AdminContextJaxrsProxy(host, port, uriPrefix);
     }
 
     @Override
@@ -73,6 +82,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 return Optional.absent();
             }
+            handleReadResponse(response);
             JaxrsBean jaxrsBean = response.readEntity(JaxrsBean.class);
             Optional<Schema> schema = admin.getSchema(beanId.getSchemaName());
             if (!schema.isPresent()) {
@@ -93,6 +103,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 return Optional.absent();
             }
+            handleReadResponse(response);
             JaxrsObject jaxrsObject = response.readEntity(JaxrsObject.class);
             return Optional.of((T) jaxrsObject.toObject());
         } finally {
@@ -109,6 +120,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 return Optional.absent();
             }
+            handleReadResponse(response);
             JaxrsObject jaxrsObject = response.readEntity(JaxrsObject.class);
             return Optional.of((T) jaxrsObject.toObject());
         } finally {
@@ -125,6 +137,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 throw Events.CFG101_SCHEMA_NOT_EXIST(schemaName);
             }
+            handleReadResponse(response);
             JaxrsBeans jaxrsBeans = response.readEntity(JaxrsBeans.class);
             Map<String, Schema> schemas = admin.getSchemas();
             return jaxrsBeans.toBeans(schemas);
@@ -142,6 +155,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 throw Events.CFG101_SCHEMA_NOT_EXIST(configurable.getName());
             }
+            handleReadResponse(response);
             JaxrsObjects objects = response.readEntity(JaxrsObjects.class);
             return (Collection<T>) objects.toObjects();
         } finally {
@@ -158,6 +172,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 throw Events.CFG90_SCHEMA_OR_ID_NOT_EXIST();
             }
+            handleReadResponse(response);
             JaxrsBeans beans = response.readEntity(JaxrsBeans.class);
             Map<String, Schema> schemas = admin.getSchemas();
             return beans.toBeans(schemas);
@@ -171,7 +186,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("createBean").build();
         Entity entity = Entity.entity(new JaxrsBean(bean), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -179,7 +194,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("createObject").build();
         Entity entity = Entity.entity(new JaxrsObject(object), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -189,7 +204,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsBeans.addAll(beans);
         Entity entity = Entity.entity(jaxrsBeans, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -199,7 +214,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsObjects.addAll(objects);
         Entity entity = Entity.entity(jaxrsObjects, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -207,7 +222,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("setBean").build();
         Entity entity = Entity.entity(new JaxrsBean(bean), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -215,7 +230,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("setObject").build();
         Entity entity = Entity.entity(new JaxrsObject(object), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -225,7 +240,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsBeans.addAll(beans);
         Entity entity = Entity.entity(jaxrsBeans, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -235,7 +250,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsObjects.addAll(objects);
         Entity entity = Entity.entity(jaxrsObjects, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -243,7 +258,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("mergeBean").build();
         Entity entity = Entity.entity(new JaxrsBean(bean), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -251,7 +266,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("mergeObject").build();
         Entity entity = Entity.entity(new JaxrsObject(object), APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -261,7 +276,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsBeans.addAll(beans);
         Entity entity = Entity.entity(jaxrsBeans, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -271,7 +286,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         jaxrsObjects.addAll(objects);
         Entity entity = Entity.entity(jaxrsObjects, APPLICATION_JSON_TYPE);
         Response response = post(uri, entity);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -279,7 +294,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         UriBuilder builder = getUri("deleteBean");
         URI uri = builder.build(bean.getSchemaName(), bean.getInstanceId());
         Response response = delete(uri);
-        handleModificationResponse(response);
+        handleResponse(response);
     }
 
     @Override
@@ -287,8 +302,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         UriBuilder builder = getUri("deleteBeans");
         URI uri = builder.queryParam("id", instanceIds.toArray(new String[instanceIds.size()])).build(schemaName);
         Response response = delete(uri);
-        handleModificationResponse(response);
-
+        handleResponse(response);
     }
 
     @Override
@@ -296,6 +310,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         URI uri = getUri("getSchemas").build();
         Response response = get(uri);
         try {
+            handleReadResponse(response);
             JaxrsSchemas schemas = response.readEntity(JaxrsSchemas.class);
             return schemas.toSchema();
         } finally {
@@ -311,6 +326,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 return Optional.absent();
             }
+            handleReadResponse(response);
             JaxrsSchema jaxrsSchema = response.readEntity(JaxrsSchema.class);
             return Optional.of(jaxrsSchema.toSchema());
         } finally {
@@ -356,12 +372,19 @@ public class AdminContextJaxrsProxy extends AdminContext {
     }
 
     private UriBuilder getUri(String method) {
-        return UriBuilder.fromResource(JaxrsConfigEndpoint.class)
-                .scheme("http")
-                .path(JaxrsConfigEndpoint.class, method)
-                .host(host)
-                .port(port);
-
+        if (Strings.isNullOrEmpty(prefixUri)) {
+            return UriBuilder.fromResource(JaxrsConfigEndpoint.class)
+                    .scheme("http")
+                    .path(JaxrsConfigEndpoint.class, method)
+                    .host(host)
+                    .port(port);
+        } else {
+            return UriBuilder.fromPath(prefixUri).path(JaxrsConfigEndpoint.class)
+                    .scheme("http")
+                    .path(JaxrsConfigEndpoint.class, method)
+                    .host(host)
+                    .port(port);
+        }
     }
 
     private Response get(URI uri) {
@@ -376,7 +399,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
         return client.target(uri).request().buildDelete().invoke();
     }
 
-    private void handleModificationResponse(Response response) {
+    private void handleResponse(Response response) {
         try {
             if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
                 throw Events.CFG90_SCHEMA_OR_ID_NOT_EXIST();
@@ -393,5 +416,22 @@ public class AdminContextJaxrsProxy extends AdminContext {
             response.close();
         }
     }
-
+    private void handleReadResponse(Response response) {
+        if (response.getStatus() == Status.NOT_FOUND.getStatusCode()) {
+            response.close();
+            throw Events.CFG90_SCHEMA_OR_ID_NOT_EXIST();
+        } else if (response.getStatus() == Status.CONFLICT.getStatusCode()) {
+            response.close();
+            throw Events.CFG303_BEAN_ALREADY_EXIST();
+        } else if (response.getStatus() == Status.FORBIDDEN.getStatusCode()) {
+            response.close();
+            throw Events.CFG089_MODIFICATION_CONFLICT();
+        } else if (response.getStatus() == Status.BAD_REQUEST.getStatusCode()) {
+            response.close();
+            throw Events.CFG088_INVALID_DATA();
+        } else if (response.getStatus() == Status.INTERNAL_SERVER_ERROR.getStatusCode()) {
+            response.close();
+            throw Events.CFG088_INVALID_DATA();
+        }
+    }
 }

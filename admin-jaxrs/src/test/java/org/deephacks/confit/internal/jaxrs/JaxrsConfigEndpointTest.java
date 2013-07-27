@@ -25,9 +25,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.deephacks.confit.model.Events.CFG088;
-import static org.deephacks.confit.model.Events.CFG090;
-import static org.deephacks.confit.model.Events.CFG101;
+import static org.deephacks.confit.model.Events.*;
 import static org.deephacks.confit.test.ConfigTestData.*;
 import static org.deephacks.confit.test.ConversionUtils.toBean;
 import static org.deephacks.confit.test.ConversionUtils.toBeans;

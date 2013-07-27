@@ -12,68 +12,72 @@
   <artifactId>confit-docbkx</artifactId>
   <name>Confit Documentation</name>
   <description>Tools4j Config Documentation</description>
+  <!--
+      mvn docbkx:generate-pdf
+      mvn docbkx:generate-html
+  -->
 
-    <build>
-      <plugins>
-        <plugin>
-          <groupId>com.agilejava.docbkx</groupId>
-          <artifactId>docbkx-maven-plugin</artifactId>
-          <version>2.0.10</version>
-          <executions>
-            <execution>
-                <goals>
-                    <goal>generate-html</goal>
-                    <!-- uncomment when needed -->
-                    <!-- <goal>generate-pdf</goal> -->
-                </goals>
-                <phase>site</phase>
-            </execution>
-          </executions>
-          <dependencies>
-            <dependency>
-              <groupId>org.docbook</groupId>
-              <artifactId>docbook-xml</artifactId>
-              <version>4.4</version>
-              <scope>runtime</scope>
-            </dependency>
-          </dependencies>
-          <configuration>
-            <includes>index.xml</includes>
-            <chunkedOutput>true</chunkedOutput>
-            <xincludeSupported>true</xincludeSupported>
-            <foCustomization>${basedir}/src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
-            <htmlCustomization>${basedir}/src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
-            <htmlStylesheet>css/deephacks.css</htmlStylesheet>
-            <entities>
-              <entity>
-                <name>version</name>
-                <value>${project.version}</value>
-              </entity>
-            </entities>
-            <postProcess>
-              <copy todir="target/site">
-                <fileset dir="src/website">
-                  <include name="index.html" />
-                </fileset>
-              </copy>
-              <copy todir="target/site">
-                <fileset dir="target/docbkx">
-                  <include name="**/*.html" />
-                  <include name="**/*.pdf" />
-                </fileset>
-              </copy>
-              <copy todir="target/site/html">
-                <fileset dir="src/docbkx/resources">
-                  <include name="**/*.css" />
-                  <include name="**/*.png" />
-                  <include name="**/*.gif" />
-                  <include name="**/*.jpg" />
-                </fileset>
-              </copy>
-              <move file="target/site/pdf/index.pdf" tofile="target/site/pdf/confit-documentation.pdf" failonerror="false" />
-            </postProcess>
-          </configuration>
-        </plugin>
-      </plugins>
-    </build>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.agilejava.docbkx</groupId>
+        <artifactId>docbkx-maven-plugin</artifactId>
+        <version>2.0.10</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>generate-html</goal>
+              <!-- uncomment when needed -->
+              <!-- <goal>generate-pdf</goal> -->
+            </goals>
+            <phase>site</phase>
+          </execution>
+        </executions>
+        <dependencies>
+          <dependency>
+            <groupId>org.docbook</groupId>
+            <artifactId>docbook-xml</artifactId>
+            <version>4.4</version>
+            <scope>runtime</scope>
+          </dependency>
+        </dependencies>
+        <configuration>
+          <includes>index.xml</includes>
+          <chunkedOutput>true</chunkedOutput>
+          <xincludeSupported>true</xincludeSupported>
+          <foCustomization>${basedir}/src/docbkx/resources/xsl/fopdf.xsl</foCustomization>
+          <htmlCustomization>${basedir}/src/docbkx/resources/xsl/html_chunk.xsl</htmlCustomization>
+          <htmlStylesheet>css/deephacks.css</htmlStylesheet>
+          <entities>
+            <entity>
+              <name>version</name>
+              <value>${project.version}</value>
+            </entity>
+          </entities>
+          <postProcess>
+            <copy todir="target/site">
+              <fileset dir="src/website">
+                <include name="index.html" />
+              </fileset>
+            </copy>
+            <copy todir="target/site">
+              <fileset dir="target/docbkx">
+                <include name="**/*.html" />
+                <include name="**/*.pdf" />
+              </fileset>
+            </copy>
+            <copy todir="target/site/html">
+              <fileset dir="src/docbkx/resources">
+                <include name="**/*.css" />
+                <include name="**/*.png" />
+                <include name="**/*.gif" />
+                <include name="**/*.jpg" />
+              </fileset>
+            </copy>
+            <move file="target/site/pdf/index.pdf" tofile="target/site/pdf/confit-documentation.pdf" failonerror="false" />
+          </postProcess>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

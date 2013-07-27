@@ -143,7 +143,7 @@ public final class AdminCoreContext extends AdminContext {
         if (!bean.isPresent()) {
             return Optional.absent();
         }
-        return Optional.of(conversion.convert(bean, configurable));
+        return Optional.of(conversion.convert(bean.get(), configurable));
     }
 
     @Override

@@ -271,7 +271,13 @@
       </dependency>
       <dependency>
         <groupId>org.deephacks</groupId>
-        <artifactId>confit</artifactId>
+        <artifactId>confit-api-admin</artifactId>
+        <version>${version.confit}</version>
+        <scope>provided</scope>
+      </dependency>
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-admin-jaxrs</artifactId>
         <version>${version.confit}</version>
         <scope>provided</scope>
       </dependency>
