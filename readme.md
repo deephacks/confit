@@ -34,8 +34,19 @@ At the moment conf-it comes with provider extensions that allow storing configur
 JSON/YAML/XML or in a relational database using JPA (hibernate or eclipselink) or in HBase. Using either of these 
 storage mechanisms, or switching between them, does not impact client code what so ever.
 
+### Examples
+
 There is an [introduction](http://stoffe.deephacks.org/2012/05/07/tools4j-config-part-1-introduction) which is 
 a bit outdated at the moment. Will be updated soon.
+
+Conf-it is available in Maven Central.
+
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit</artifactId>
+      <version>${version.confit}</version>
+    </dependency>
+
 
 ### Licensing
 
