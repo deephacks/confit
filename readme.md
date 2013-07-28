@@ -256,12 +256,16 @@ and durability requirements.
 Default storage is changed by adding a provider to classpath, which will automatically override the default
 in memory implementation.
 
+#### YAML
+
 The simplest persistence module is the YAML provider where configuration is put in a file on disk.
 
       <dependency>
         <groupId>org.deephacks</groupId>
         <artifactId>confit-provider-yaml</artifactId>
       </dependency>
+
+#### JPA
 
 Configuration can be stored in a database using the JPA module, which has currently been tested with MySQL, 
 PostgreSQL and Derby. 
@@ -270,6 +274,8 @@ PostgreSQL and Derby.
         <groupId>org.deephacks</groupId>
         <artifactId>confit-provider-jpa20</artifactId>
       </dependency>
+
+#### HBase
 
 Another option is to store the configuration in [HBase](http://hbase.apache.org/), which is a distributed, 
 scalable, big data store.
@@ -345,7 +351,28 @@ Configuration for a class is loaded the CDI bean first access it, then cached fo
 
 ### Writing custom service providers
 
-TODO
+Conf-it can be customized by implementing any of its service provider interfaces.
+
+* SchemaManager
+
+Manage schema discovery and storage.
+
+* BeanManager
+
+Stores configuration.
+
+* NotificationManager
+
+Sends notifications to observers.
+
+* SessionManager
+
+Manage sessions and configuration changes before they are committed to the BeanManager.
+
+* CacheManager
+
+Cache configurable instances on behalf of the ConfigContext.
+
 
 ## Licensing
 
