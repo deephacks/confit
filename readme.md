@@ -47,6 +47,88 @@ Conf-it comes as a single jar file (only dependency is guava) and is available i
       <version>${version.confit}</version>
     </dependency>
 
+Here follows two simple configrable classes. Each class is annotated with the @Config annotation and all fields 
+are configurable as long they are not final or static.
+
+A is a singleton instance, meaning, there can be only one configuration of this class.
+
+    @Config(name = "A")
+    public class A {
+      private String value;
+      private Integer integer;
+      private Double decimal;
+      private List<String> stringList;
+      private List<TimeUnit> enumList;
+      private List<URL> customList;
+      private DurationTime customType;
+
+      private B singleReference;
+      private List<B> listReferences;
+      private Map<String, B> mapReferences;
+    }
+
+B can have multiple configurations/instances, hence the @Id annotation which identify each instance.
+
+    @Config(name = "B")
+    public class B {
+      @Id
+      private String id;
+      
+      public (String id) { this.id = id; } 
+      
+      private Integer integer;
+      private Double decimal;
+      private List<String> stringList;
+      private List<TimeUnit> enumList;
+      private List<URL> customList;
+      private DurationTime customType;
+    }
+
+We can now access our two configurable classes using the ConfigContext, which is the application interface for 
+fetching configuration.
+
+    ConfigContext config = ConfigContext.get();
+    A a = config.get(A.class);
+
+Class A does not have any values because there is no configuration yet. AdminContext is used to provision
+configuration.
+
+    AdminContext admin = AdminContext.get();
+    A a = new A();
+    // set some values on 'a' ...
+    
+    // create 'a'
+    admin.createObject(a);
+    
+    // we can now read configured values
+    a = config.get(A.class);
+
+We can also create instances of class B. 
+    
+    B one = new B("1");
+    B two = new B("2");
+    B three = new B("3");
+    
+    admin.createObjects(Arrays.asList(one, two, three));
+    
+    Optional<B> optionalOne = config.get("1", B.class);
+    Optional<B> optionalTwo = config.get("2", B.class);
+    Optional<B> optionalThree = config.get("3", B.class);
+    
+
+Not to impressive yet, but notice the last three fields of class A, which are references to B. This means that 
+class A can be provisioned with references to instances of class B.
+
+    A a = new A();
+    a.setListReferences(one, two, thread);
+    admin.createObject(a);
+
+AdminContext will do referential checks to make sure that instances exist, or throw an exception otherwise.
+We will also get an exception if we try to delete an instance which is referenced by another instance.
+
+    // this will fail if 'a' reference 'two'
+    admin.deleteObject(two);
+
 
 ### Licensing
 
