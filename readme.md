@@ -6,7 +6,15 @@ The mission of the project is to provide a simple, yet feature rich, configurati
 Providing the ability of defining configuration decoupled from how and where to store, retrieve and validate 
 configuration, also allowing configuration changes without restarting the application. 
 
-The aim is liberate applications to use configuration seamlessly on the terms of their particular environment
+The main driver of the project is simplicity.
+
+* If all you need is a static configuration file in a Java SE application, you can just ignore the other features
+and dependencies.
+
+* If you need more advanced configuration capbilities like persistence, runtime changes and notifications
+in scalable Java EE applications with massive amounts of configuration, you can easily enable these features.
+
+Conf-it tries to liberate applications to use configuration seamlessly on the terms of their particular environment
 without constraining them to Java SE,  EE, OSGi, Spring, CDI or  any other programming model or framework.
 
 ## Goals  
@@ -49,7 +57,8 @@ Conf-it comes as a single jar file (only dependency is guava) and is available i
 ### Define
 
 Configurable classes are annotated with the @Config annotation and all fields are configurable as 
-long they are not final or static. All basic Java object data types are supported, including list of these.
+long they are not final or static. All basic Java object data types are supported, including List fields 
+of these types.
 
 A is a singleton instance, meaning, there can be only one configuration of this class.
 
@@ -70,7 +79,7 @@ A is a singleton instance, meaning, there can be only one configuration of this 
     }
 ```
 
-B can have multiple configurations/instances, hence the @Id annotation which identify each instance.
+B can have multiple configurations/instances, hence the @Id annotation, which is used to identify instances.
 
 ```java
     @Config(name = "B")
@@ -91,19 +100,20 @@ B can have multiple configurations/instances, hence the @Id annotation which ide
 
 ### Read
 
-We can now access our two configurable classes using the ConfigContext, which is the application interface for 
+Configurable classes are accessed using the ConfigContext, which is the application interface for 
 fetching configuration.
 
 ```java
     ConfigContext config = ConfigContext.get();
+    // get a singleton instance
     A a = config.get(A.class);
+    // list all instances
     Collection<B> list = config.list(B.class);
 ```
 
 ### Create
 
-Class A does not have any values because there is no configuration yet. AdminContext is used to provision
-configuration.
+AdminContext is used to create, update and delete configuration.
 
 ```java
     AdminContext admin = AdminContext.get();
@@ -131,28 +141,68 @@ We can also create instances of class B.
     Optional<B> optionalThree = config.get("3", B.class);
 ```    
 
+### Update
+
+There are two types of update operations, set and merge. 
+
+* A set operation will replace existing instance entirely with the provided instance
+* A merge operation will ignore null fields and only replace fields that are initalized.
+
+
+```java
+    // empty instance
+    A a = new A();
+
+    // reset any previous field values instance 'a' may have
+    admin.setObject(a);
+
+    a.setValue("someValue");
+    // will set field 'value' to 'someValue' and keep other fields untouched
+    admin.mergeObject(a);
+
+```
+
+
+### Delete
+
+Deleting an instance will remove any existing instance. Any references an instance may have are untouched.
+
+```java
+    A a = new A();
+    admin.deleteObject(a);
+```
+
+
 ### References
 
-Notice the last three fields of class A, which are references to B. This means that class A can be 
-provisioned with references to instances of class B.
+The last three fields of class A have references to class B, so class A can be created or updated with references to 
+instances of class B.
 
 ```java
     A a = new A();
     a.setListReferences(one, two, thread);
     admin.createObject(a);
+    
+    // update references
+    a.setListReferences(thread);
+    admin.mergeObject(a);
 ```
 
 AdminContext will do referential checks to make sure that instances exist, or throw an exception otherwise.
-We will also get an exception if we try to delete an instance which is referenced by another instance.
+An exception will also be thrown if trying to delete instances  referenced by other instances.
 
 ```java
-    // this will fail if 'a' reference 'two'
+    a.setListReferences(four);
+    // fails if 'four' have not been created earlier
+    admin.createObject(a);
+
+    // fails if 'a' reference 'two'
     admin.deleteObject(two);
 ```
 
 ### Validation
 
-Bean validation 1.1 is supported and to enable it simply add an implementation to classpath like 
+Bean validation 1.1 is supported and is enabled by adding a implementation to classpath, like 
 [hibernate-validator](http://www.hibernate.org/subprojects/validator.html) for example.
 
 ```xml
@@ -164,8 +214,8 @@ Bean validation 1.1 is supported and to enable it simply add an implementation t
     </dependency>
 ```
 
-Configurable classes will now be validated AdminContext according to constraints annotations available 
-on configurable fields. Custom 
+Instances will now be validated by AdminContext when created, updated or deleted according to the constraints
+annotations available on configurable fields. Custom 
 [ConstraintValidator](http://docs.jboss.org/hibernate/stable/beanvalidation/api/javax/validation/ConstraintValidator.html) 
 can also be used.
 
@@ -182,8 +232,15 @@ can also be used.
       @Size(max = 3)
       private List<B> listReferences;
     }
-
 ```
+
+
+```java
+    C c = new C();
+    // fails since field 'value' is 'null'
+    admin.createObject(c);
+```
+
 
 ### Custom field types
 
@@ -215,16 +272,19 @@ Configurable fields are not limited to simple Java types.
     }
 ```    
 
-This will work directly because the class have a default String constructor and a toString for serialization. There 
-are ways to use classes that that doesnt have a default String constructor. More on that later.
+This class can be used as a configurable field because DurationTime have a default String constructor and a toString
+method that return a String representation that can be used to construct a DurationTime instance. 
+
+There are also ways to have configurable fields of classes that that doesnt have a default String constructor.
 
 
-### File configuration
+### Default configuration file
 
 
 Configuration can be bootstrapped using the [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) 
-file format. A file called application.conf will be loaded by default, if available on classpath. This file
-is read-only and will not be modified by AdminContext. 
+file format. A file called application.conf will be loaded by default, if available on classpath. 
+It is possible to change the location of this file by setting a system property. This file is read-only and 
+will not be modified by AdminContext. 
 
 Instead, the file works as a fallback that is used only if no configuration is available for a particular class. 
 Configuration provisioned by AdminContext takes precedence.
@@ -243,6 +303,11 @@ This is an example of application.conf, containing configuration of class A and 
       listReferences = [1, 2]
       mapReferences = [2, 3]
     }
+
+    # singleton classes can use a simplified property=value format
+    A.value = someValue
+    A.customList = ["http://google.com", "http://github.com"]
+    A.listReferences = [1, 2]
 
     # class B, with instances.
     B {
@@ -273,9 +338,12 @@ and durability requirements.
 Default storage is changed by adding a provider to classpath, which will automatically override the default
 in memory implementation. Changing storage implementation does not have any code impact on configurable classes.
 
+As mentioned earlier, any configuration in persistence storage will override instances in the default configuration file.
+
 #### YAML
 
-The simplest persistence module is the YAML provider where configuration is put in a file on disk.
+The simplest persistence module is the YAML provider where configuration is written to a file on disk when created,
+updated or updated.
 
 ```xml
       <dependency>
@@ -340,28 +408,64 @@ Planned storage implementation.
 
 ### Configuration queries, caching and lazy fetching
 
-Configuration may not be accessed quickly enough when having several thousands instances in storage. 
-Conf-it have several mechanisms to reduce lookup latency. Caching is used to avoid costly disk operations 
-and queries can be used to reduce number of instances that are scanned at lookup. 
+Configuration may not be accessed quickly enough by the application when having several thousands instances 
+exist in storage. Conf-it have several mechanisms to reduce lookup latency. Caching is used to avoid costly disk
+operations and in memory queries/indexes can be used to reduce number of instances that are scanned at lookup.
 
+Caching and queries are enabled using the following dependency.
+
+```xml
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-provider-cached</artifactId>
+        <version>${version.confit}</version>
+      </dependency>
+```
 
 * Queries and indexes
+
+In order for applications to do runtime queries, the class fields that are target for such queries must have 
+a @Index annotation. This build indexes on targeted fields and allow retrieval of instances matching
+particular criterias immediately in constant time.
+
+```java
+    @Config(name = "Employee")
+    public Employee {
+      @Index
+      private Double salary;
+
+      @Index
+      private String email;
+    }
+
+```
+
 
 Example query using ConfigContext.
 
 ```java
-       ConfigResultSet<Employee> result = config.newQuery(Employee.class).add(
-                    and(lessThan("salary", 10000.0),not(contains("email", "gmail")))).retrieve();
+   ConfigResultSet<Employee> result = config.newQuery(Employee.class).add(
+               and(lessThan("salary", 10000.0),not(contains("email", "gmail")))).retrieve();
+
+   for (Employee e : result) {
+     // do something with each instance
+   }
 
 ```
 
 * Lazy fetching
 
-TODO
+Iterating through a ConfigResultSet is lazy, meaning that instances are not initalized until the cursor reach
+a particular item in the set.
 
 * Off-heap cache and proxies
 
-TODO
+Instances are stored in caches as they are created and modified. These caches are their maintain data off-heap
+in a compressed binary format which reduce heap preassure and GC pauses when there is massive amounts of 
+configuration data.
+
+References to other instances are lazy initalized proxies that are not loaded until they are actually touched by
+the application.
 
 ### Administrative queries and pagination
 
@@ -372,15 +476,13 @@ management easier.
 Example query using AdminContext.
 
 ```java
-    List<Bean> result = admin.newQuery('Employee')
+    List<Bean> result = admin.newQuery("Employee")
                              .add(lessThan("salary", 10000.0))
                              .add(contains("email", "gmail"))
                              .setFirstResult(100)
                              .setMaxResults(50)
                              .retrieve();
 ```
-
-TODO
 
 ### Notifications
 
@@ -393,7 +495,7 @@ the CDI annotation [Observes](http://docs.jboss.org/cdi/api/1.1/javax/enterprise
 Observers are not required to run in a CDI environment, but will be registered automatically if doing so.
 
 ```java
-    // How to register an observer in non CDI environment
+    // How to register an observer in a pure Java SE environment
     config.registerObserver(new Observer());
 ```
 
@@ -406,13 +508,14 @@ Example of an observer.
         
         // iterate changes affecting class A
         for (ConfigChange<A> change : changes.getChanges(A.class)) {
-          // if both present: update notification 
-
           // if not present: create notification
           Optional<A> before = change.getBefore();
           
           // if not present: delete notification
           Optional<A> after = change.getAfter();
+          
+          // if both were present: update notification 
+          // may compare before and after to take certain actions
         }
         
         // iterate changes affecting class B
@@ -473,12 +576,9 @@ Configuration is loaded when it is first accessed by the CDI bean, then cached f
        private A configuration;
        
        public void execute(String identifier) {
-            
             configuration.getValue();
-            
             Optional<B> optional = config.get(identifier, B.class);
-            
-           // etc
+           // etc ...
        }
     
     }
