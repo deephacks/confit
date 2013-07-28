@@ -31,13 +31,10 @@ Configuration should not be a limiting factor to application performance. It is 
 to meet service-level agreements in environments of scale.
 
 At the moment conf-it comes with provider extensions that allow storing configuration on local disk as 
-JSON/YAML/XML or in a relational database using JPA (hibernate or eclipselink) or in HBase. Using either of these 
-storage mechanisms, or switching between them, does not impact client code what so ever.
+files, in a relational database using JPA (hibernate or eclipselink) or in HBase (mongodb storage is planned). 
+Using either of these storage mechanisms, or switching between them, does not impact client code what so ever.
 
 ## Examples
-
-There is an [introduction](http://stoffe.deephacks.org/2012/05/07/tools4j-config-part-1-introduction) which is 
-a bit outdated at the moment. Will be updated soon.
 
 Conf-it comes as a single jar file (only dependency is guava) and is available in Maven Central.
 
@@ -254,7 +251,7 @@ Configuration is stored in memory by default, which may not be desirable in depl
 and durability requirements. 
 
 Default storage is changed by adding a provider to classpath, which will automatically override the default
-in memory implementation.
+in memory implementation. Changing storage implementation does not have any code impact on configurable classes.
 
 #### YAML
 
@@ -285,15 +282,37 @@ scalable, big data store.
         <artifactId>confit-provider-hbase</artifactId>
       </dependency>
 
-### Caching
+### Configuration queries, caching and lazy fetching
+
+Configuration may not be accessed quickly enough when having several thousands instances in storage. 
+Conf-it have several mechanisms to reduce lookup latency. Caching is used to avoid costly disk operations 
+and queries can be used to reduce number of instances that are scanned at lookup. 
+
+
+* Queries and indexes
 
 TODO
 
-### Queries
+* Lazy fetching
+
+TODO
+
+* Off-heap cache and proxies
+
+TODO
+
+### Administrative queries and pagination
+
+Having several hundreds or thousands configuration instances can quickly become difficult to administrate.
+The AdminContext and the REST interface comes with query and pagination capabilities to make configuration 
+management easier.
 
 TODO
 
 ### Notifications
+
+Applications can register observers that are notified whenever configuration is created, updated or deleted.
+Notifications are sent after the changes have been validated, committed to storage and cached.
 
 TODO
 
