@@ -1,4 +1,4 @@
-package org.deephacks.confit.internal.core.query;
+package org.deephacks.confit.internal.cached.query;
 
 
 import com.googlecode.cqengine.attribute.Attribute;

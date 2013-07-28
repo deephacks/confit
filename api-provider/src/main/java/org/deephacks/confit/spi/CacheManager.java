@@ -16,7 +16,9 @@ package org.deephacks.confit.spi;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
+import org.deephacks.confit.query.ConfigQuery;
 
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -34,6 +36,13 @@ public abstract class CacheManager<V> {
      * @param schema a known schema
      */
     public abstract void registerSchema(Schema schema);
+
+    /**
+     * Remove schema from the cache.
+     *
+     * @param schema a known schema
+     */
+    public abstract void removeSchema(Schema schema);
 
     /**
      * Returns the configurable associated with BeanId in this cache.
@@ -61,10 +70,28 @@ public abstract class CacheManager<V> {
     public abstract void put(Bean configurable);
 
     /**
+     * Associates configurables with BeanIds in this cache. If the cache previously
+     * contained a configurable associated with BeanId, the old configurable is
+     * replaced by configurable.
+     *
+     * @param configurables BeanId that identifies the configurable
+     */
+    public abstract void putAll(Collection<Bean> configurables);
+
+    /**
      * Remove a certain bean from the cache.
+     *
      * @param beanId id of bean to remove
      */
     public abstract void remove(BeanId beanId);
+
+    /**
+     * Remove a collection of beans from the cache.
+     *
+     * @param schemaName schemaName
+     * @param instances instanceIds
+     */
+    public abstract void remove(String schemaName, Collection<String> instances);
 
     /**
      * Clear the cache for a particular schema
@@ -77,5 +104,15 @@ public abstract class CacheManager<V> {
      * Clear the whole cache for all instances.
      */
     public abstract void clear();
+
+    /**
+     * Create a cache query.
+     *
+     * @param schema schema to query
+     * @return a query object
+     */
+    public abstract ConfigQuery newQuery(Schema schema);
+
+
 
 }

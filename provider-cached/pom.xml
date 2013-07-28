@@ -65,6 +65,12 @@
       <version>3.12.1.GA</version>
     </dependency>
     <dependency>
+      <groupId>com.googlecode.cqengine</groupId>
+      <artifactId>cqengine</artifactId>
+      <version>1.0.3</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
       <groupId>com.google.caliper</groupId>
       <artifactId>caliper</artifactId>
       <version>0.5-rc1</version>

@@ -142,7 +142,7 @@ public abstract class ConfigContext {
      * is queried must be {@link Index} annotated.
      *
      * This feature is currently experimental and must be turned on by setting
-     * System Property 'typesafe.query.enabled' to true.
+     * 'confit.query.enabled' to true.
      *
      * @see {@link ConfigQueryBuilder}
      *

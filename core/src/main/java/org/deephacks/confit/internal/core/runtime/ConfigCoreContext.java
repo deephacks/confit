@@ -21,14 +21,12 @@ import org.deephacks.confit.internal.core.DefaultSchemaManager;
 import org.deephacks.confit.internal.core.Lookup;
 import org.deephacks.confit.internal.core.SystemProperties;
 import org.deephacks.confit.internal.core.notification.DefaultNotificationManager;
-import org.deephacks.confit.internal.core.query.ConfigIndexedCollection;
-import org.deephacks.confit.internal.core.query.ConfigQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
-import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
+import org.deephacks.confit.query.ConfigQuery;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.CacheManager;
 import org.deephacks.confit.spi.Conversion;
@@ -62,7 +60,6 @@ public final class ConfigCoreContext extends ConfigContext {
     private HashMap<String, Schema> schemas = new HashMap<>();
     private SystemProperties properties = SystemProperties.instance();
     private static HashMap<BeanId, Bean> FILE_CONFIG;
-    private static HashMap<Class<?>, Class<?>> initalized = new HashMap<>();
     private static final ThreadLocal<String> RECURSION_SHORTCIRCUIT = new ThreadLocal<>();
     private AtomicBoolean LOOKUP_DONE = new AtomicBoolean(false);
 
@@ -91,7 +88,9 @@ public final class ConfigCoreContext extends ConfigContext {
         for (Class<?> clazz : configurable) {
             Schema schema = conversion.convert(clazz, Schema.class);
             schemaManager.removeSchema(schema.getName());
-            core.removeIndex(schema);
+            if (cacheManager.isPresent()) {
+                cacheManager.get().removeSchema(schema);
+            }
         }
     }
 
@@ -140,7 +139,9 @@ public final class ConfigCoreContext extends ConfigContext {
             }
             if (bean.isPresent()) {
                 T object = conversion.convert(bean.get(), configurable);
-                core.cache(bean.get());
+                if (cacheManager.isPresent()) {
+                    cacheManager.get().put(bean.get());
+                }
                 return object;
             }
         }
@@ -150,7 +151,9 @@ public final class ConfigCoreContext extends ConfigContext {
         core.setSchema(bean.get(), schemas);
         setSingletonReferences(bean.get(), schemas);
         T object = conversion.convert(bean.get(), configurable);
-        core.cache(bean.get());
+        if (cacheManager.isPresent()) {
+            cacheManager.get().put(bean.get());
+        }
         return object;
     }
 
@@ -179,7 +182,9 @@ public final class ConfigCoreContext extends ConfigContext {
         core.setSchema(schemas, beans);
         for (Bean bean : beans.values()) {
             setSingletonReferences(bean, schemas);
-            core.cache(bean);
+            if (cacheManager.isPresent()) {
+                cacheManager.get().put(bean);
+            }
         }
         ArrayList<T> objects = new ArrayList<>();
         for(T object : conversion.convert(beans.values(), configurable)) {
@@ -208,22 +213,20 @@ public final class ConfigCoreContext extends ConfigContext {
         core.setSchema(bean.get(), schemas);
         setSingletonReferences(bean.get(), schemas);
         T object = conversion.convert(bean.get(), configurable);
-        core.cache(bean.get());
+        if (cacheManager.isPresent()) {
+            cacheManager.get().put(bean.get());
+        }
         return Optional.of(object);
     }
 
     @Override
-    public <T> ConfigQuery newQuery(Class<T> configurable) {
+    public <T> ConfigQuery<T> newQuery(Class<T> configurable) {
         doLookup();
-        Schema schema = getSchema(configurable);
-        ConfigIndexedCollection collection = core.get(schema);
-        if(collection == null) {
-            throw Events.CFG101_SCHEMA_NOT_EXIST(configurable.getName());
-        }
         if(!cacheManager.isPresent()) {
             throw new IllegalStateException("Queries are not possible without a cache manager.");
         }
-        return new ConfigQuery<T>(collection, cacheManager.get());
+        Schema schema = getSchema(configurable);
+        return cacheManager.get().newQuery(schema);
     }
 
     @Override
@@ -268,9 +271,6 @@ public final class ConfigCoreContext extends ConfigContext {
         }
         if (FILE_CONFIG == null) {
             FILE_CONFIG = new HashMap<>();
-        }
-        if (initalized.get(configurable) != null) {
-            return;
         }
         Schema schema = getSchema(configurable);
         for (Bean bean : properties.list(schema)) {
@@ -319,7 +319,9 @@ public final class ConfigCoreContext extends ConfigContext {
         properties.registerSchema(schema);
         schemas.put(schema.getName(), schema);
         schemaManager.registerSchema(schema);
-        core.putIndex(schema);
+        if (cacheManager.isPresent()) {
+            cacheManager.get().registerSchema(schema);
+        }
         return schema;
     }
 }

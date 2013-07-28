@@ -18,14 +18,20 @@ import org.deephacks.cached.Cache;
 import org.deephacks.cached.CacheBuilder;
 import org.deephacks.cached.buffer.util.internal.chmv8.ConcurrentHashMapV8;
 import org.deephacks.confit.internal.cached.proxy.ConfigProxyGenerator;
+import org.deephacks.confit.internal.cached.query.ConfigIndex;
+import org.deephacks.confit.internal.cached.query.ConfigIndexedCollection;
 import org.deephacks.confit.internal.core.runtime.BeanToObjectConverter;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
+import org.deephacks.confit.query.ConfigQuery;
 import org.deephacks.confit.spi.CacheManager;
 import org.deephacks.confit.spi.Conversion;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -54,6 +60,13 @@ public class CachedCacheManager extends CacheManager<Object> {
     /** proxies are serialized into binary ByteBuf form using this serializer */
     private static final DefaultCacheValueSerializer defaultSerializer = new DefaultCacheValueSerializer();
     private static final Conversion conv = Conversion.get();
+
+    /** schemaName -> index */
+    private static final HashMap<String, ConfigIndex> configIndexes = new HashMap<>();
+
+    /** schemaName -> indexed collection */
+    private static final HashMap<String, ConfigIndexedCollection> indexCollections = new HashMap<>();
+
     static {
         conv.register(new BeanToObjectConverter());
     }
@@ -62,7 +75,17 @@ public class CachedCacheManager extends CacheManager<Object> {
     public void registerSchema(Schema schema) {
         proxyGenerator.put(schema);
         defaultSerializer.put(schema);
+        putIndex(schema);
     }
+
+    @Override
+    public void removeSchema(Schema schema) {
+        String schemaName = schema.getName();
+        clear(schemaName);
+        indexCollections.remove(schemaName);
+        configIndexes.remove(schemaName);
+    }
+
 
     public Object get(BeanId id) {
         Cache<BeanId, Object> cache = getCache(id.getSchemaName());
@@ -85,6 +108,9 @@ public class CachedCacheManager extends CacheManager<Object> {
     public void put(Bean bean) {
         Schema schema = bean.getSchema();
         Preconditions.checkNotNull(schema, "Missing schema");
+        ConfigIndexedCollection col = indexCollections.get(bean.getId().getSchemaName());
+        col.add(bean);
+
         BeanId id = bean.getId();
         Set<Bean> beans = flattenReferences(bean);
 
@@ -93,6 +119,13 @@ public class CachedCacheManager extends CacheManager<Object> {
             validateCacheObject(proxy);
             Cache<BeanId, Object> cache = getCache(b.getId().getSchemaName());
             cache.put(id, proxy);
+        }
+    }
+
+    @Override
+    public void putAll(Collection<Bean> configurables) {
+        for (Bean bean : configurables) {
+            put(bean);
         }
     }
 
@@ -134,6 +167,15 @@ public class CachedCacheManager extends CacheManager<Object> {
         if(cache != null) {
             cache.remove(beanId);
         }
+        ConfigIndexedCollection col = indexCollections.get(beanId.getSchemaName());
+        col.remove(beanId);
+    }
+
+    @Override
+    public void remove(String schemaName, Collection<String> instances) {
+        for (String instanceId : instances) {
+            remove(BeanId.create(instanceId, schemaName));
+        }
     }
 
     @Override
@@ -149,6 +191,24 @@ public class CachedCacheManager extends CacheManager<Object> {
         for (String key : caches.keySet()) {
             caches.get(key).clear();
         }
+    }
+
+    @Override
+    public ConfigQuery newQuery(Schema schema) {
+        ConfigIndexedCollection collection = indexCollections.get(schema.getName());
+        if(collection == null) {
+            throw Events.CFG101_SCHEMA_NOT_EXIST(schema.getName());
+        }
+        return new org.deephacks.confit.internal.cached.query.ConfigQuery<>(collection, this);
+    }
+
+    private void putIndex(Schema schema) {
+        if(configIndexes.get(schema.getName()) != null) {
+            return;
+        }
+        ConfigIndex index = new ConfigIndex(schema);
+        configIndexes.put(schema.getName(), index);
+        indexCollections.put(schema.getName(), new ConfigIndexedCollection(index));
     }
 
     private Cache<BeanId, Object> getCache(String schemaName) {

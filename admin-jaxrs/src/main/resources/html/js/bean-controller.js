@@ -161,7 +161,7 @@ ConfigAdmin.controller(
                 }
             }
             Config.setBean($scope.bean).success(function(){
-                var redirect = '/bean-list-scroll/'+$scope.schemaName;
+                var redirect = '/bean-scroll/'+$scope.schemaName;
                 $location.path(redirect);
             }).error(function(data, status){
                     $scope.errors = [
@@ -171,7 +171,7 @@ ConfigAdmin.controller(
         }
 
         $scope.rollback = function(){
-            var redirect = '/bean-list-scroll/'+$scope.schemaName;
+            var redirect = '/bean-scroll/'+$scope.schemaName;
             $location.path(redirect);
         }
     }
@@ -229,7 +229,7 @@ ConfigAdmin.controller(
             }
             Config.createBean($scope.bean).
                 success(function(){
-                    $location.path('/bean-list-scroll/' + $scope.schemaName);
+                    $location.path('/bean-scroll/' + $scope.schemaName);
                     $scope.$broadcast( "requestContextChanged" );
                 }).error(function(data, status){
                     $scope.errors = [

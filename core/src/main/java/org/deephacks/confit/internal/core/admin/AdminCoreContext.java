@@ -38,7 +38,6 @@ import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.CacheManager;
 import org.deephacks.confit.spi.Conversion;
 import org.deephacks.confit.spi.NotificationManager;
-import org.deephacks.confit.spi.NotificationManager.Observer;
 import org.deephacks.confit.spi.SchemaManager;
 
 import javax.inject.Inject;
@@ -163,7 +162,9 @@ public final class AdminCoreContext extends AdminContext {
     public void create(Bean bean) {
         Preconditions.checkNotNull(bean);
         create(Arrays.asList(bean));
-        core.cache(bean);
+        if (cacheManager.isPresent()) {
+            cacheManager.get().put(bean);
+        }
     }
 
     @Override
@@ -185,7 +186,9 @@ public final class AdminCoreContext extends AdminContext {
         }
         beanManager.create(beans);
         notificationManager.fireCreate(beans);
-        core.cache(beans);
+        if (cacheManager.isPresent()) {
+            cacheManager.get().putAll(beans);
+        }
     }
 
     @Override
@@ -223,7 +226,9 @@ public final class AdminCoreContext extends AdminContext {
         }
         beanManager.set(beans);
         notificationManager.fireUpdated(beans);
-        core.cache(beans);
+        if (cacheManager.isPresent()) {
+            cacheManager.get().putAll(beans);
+        }
     }
 
     @Override
@@ -260,11 +265,13 @@ public final class AdminCoreContext extends AdminContext {
         }
         beanManager.merge(beans);
         notificationManager.fireUpdated(beans);
-        for (Bean bean : beans) {
-            // must refresh the bean from storage since it is merged.
-            Optional<Bean> refreshed = beanManager.getEager(bean.getId());
-            if (refreshed.isPresent()) {
-                core.cache(refreshed.get());
+        if (cacheManager.isPresent()) {
+            for (Bean bean : beans) {
+                // must refresh the bean from storage since it is merged.
+                Optional<Bean> refreshed = beanManager.getEager(bean.getId());
+                if (refreshed.isPresent()) {
+                    cacheManager.get().put(refreshed.get());
+                }
             }
         }
     }
@@ -290,7 +297,9 @@ public final class AdminCoreContext extends AdminContext {
         }
         core.setSchema(schemaManager.getSchemas(), Arrays.asList(bean));
         notificationManager.fireDelete(Lists.newArrayList(bean));
-        core.cacheRemove(beanId);
+        if (cacheManager.isPresent()) {
+            cacheManager.get().remove(beanId);
+        }
     }
 
     @Override
@@ -303,7 +312,10 @@ public final class AdminCoreContext extends AdminContext {
         Collection<Bean> beans = beanManager.delete(name, instances);
         core.setSchema(schemaManager.getSchemas(), beans);
         notificationManager.fireDelete(beans);
-        core.cacheRemove(name, instances);
+
+        if (cacheManager.isPresent()) {
+            cacheManager.get().remove(name, instances);
+        }
     }
 
     @Override
@@ -550,7 +562,6 @@ public final class AdminCoreContext extends AdminContext {
 
         if (cacheManager == null) {
             cacheManager = core.lookupCacheManager();
-            notificationManager.register(new Observer(cacheManager));
         }
         if (validator == null) {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();

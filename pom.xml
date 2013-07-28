@@ -218,12 +218,6 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>com.googlecode.cqengine</groupId>
-      <artifactId>cqengine</artifactId>
-      <version>1.0.3</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
       <version>4.10</version>
