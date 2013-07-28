@@ -346,6 +346,9 @@ in memory implementation. Changing storage implementation does not have any code
 As mentioned earlier, any configuration in persistence storage will override instances in the default 
 [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md)  configuration file.
 
+Even if a persistence provider is used in production, the default in memory storage can be very useful in
+basic tests since it does not require internal/external setup or complex dependencies.
+
 #### YAML
 
 The simplest persistence module is the YAML provider where configuration is written to a file on disk when created,
