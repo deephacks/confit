@@ -248,9 +248,36 @@ This is an example of application.conf, containing configuration of class A and 
     }
 
 
-### Persistence using HBase, JPA or JSON/YAML/XML files.
+### Persistence using file, database or HBase.
 
-TODO
+Configuration is stored in memory by default, which may not be desirable in deployments with availability 
+and durability requirements. 
+
+Default storage is changed by adding a provider to classpath, which will automatically override the default
+in memory implementation.
+
+The simplest persistence module is the YAML provider where configuration is put in a file on disk.
+
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-provider-yaml</artifactId>
+      </dependency>
+
+Configuration can be stored in a database using the JPA module, which has currently been tested with MySQL, 
+PostgreSQL and Derby. 
+
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-provider-jpa20</artifactId>
+      </dependency>
+
+Another option is to store the configuration in [HBase](http://hbase.apache.org/), which is a distributed, 
+scalable, big data store.
+
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-provider-hbase</artifactId>
+      </dependency>
 
 ### Caching
 
@@ -278,7 +305,6 @@ that can communicate with the endpoint with burdening the client with HTTP or JA
 
 The REST endpoint can be deploy in [Jetty](http://www.eclipse.org/jetty/) using [RestEasy](http://www.jboss.org/resteasy)
 (for example). Have a look at the JAX-RS tests.
-
 
 
 ### Graphical administration using Angular.js
