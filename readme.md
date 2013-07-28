@@ -180,11 +180,16 @@ instances of class B.
 
 ```java
     A a = new A();
-    a.setListReferences(one, two, thread);
-    admin.createObject(a);
+    B one = new B("1");
+    B two = new B("2");
+    B three = new B("3");
     
-    // update references
-    a.setListReferences(thread);
+    a.setListReferences(one, two, three);
+    // create instance and references in a single operation
+    admin.createObjects(Arrays.asList(a, one, two, three));
+    
+    // merge 'a' list references to the single instance 'three'
+    a.setListReferences(three);
     admin.mergeObject(a);
 ```
 
