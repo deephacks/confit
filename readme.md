@@ -125,8 +125,8 @@ We can also create instances of class B.
 
 ### References
 
-Not to impressive yet, but notice the last three fields of class A, which are references to B. This means that 
-class A can be provisioned with references to instances of class B.
+Notice the last three fields of class A, which are references to B. This means that class A can be 
+provisioned with references to instances of class B.
 
     A a = new A();
     a.setListReferences(one, two, thread);
@@ -140,30 +140,81 @@ We will also get an exception if we try to delete an instance which is reference
 
 ### Validation
 
-TODO
-
-### File fallback
-
-
-Configuration file fallback using the [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) format. 
+Bean validation 1.1 is supported and to enable it simply add an implementation to classpath like 
+[hibernate-validator](http://www.hibernate.org/subprojects/validator.html) for example.
 
 
-    A {
-      1 {
-      }
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.0.0.Final</version>
+      <scope>compile</scope>
+    </dependency>
 
-      2 {
-      }
+Configurable classes will now be validated AdminContext according to constraints annotations available 
+on configurable fields. Custom 
+[ConstraintValidator](http://docs.jboss.org/hibernate/stable/beanvalidation/api/javax/validation/ConstraintValidator.html) 
+can also be used.
+
+
+    @Config(name = "C")
+    public class C {
+      @NotNull
+      private String value;
+      
+      @Size(max = 3)
+      private List<String> stringList;
+
+      @Size(max = 3)
+      private List<B> listReferences;
     }
 
+### Custom types
 
+TODO
+
+
+### File configuration
+
+
+Configuration can be bootstrapped using the [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) 
+file format. A file called application.conf will be loaded by default, if available on classpath. This file
+is read-only and will not be modified by AdminContext. 
+
+Instead, the file works as a fallback that is used only if no configuration is available for a particular class. 
+Configuration provisioned by AdminContext takes precedence.
+
+This is an example of application.conf, containing configuration of class A and B mentioned earlier.
+
+
+    # class A, singleton no instances defined.
+    A {
+      value = someValue
+      decimal = 1.243453
+      customType = PT15H
+      customList = ["http://google.com", "http://github.com"]
+      listReferences = [1, 2]
+      mapReferences = [2, 3]
+    }
+
+    # class B, with instances.
     B {
-      
-      1 {
-      }
 
-      2 {
+      # instance one
+      1 {
+        decimal = 12131.13312
+        enumList = [SECONDS, HOURS]
       }
+      
+      # instance two
+      2 {
+        integer = 1234567
+      }
+      
+      # instance three
+      3 {
+        stringList = [abc, def, ghi, jkl]
+      }      
     }
 
 
