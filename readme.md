@@ -281,15 +281,15 @@ There are also ways to have configurable fields of classes that that doesnt have
 ### Default configuration file
 
 
-Configuration can be bootstrapped using the [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) 
-file format. A file called application.conf will be loaded by default, if available on classpath. 
+Configuration can be bootstrapped using a [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) 
+file (simplified, human optimized, JSON format). A file called application.conf will be loaded by default, if available on classpath. 
 It is possible to change the location of this file by setting a system property. This file is read-only and 
 will not be modified by AdminContext. 
 
 Instead, the file works as a fallback that is used only if no configuration is available for a particular class. 
 Configuration provisioned by AdminContext takes precedence.
 
-This is an example of application.conf, containing configuration of class A and B mentioned earlier.
+This is an example of a HOCON application.conf, containing configuration of class A and B mentioned earlier.
 
 
     # class A, singleton no instances defined.
@@ -338,7 +338,8 @@ and durability requirements.
 Default storage is changed by adding a provider to classpath, which will automatically override the default
 in memory implementation. Changing storage implementation does not have any code impact on configurable classes.
 
-As mentioned earlier, any configuration in persistence storage will override instances in the default configuration file.
+As mentioned earlier, any configuration in persistence storage will override instances in the default 
+[HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md)  configuration file.
 
 #### YAML
 
