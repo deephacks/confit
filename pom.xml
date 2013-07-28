@@ -83,7 +83,6 @@
     <module>admin-jaxrs</module>
     <module>tck</module>
     <module>perf</module>
-    <!-- <module>examples</module> -->
     <module>docbkx</module>
   </modules>
 

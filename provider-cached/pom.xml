@@ -18,10 +18,6 @@
     </dependency>
     <dependency>
       <groupId>org.deephacks</groupId>
-      <artifactId>confit-provider-yaml</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>org.deephacks</groupId>
       <artifactId>confit-api-provider</artifactId>
     </dependency>
     <dependency>

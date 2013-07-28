@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- vi:ts=2:sw=2:expandtab: -->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+  <parent>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-root</artifactId>
+    <version>0.16.2</version>
+  </parent>
+
+  <modelVersion>4.0.0</modelVersion>
+  <artifactId>confit-example-simple</artifactId>
+  <name>Confit Example Simple</name>
+  <description>Simple Example</description>
+  <dependencies>
+    <dependency>
+      <groupId>org.deephacks</groupId>
+      <artifactId>confit</artifactId>
+      <version>${version.confit}</version>
+    </dependency>
+    <dependency>
+      <groupId>javax.validation</groupId>
+      <artifactId>validation-api</artifactId>
+      <version>1.1.0.Final</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.hibernate</groupId>
+      <artifactId>hibernate-validator</artifactId>
+      <version>5.0.0.Final</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.10</version>
+    </dependency>
+  </dependencies>
+</project>

@@ -123,9 +123,6 @@ public final class ConfigCoreContext extends ConfigContext {
             } else {
                 RECURSION_SHORTCIRCUIT.set(configurable.getName());
                 bean = beanManager.getEager(singleton);
-                if (bean.isPresent() && bean.get().getId().getSchemaName().equals("jpa")) {
-
-                }
             }
         } finally {
             RECURSION_SHORTCIRCUIT.set(null);

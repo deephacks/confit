@@ -309,6 +309,16 @@ public abstract class AdminContext {
     public abstract void delete(final BeanId bean) throws AbortRuntimeException;
 
     /**
+     * Delete a particular instance. The instance must have its Id set.
+     *
+     * @param instance instance to delete.
+     * @throws AbortRuntimeException is thrown when the system itself cannot
+     * recover from a certain event and must therefore abort execution, see
+     * {@link org.deephacks.confit.model.Events}.
+     */
+    public abstract void deleteObject(final Object instance) throws AbortRuntimeException;
+
+    /**
      * This is the collection variant of {@link AdminContext#delete(BeanId)}.
      *
      * @param schemaName the name of the schema that covers all instance ids.
@@ -318,6 +328,16 @@ public abstract class AdminContext {
      * {@link org.deephacks.confit.model.Events}.
      */
     public abstract void delete(final String schemaName, final Collection<String> instanceIds)
+            throws AbortRuntimeException;
+
+    /**
+     * Delete a set of instances.
+     *
+     * @param configurable configurable class
+     * @param instanceIds instance ids to removes
+     * @throws AbortRuntimeException
+     */
+    public abstract void deleteObjects(final Class<?> configurable, final Collection<String> instanceIds)
             throws AbortRuntimeException;
 
     /**

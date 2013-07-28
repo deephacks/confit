@@ -303,6 +303,12 @@ public final class AdminCoreContext extends AdminContext {
     }
 
     @Override
+    public void deleteObject(Object instance) throws AbortRuntimeException {
+        Bean bean = conversion.convert(instance, Bean.class);
+        delete(bean.getId());
+    }
+
+    @Override
     public void delete(String name, Collection<String> instances) {
         Preconditions.checkNotNull(name);
         if (instances == null || instances.isEmpty()) {
@@ -315,6 +321,14 @@ public final class AdminCoreContext extends AdminContext {
 
         if (cacheManager.isPresent()) {
             cacheManager.get().remove(name, instances);
+        }
+    }
+
+    @Override
+    public void deleteObjects(Class<?> configurable, Collection<String> instanceIds) throws AbortRuntimeException {
+        Schema schema = conversion.convert(configurable, Schema.class);
+        for (String instanceId : instanceIds) {
+            delete(BeanId.create(instanceId, schema.getName()));
         }
     }
 

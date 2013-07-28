@@ -84,7 +84,8 @@ public class SystemProperties {
         List<Bean> beans = new ArrayList<>();
         Config schemaConfig;
         try {
-            schemaConfig = config.getConfig(schema.getName());
+            String schemaName = schema.getName().replaceAll("\\$", "\\.");
+            schemaConfig = config.getConfig(schemaName);
             if (schemaConfig == null) {
                 return beans;
             }
@@ -188,7 +189,8 @@ public class SystemProperties {
             throw Events.CFG101_SCHEMA_NOT_EXIST(beanId.getSchemaName());
         }
         try {
-            Config schemaConfig = config.getConfig(schema.getName());
+            String schemaName = schema.getName().replaceAll("\\$", "\\.");
+            Config schemaConfig = config.getConfig(schemaName);
             Bean bean;
             if (schema.getId().isSingleton()) {
                 bean = Bean.create(BeanId.createSingleton(schema.getName()));

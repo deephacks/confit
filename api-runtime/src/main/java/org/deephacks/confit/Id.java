@@ -69,5 +69,5 @@ public @interface Id {
      *
      * @return
      */
-    String desc();
+    String desc() default "";
 }

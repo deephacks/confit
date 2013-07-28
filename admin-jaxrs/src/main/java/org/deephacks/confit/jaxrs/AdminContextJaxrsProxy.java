@@ -306,6 +306,16 @@ public class AdminContextJaxrsProxy extends AdminContext {
     }
 
     @Override
+    public void deleteObject(Object instance) throws AbortRuntimeException {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
+    public void deleteObjects(Class<?> configurable, Collection<String> instanceIds) throws AbortRuntimeException {
+        throw new UnsupportedOperationException("not implemented yet");
+    }
+
+    @Override
     public Map<String, Schema> getSchemas() {
         URI uri = getUri("getSchemas").build();
         Response response = get(uri);

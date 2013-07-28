@@ -178,17 +178,7 @@ public abstract class LookupProvider {
             }
             return clazz.cast(Reflections.newInstance(preferred.get()));
         }
-        Object instance = getPreferredInstance(instances, null);
-        if (instance != null) {
-            return instance;
-        }
-
-        Collection<?> managers = lookupAll(clazz);
-        if (managers.size() == 1) {
-            return managers.iterator().next();
-        } else {
-            return Lookup.get().lookup(clazz);
-        }
+        return getPreferredInstance(instances, null);
     }
 
     private <T> T getPreferredInstance(List<T> instances, String prefered) {

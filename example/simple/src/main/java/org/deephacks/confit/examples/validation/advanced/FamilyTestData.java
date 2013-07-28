@@ -11,15 +11,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.deephacks.confit.examples.family;
+package org.deephacks.confit.examples.validation.advanced;
 
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
-import org.deephacks.confit.internal.core.Lookup;
 
 public class FamilyTestData {
-    static AdminContext admin = Lookup.get().lookup(AdminContext.class);
+    static AdminContext admin = AdminContext.get();
 
     public static Bean createFamily(String prefix, String childGender) {
         int counter = 0;

@@ -11,7 +11,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.deephacks.confit.examples.family;
+package org.deephacks.confit.examples.validation.advanced;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +22,9 @@ import org.deephacks.confit.Config;
 import org.deephacks.confit.Id;
 
 /**
- * A recursive example of a family tree. 
- * 
- * See the parent-child.png for an illustration of the potential realtionship 
+ * A recursive example of a family tree.
+ *
+ * See the parent-child.png for an illustration of the potential realtionship
  * between marriage and persons.
  */
 @Config(desc = "Users", name = "Person")
