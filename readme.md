@@ -50,7 +50,7 @@ Conf-it comes as a single jar file (only dependency is guava) and is available i
 ### Define
 
 Configurable classes are annotated with the @Config annotation and all fields are configurable as 
-long they are not final or static.
+long they are not final or static. All basic Java object data types are supported, including list of these.
 
 A is a singleton instance, meaning, there can be only one configuration of this class.
 
@@ -169,9 +169,37 @@ can also be used.
       private List<B> listReferences;
     }
 
-### Custom types
+### Custom field types
 
-TODO
+Configurable fields are not limited to simple Java types. 
+
+    public class DurationTime {
+      private int hours;
+      private int minutes;
+      private long seconds;
+      private String duration;
+      
+      public DurationTime(String duration) {
+        // like PT15H for a 15 hour period
+        this.duration = duration;
+      }
+      
+      public DurationTime(int hours, int minutes, int seconds) {
+        this.hours = hours;
+        this.minutes = minutes;
+        this.seconds = seconds;
+      }
+      
+      // other methods ...
+      
+      public String toString() {
+        return duration;
+      }
+    }
+    
+
+This will work directly because the class have a default String constructor and a toString for serialization. There 
+are ways to use classes that that doesnt have a default String constructor. More on that later.
 
 
 ### File configuration
