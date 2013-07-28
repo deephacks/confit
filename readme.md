@@ -39,7 +39,7 @@ storage mechanisms, or switching between them, does not impact client code what 
 There is an [introduction](http://stoffe.deephacks.org/2012/05/07/tools4j-config-part-1-introduction) which is 
 a bit outdated at the moment. Will be updated soon.
 
-Conf-it is available in Maven Central.
+Conf-it comes as a single jar file (only dependency is guava) and is available in Maven Central.
 
     <dependency>
       <groupId>org.deephacks</groupId>
