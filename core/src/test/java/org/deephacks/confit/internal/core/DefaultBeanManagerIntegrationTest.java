@@ -26,6 +26,7 @@ import java.util.List;
 
 @RunWith(FeatureTestsRunner.class)
 public class DefaultBeanManagerIntegrationTest implements FeatureTests {
+
     @Override
     public List<TestRound> build() {
         return IntegrationTestsBuilder.named(DefaultBeanManagerIntegrationTest.class.getSimpleName())

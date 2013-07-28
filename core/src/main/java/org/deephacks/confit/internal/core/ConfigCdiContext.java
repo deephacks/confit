@@ -19,7 +19,7 @@ public class ConfigCdiContext implements Context {
     private BeanManager bm;
     private ConfigContext ctx;
     private CreationalContext cctx = null;
-    private ConcurrentHashMap<Class<?>, Object> cache = new ConcurrentHashMap<>();
+    private static final ConcurrentHashMap<Class<?>, Object> cache = new ConcurrentHashMap<>();
 
     public ConfigCdiContext(BeanManager bm) {
         this.bm = bm;

@@ -17,6 +17,9 @@ import org.deephacks.confit.admin.query.BeanQueryBuilder.StringContains;
 import org.deephacks.confit.internal.jpa.Jpa20BeanManager;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Schema;
+import org.deephacks.confit.model.ThreadLocalManager;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.Query;
@@ -26,6 +29,7 @@ import java.util.List;
 import static org.deephacks.confit.admin.query.BeanQueryBuilder.equal;
 
 public class JpaBeanQuery implements BeanQuery {
+    private static Logger log = LoggerFactory.getLogger(JpaBeanQuery.class);
     private static final String INNER_JOIN_PROPERTY = "INNER JOIN CONFIG_PROPERTY p%d ON b.BEAN_ID = p%d.FK_BEAN_ID ";
     private static final String INNER_JOIN_REFERENCE = "INNER JOIN CONFIG_BEAN_REF r%d ON b.BEAN_ID = r%d.FK_SOURCE_BEAN_ID ";
     private final EntityManager em;
@@ -36,12 +40,14 @@ public class JpaBeanQuery implements BeanQuery {
     private List<String> where = new ArrayList<>();
     private Optional<Integer> maxResults = Optional.absent();
     private Optional<Integer> firstResult = Optional.absent();
+    private boolean autoCommit;
 
-    public JpaBeanQuery(Schema schema, EntityManager em, Jpa20BeanManager manager) {
+    public JpaBeanQuery(Schema schema, EntityManager em, Jpa20BeanManager manager, boolean autoCommit) {
         this.schema = schema;
         this.schemaName = schema.getName();
         this.em = em;
         this.manager = manager;
+        this.autoCommit = autoCommit;
     }
 
 
@@ -166,29 +172,70 @@ public class JpaBeanQuery implements BeanQuery {
 
     @Override
     public List<Bean> retrieve() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("SELECT b.BEAN_ID FROM CONFIG_BEAN b ");
-        for (int i = 0; i < join.size(); i++) {
-            sb.append(join.get(i));
-        }
-        sb.append(" WHERE ");
-        sb.append(String.format("b.BEAN_SCHEMA_NAME='%s'", schemaName));
+        try {
+            StringBuilder sb = new StringBuilder();
+            sb.append("SELECT b.BEAN_ID FROM CONFIG_BEAN b ");
+            for (int i = 0; i < join.size(); i++) {
+                sb.append(join.get(i));
+            }
+            sb.append(" WHERE ");
+            sb.append(String.format("b.BEAN_SCHEMA_NAME='%s'", schemaName));
 
-        for (int i = 0; i < where.size(); i++) {
-            sb.append(" AND ");
-            sb.append(where.get(i));
-        }
+            for (int i = 0; i < where.size(); i++) {
+                sb.append(" AND ");
+                sb.append(where.get(i));
+            }
 
-        sb.append(" GROUP BY b.BEAN_ID ");
-        System.out.println(sb.toString());
-        Query q = em.createNativeQuery(sb.toString());
-        if(firstResult.isPresent()) {
-            q.setFirstResult(firstResult.get());
+            sb.append(" GROUP BY b.BEAN_ID ");
+            Query q = em.createNativeQuery(sb.toString());
+            if(firstResult.isPresent()) {
+                q.setFirstResult(firstResult.get());
+            }
+            if(maxResults.isPresent()) {
+                q.setMaxResults(maxResults.get());
+            }
+            List<String> instanceIds = q.getResultList();
+            List<Bean> result = Lists.newArrayList(manager.list(schemaName, instanceIds).values());
+            commit(em);
+            return result;
+        } catch (Throwable e) {
+            rollback(em);
+            throw new RuntimeException(e);
+        } finally {
+            closeEntityManager(em);
         }
-        if(maxResults.isPresent()) {
-            q.setMaxResults(maxResults.get());
+    }
+
+    public void commit(EntityManager em) {
+        if (autoCommit && em.getTransaction().isActive()) {
+            em.getTransaction().commit();
+            em.clear();
+            closeEntityManager(em);
+        } else {
+            log.warn("Cannot rollback tx, no transaction is active.");
         }
-        List<String> instanceIds = q.getResultList();
-        return Lists.newArrayList(manager.list(schemaName, instanceIds).values());
+    }
+
+    public void rollback(EntityManager em) {
+        if (em.getTransaction().isActive()) {
+            em.getTransaction().rollback();
+            em.clear();
+            closeEntityManager(em);
+        } else {
+            log.warn("Cannot rollback tx, no transaction is active.");
+        }
+    }
+
+    public void closeEntityManager(EntityManager manager) {
+        ThreadLocalManager.pop(EntityManager.class);
+        if (manager == null) {
+            log.warn("Cannot close, no EntityManager was found in thread local.");
+            return;
+        }
+        if (!manager.isOpen()) {
+            log.warn("Cannot close, EntityManager has already been closed.");
+            return;
+        }
+        manager.close();
     }
 }

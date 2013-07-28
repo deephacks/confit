@@ -42,6 +42,7 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 
 public class ConfigCoreContextTest extends ConfigDefaultSetup {
+
     @Before
     public void before() {
         DefaultBeanManager.clear();

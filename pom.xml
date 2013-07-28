@@ -83,7 +83,7 @@
     <module>admin-jaxrs</module>
     <module>tck</module>
     <module>perf</module>
-    <module>examples</module>
+    <!-- <module>examples</module> -->
     <module>docbkx</module>
   </modules>
 
@@ -260,12 +260,6 @@
       <dependency>
         <groupId>org.deephacks</groupId>
         <artifactId>confit-api-provider</artifactId>
-        <version>${version.confit}</version>
-        <scope>provided</scope>
-      </dependency>
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-api-admin</artifactId>
         <version>${version.confit}</version>
         <scope>provided</scope>
       </dependency>

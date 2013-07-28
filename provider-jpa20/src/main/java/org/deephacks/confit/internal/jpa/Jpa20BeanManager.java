@@ -291,9 +291,6 @@ public final class Jpa20BeanManager extends BeanManager {
             }
             List<Bean> beans = findEager(Sets.newHashSet(id));
             if (beans.size() == 0) {
-                if (id.isSingleton()) {
-                    return Optional.of(Bean.create(id));
-                }
                 return Optional.absent();
             }
             commit();
@@ -628,7 +625,7 @@ public final class Jpa20BeanManager extends BeanManager {
 
     @Override
     public BeanQuery newQuery(Schema schema) {
-        return new JpaBeanQuery(schema, getEmOrFail(), this);
+        return new JpaBeanQuery(schema, getEmOrFail(), this, autoCommit);
     }
 
 }

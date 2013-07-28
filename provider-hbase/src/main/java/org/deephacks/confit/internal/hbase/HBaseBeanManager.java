@@ -303,7 +303,7 @@ public class HBaseBeanManager extends BeanManager {
             HBeanRowCollector result = table.getEager(row);
             List<Bean> beans = result.getBeans();
             if (beans == null || beans.size() == 0) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(id);
+                return Optional.absent();
             }
             return Optional.of(beans.get(0));
         } catch (HBeanNotFoundException e) {

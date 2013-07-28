@@ -161,8 +161,10 @@ public final class Schema implements Serializable {
 
     public String getReferenceSchemaName(String propertyName) {
         for (AbstractSchemaProperty schema : properties.values()) {
-            if (!schema.getFieldName().equals(propertyName)) {
-                continue;
+            if (!schema.getName().equals(propertyName)) {
+                if (!schema.getFieldName().equals(propertyName)) {
+                    continue;
+                }
             }
             if (schema instanceof SchemaPropertyRef) {
                 return ((SchemaPropertyRef) schema).getSchemaName();
