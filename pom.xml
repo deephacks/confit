@@ -6,7 +6,7 @@
   <artifactId>confit-root</artifactId>
   <name>confit</name>
   <packaging>pom</packaging>
-  <version>0.16.2</version>
+  <version>0.16.3</version>
   <description>Configuration Management for Java applications.</description>
   <url>http://confit.deephacks.org</url>
   <inceptionYear>2013</inceptionYear>
@@ -51,7 +51,7 @@
   </developers>
 
   <properties>
-    <version.confit>0.16.2</version.confit>
+    <version.confit>0.16.3</version.confit>
     <!-- plugins -->
     <version.surefire-plugin>2.10</version.surefire-plugin>
     <version.eclipse-plugin>2.8</version.eclipse-plugin>
