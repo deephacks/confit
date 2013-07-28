@@ -38,11 +38,13 @@ Using either of these storage mechanisms, or switching between them, does not im
 
 Conf-it comes as a single jar file (only dependency is guava) and is available in Maven Central.
 
+```xml
     <dependency>
       <groupId>org.deephacks</groupId>
       <artifactId>confit</artifactId>
       <version>${version.confit}</version>
     </dependency>
+```
 
 ### Define
 
@@ -51,6 +53,7 @@ long they are not final or static. All basic Java object data types are supporte
 
 A is a singleton instance, meaning, there can be only one configuration of this class.
 
+```java
     @Config(name = "A")
     public class A {
       private String value;
@@ -65,9 +68,11 @@ A is a singleton instance, meaning, there can be only one configuration of this 
       private List<B> listReferences;
       private Map<String, B> mapReferences;
     }
+```
 
 B can have multiple configurations/instances, hence the @Id annotation which identify each instance.
 
+```java
     @Config(name = "B")
     public class B {
       @Id
@@ -82,21 +87,25 @@ B can have multiple configurations/instances, hence the @Id annotation which ide
       private List<URL> customList;
       private DurationTime customType;
     }
+```
 
 ### Read
 
 We can now access our two configurable classes using the ConfigContext, which is the application interface for 
 fetching configuration.
 
+```java
     ConfigContext config = ConfigContext.get();
     A a = config.get(A.class);
     Collection<B> list = config.list(B.class);
+```
 
 ### Create
 
 Class A does not have any values because there is no configuration yet. AdminContext is used to provision
 configuration.
 
+```java
     AdminContext admin = AdminContext.get();
     A a = new A();
     // set some values on 'a' ...
@@ -106,9 +115,11 @@ configuration.
     
     // we can now read configured values
     a = config.get(A.class);
+```
 
 We can also create instances of class B. 
-    
+
+```java    
     B one = new B("1");
     B two = new B("2");
     B three = new B("3");
@@ -118,35 +129,40 @@ We can also create instances of class B.
     Optional<B> optionalOne = config.get("1", B.class);
     Optional<B> optionalTwo = config.get("2", B.class);
     Optional<B> optionalThree = config.get("3", B.class);
-    
+```    
 
 ### References
 
 Notice the last three fields of class A, which are references to B. This means that class A can be 
 provisioned with references to instances of class B.
 
+```java
     A a = new A();
     a.setListReferences(one, two, thread);
     admin.createObject(a);
+```
 
 AdminContext will do referential checks to make sure that instances exist, or throw an exception otherwise.
 We will also get an exception if we try to delete an instance which is referenced by another instance.
 
+```java
     // this will fail if 'a' reference 'two'
     admin.deleteObject(two);
+```
 
 ### Validation
 
 Bean validation 1.1 is supported and to enable it simply add an implementation to classpath like 
 [hibernate-validator](http://www.hibernate.org/subprojects/validator.html) for example.
 
-
+```xml
     <dependency>
       <groupId>org.hibernate</groupId>
       <artifactId>hibernate-validator</artifactId>
       <version>5.0.0.Final</version>
       <scope>compile</scope>
     </dependency>
+```
 
 Configurable classes will now be validated AdminContext according to constraints annotations available 
 on configurable fields. Custom 
@@ -154,6 +170,7 @@ on configurable fields. Custom
 can also be used.
 
 
+```java
     @Config(name = "C")
     public class C {
       @NotNull
@@ -166,10 +183,13 @@ can also be used.
       private List<B> listReferences;
     }
 
+```
+
 ### Custom field types
 
 Configurable fields are not limited to simple Java types. 
 
+```java
     public class DurationTime {
       private int hours;
       private int minutes;
@@ -193,7 +213,7 @@ Configurable fields are not limited to simple Java types.
         return duration;
       }
     }
-    
+```    
 
 This will work directly because the class have a default String constructor and a toString for serialization. There 
 are ways to use classes that that doesnt have a default String constructor. More on that later.
@@ -257,30 +277,66 @@ in memory implementation. Changing storage implementation does not have any code
 
 The simplest persistence module is the YAML provider where configuration is put in a file on disk.
 
+```xml
       <dependency>
         <groupId>org.deephacks</groupId>
         <artifactId>confit-provider-yaml</artifactId>
       </dependency>
+```
 
 #### JPA
 
 Configuration can be stored in a database using the JPA module, which has currently been tested with MySQL, 
-PostgreSQL and Derby. 
+PostgreSQL and Derby. A JPA 2.0 implementation must also be available on classpath, where hibernate and eclipselink
+have been tested.
 
+Here is an example that use hibernate.
+
+```xml
       <dependency>
         <groupId>org.deephacks</groupId>
         <artifactId>confit-provider-jpa20</artifactId>
       </dependency>
+      <dependency>
+        <groupId>org.hibernate.javax.persistence</groupId>
+        <artifactId>hibernate-jpa-2.0-api</artifactId>
+        <version>1.0.0.Final</version>
+      </dependency>
+      <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-entitymanager</artifactId>
+        <version>4.0.0.Final</version>        
+      </dependency>
+```
 
 #### HBase
 
 Another option is to store the configuration in [HBase](http://hbase.apache.org/), which is a distributed, 
 scalable, big data store.
 
+```xml
       <dependency>
         <groupId>org.deephacks</groupId>
         <artifactId>confit-provider-hbase</artifactId>
       </dependency>
+      <!-- hadoop is also needed for hdfs storage -->
+      <dependency>
+        <groupId>org.apache.hbase</groupId>
+        <artifactId>hbase</artifactId>
+        <version>0.94.7</version>
+      </dependency>
+      <!-- custom hbase filter used for queries -->
+      <dependency>
+        <groupId>org.deephacks</groupId>
+        <artifactId>confit-provider-hbase-filter</artifactId>
+        <version>${version.confit}</version>
+      </dependency>
+```
+
+#### Mongodb
+
+Planned storage implementation.
+
 
 ### Configuration queries, caching and lazy fetching
 
@@ -291,7 +347,13 @@ and queries can be used to reduce number of instances that are scanned at lookup
 
 * Queries and indexes
 
-TODO
+Example query using ConfigContext.
+
+```java
+       ConfigResultSet<Employee> result = config.newQuery(Employee.class).add(
+                    and(lessThan("salary", 10000.0),not(contains("email", "gmail")))).retrieve();
+
+```
 
 * Lazy fetching
 
@@ -307,26 +369,72 @@ Having several hundreds or thousands configuration instances can quickly become 
 The AdminContext and the REST interface comes with query and pagination capabilities to make configuration 
 management easier.
 
+Example query using AdminContext.
+
+```java
+    List<Bean> result = admin.newQuery('Employee')
+                             .add(lessThan("salary", 10000.0))
+                             .add(contains("email", "gmail"))
+                             .setFirstResult(100)
+                             .setMaxResults(50)
+                             .retrieve();
+```
+
 TODO
 
 ### Notifications
 
 Applications can register observers that are notified whenever configuration is created, updated or deleted.
-Notifications are sent after the changes have been validated, committed to storage and cached.
+Notifications are sent after changes have been validated, committed to storage and cached.
 
-TODO
+An observer method is a non-abstract method which have exactly one parameter of type ConfigChanges annotated with
+the CDI annotation [Observes](http://docs.jboss.org/cdi/api/1.1/javax/enterprise/event/Observes.html).
 
+Observers are not required to run in a CDI environment, but will be registered automatically if doing so.
+
+```java
+    // How to register an observer in non CDI environment
+    config.registerObserver(new Observer());
+```
+
+Example of an observer.
+
+```java
+    public class Observer {
+    
+      public void notify(@Observes ConfigChanges changes) {
+        
+        // iterate changes affecting class A
+        for (ConfigChange<A> change : changes.getChanges(A.class)) {
+          // if both present: update notification 
+
+          // if not present: create notification
+          Optional<A> before = change.getBefore();
+          
+          // if not present: delete notification
+          Optional<A> after = change.getAfter();
+        }
+        
+        // iterate changes affecting class B
+        for (ConfigChange<B> change : changes.getChanges(B.class)) {
+          // ...
+        }
+      }
+    }
+```
 ### JAX-RS 2.0 administration
 
 Conf-it comes with a REST interface, a JAX-RS 2.0 server endpoint and a AdminContext client proxy
 that can communicate with the endpoint with burdening the client with HTTP or JAX-RS details.
 
+
+```java
     // the client proxy implement AdminContext seamlessly
     AdminContext admin = AdminContextJaxrsProxy.get("localhost", 8080);
     
     admin.createObject(new A());
     admin.createObjects(Arrays.asList(new B("1"), new B("2")));
-    
+```
 
 The REST endpoint can be deploy in [Jetty](http://www.eclipse.org/jetty/) using [RestEasy](http://www.jboss.org/resteasy)
 (for example). Have a look at the JAX-RS tests.
@@ -340,6 +448,12 @@ application that use the REST endpoint to administrate configuration graphically
 The interface is generated automatically at runtime by fetching class schemas from the the REST endpoint. 
 Classes that are registered through the ConfigContext will appear immediatly in the GUI, at runtime.
 
+It is possible to do the same search queries and pagination as AdminContext in order to get a better overview
+of available configuration.
+
+### Sessions
+
+Planned feature that will enable multiple isolated changes to be committed or rollback in the context of a session.
 
 ### CDI integration and @Inject
 
@@ -347,8 +461,10 @@ Singleton class configuration can be injected into CDI beans using the @Inject a
 ConfigContext can also be injected. Configuration that have multiple instances cannot be injected at the
 moment. 
 
-Configuration for a class is loaded the CDI bean first access it, then cached forever.
+Configuration is loaded when it is first accessed by the CDI bean, then cached forever.
 
+
+```java
     public class Service {
        @Inject
        private ConfigContext config;
@@ -366,7 +482,7 @@ Configuration for a class is loaded the CDI bean first access it, then cached fo
        }
     
     }
-
+```
 
 ### Writing custom service providers
 
