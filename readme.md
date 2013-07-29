@@ -2,49 +2,73 @@
 
 [![Build Status](https://travis-ci.org/deephacks/confit.png?branch=master)](https://travis-ci.org/deephacks/confit)
 
-The mission of the project is to provide a simple, yet feature rich, configuration framework for Java. 
-Providing the ability of defining configuration decoupled from how and where to store, retrieve and validate 
-configuration, also allowing configuration changes without restarting the application. 
+The mission of the project is to provide a simple (yet feature rich), unified and type safe 
+way to configure Java applications.
 
-The main driver of the project is simplicity.
+## The problem
 
-* If all you need is a static configuration file in a Java SE application, you can just ignore the other features
-and dependencies.
+Configuration is often scattered around systems in different files and using vastly different formats,
+in different locations, jars, deployment descriptors, maybe a little is stored in the database, the
+server runtime is configured using other tools. No documentation. Duplication. 
 
-* If you need more advanced configuration capbilities like persistence, runtime changes and notifications
-in scalable Java EE applications with massive amounts of configuration, you can easily enable these features.
+And usually there is also no mechanism that protect the system from faulty modification or mistakes. Even making
+changes in the first place is risky, timeconsuming and error-prone. Tracking changes is essential to
+make sure the system is kept in a consistent state as applications are upgraded.
 
-Conf-it tries to liberate applications to use configuration seamlessly on the terms of their particular environment
-without constraining them to Java SE,  EE, OSGi, Spring, CDI or  any other programming model or framework.
+It is very hard to get a clear overview of the system as a whole. And the problem grows along with size.
+
+
+## The solution
+
+Conf-it provide a productive, intuitive, non-intrusive, non-constraining, unified and type safe
+way to manage configuration in Java. Configuration is decoupled from how and where to store, retrieve 
+and validate configuration, also allowing changes without restarting the application. 
+
+Configuration is reusable in different contexts to avoid duplication and without burdening applications
+with portability issues. It integrates seamlessly based on the terms of the particular runtime environment
+without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
+
+Developers are not forced to learn new technology, query languages or define complex schema models upfront.
+Configuration is defined programmatically in Java using simple APIs.
+
+Companies should be able to use their existing storage mechanism(s), like a database, Hadoop/HBase or MongoDB to 
+leverage on current investments, internal knowledge and routines, like backup and restore.
+
+* Applications that only need a static configuration file in a simplistic Java SE environment can safely 
+ignore more advanced features and dependencies of the framework.
+
+* Distributed and scalable applications that require capabilities like remote runtime administration, 
+advanced persistence, clustering and notifications with massive amounts of configuration can easily enable these
+kind of features.
+
 
 ## Goals  
 
 * Productivity and Simplicity  
-Configuration must be intuitive and non-intrusive, managed in a unified way to support developer 
-productivity. Configuration is published and discovered automatically when it become available and is also 
-reusable in different contexts without burdening applications with portability issues.
+Configuration should be uniform and practical to support developer productivity. Applications should be
+allowed to grow without changing how configuration is managed. Configuration is discovered automatically
+and can be reused in different runtime environments with good tooling support all through the 
+[deployment pipeline](http://martinfowler.com/bliki/DeploymentPipeline.html).
 
 * Predictability and Clarity  
-Configuration must be strongly-typed and should express the intents and rules under which circumstances
+Configuration is strongly-typed and express the intents and rules under which circumstances
 the application can promise correct behaviour. Violations are handled reliably and does not disturb application
-behaviour. Valid changes are applied and exposed to applications in a consistent way.
+behaviour. Valid changes are applied and exposed to applications in a consistent way. Developers should feel 
+confident, safe and encouraged to make functionality configurable in order to make their application (more) flexible. 
 
 * Extendability and Portability  
 As applications are developed in different shapes and sizes; configuration should enable, not limit, a diversity 
-of platforms and technologies.  Applications are supported with the flexibility to  extend and customize a variety 
+of platforms and technologies.  Applications are supported with the flexibility to extend and customize a variety 
 aspects locally and still be able to manage configuration in a central and unified way.
 
 * Performance and Scalability  
 Configuration should not be a limiting factor to application performance. It is quickly accessible to be able 
 to meet service-level agreements in environments of scale.
 
-At the moment conf-it comes with provider extensions that allow storing configuration on local disk as 
-files, in a relational database using JPA (hibernate or eclipselink) or in HBase (mongodb storage is planned). 
-Using either of these storage mechanisms, or switching between them, does not impact client code what so ever.
-
 ## Examples
 
-Conf-it comes as a single jar file (only dependency is guava) and is available in Maven Central.
+The core framework consist of a single jar file (only dependent on [Guava](http://code.google.com/p/guava-libraries/)) 
+and is available in Maven Central.
 
 ```xml
     <dependency>
@@ -56,11 +80,11 @@ Conf-it comes as a single jar file (only dependency is guava) and is available i
 
 ### Define
 
-Configurable classes are annotated with the @Config annotation and all fields are configurable as 
-long they are not final or static. All basic Java object data types are supported, including List fields 
-of these types.
+Configurable classes are annotated with the @Config annotation and all fields will treated as configurable
+as long they are not final or static. All basic Java object data types and all enums are supported, including 
+List fields of these types.
 
-A is a singleton instance, meaning, there can be only one configuration of this class.
+Class A is a singleton, which means that there can be only one instance of this class.
 
 ```java
     @Config(name = "A")
@@ -79,7 +103,7 @@ A is a singleton instance, meaning, there can be only one configuration of this 
     }
 ```
 
-B can have multiple configurations/instances, hence the @Id annotation, which is used to identify instances.
+Class B can have multiple instances, hence the @Id annotation which is used to identify instances.
 
 ```java
     @Config(name = "B")
@@ -113,7 +137,7 @@ fetching configuration.
 
 ### Create
 
-AdminContext is used to create, update and delete configuration.
+AdminContext is used to create, update and delete configuration. 
 
 ```java
     AdminContext admin = AdminContext.get();
@@ -145,7 +169,7 @@ We can also create instances of class B.
 
 There are two types of update operations, set and merge. 
 
-* A set operation will replace existing instance entirely with the provided instance
+* A set operation will replace existing instance entirely with the provided instance.
 * A merge operation will ignore null fields and only replace fields that are initalized.
 
 
@@ -165,18 +189,59 @@ There are two types of update operations, set and merge.
 
 ### Delete
 
-Deleting an instance will remove any existing instance. Any references an instance may have are untouched.
+Deleting an instance does not cascade with regards to references that instances may have.
 
 ```java
     A a = new A();
     admin.deleteObject(a);
 ```
 
+There is no explicit operation for deleting individual properties but this can be achieved by
+first deleting the property on the target instance and execute a 'set' operation. 
+
+Deleting a property will reset the field back to its default value.
+
+### Default values
+
+Initial values in field declarations are treated as a default values. They are used as fallback values, 
+merged with the instance if no configuration exist for those particular fields. 
+
+
+```java
+    @Config(name = "A")
+    public class A {
+      private Integer integer = 10;
+      private Double decimal = 10.0;
+      private List<String> stringList = Lists.newArrayList("a", "b", "c");
+    }
+```
+
+
+```java
+    A a = new A();
+    a.setInteger(30);
+    admin.createObject(a);
+    
+    a = admin.get(A.class);
+    // returns the provisioned value 30
+    a.getInteger();
+    // returns the default value 10.0
+    a.getDecimal();
+    // returns the list a,b,c
+    a.getStringList();
+```
+
+Default values cannot be declared on fields that contain references, only simple values are allowed.
 
 ### References
 
-The last three fields of class A have references to class B, so class A can be created or updated with references to 
-instances of class B.
+Any instance can have references to other instances as seen on the last three fields of class A. If the 
+reference class does not have a @Config annotation (or qualify as a simple type) an excpetion will be thrown. 
+References are allowed to be circular and can be single valued, a List or a Map with a string key (the id).
+
+References are administrated in the same way as simple values. Add or remove references on the instance 
+and then perform the operation using AdminContext.
+
 
 ```java
     A a = new A();
@@ -194,7 +259,7 @@ instances of class B.
 ```
 
 AdminContext will do referential checks to make sure that instances exist, or throw an exception otherwise.
-An exception will also be thrown if trying to delete instances  referenced by other instances.
+The same is true when trying to delete instances already referenced by others.
 
 ```java
     a.setListReferences(four);
@@ -207,7 +272,7 @@ An exception will also be thrown if trying to delete instances  referenced by ot
 
 ### Validation
 
-Bean validation 1.1 is supported and is enabled by adding a implementation to classpath, like 
+Bean validation 1.1 is enabled by adding an implementation to classpath, like 
 [hibernate-validator](http://www.hibernate.org/subprojects/validator.html) for example.
 
 ```xml
@@ -219,10 +284,10 @@ Bean validation 1.1 is supported and is enabled by adding a implementation to cl
     </dependency>
 ```
 
-Instances will now be validated by AdminContext when created, updated or deleted according to the constraints
-annotations available on configurable fields. Custom 
+Creating, updating or deleting instances are now validated according to constraint annotations declared 
+on configurable fields. Custom 
 [ConstraintValidator](http://docs.jboss.org/hibernate/stable/beanvalidation/api/javax/validation/ConstraintValidator.html) 
-can also be used.
+may also be used.
 
 
 ```java
@@ -249,7 +314,16 @@ can also be used.
 
 ### Custom field types
 
-Configurable fields are not limited to simple Java types. 
+Configurable fields are not limited to simple Java types, any object that can be represented as a string can
+be made configurable.
+
+Being able to define custom data types is a very important part configuration. Developers are encouraged to
+create new types whenever they can in order to be very precise about their intents with the configuration. 
+Instances are constructed whenever a value changes, which give the class a chance to reject the change and 
+report errors if the value was invalid. This give data a very natural place for validation, business logic, 
+documentation and at the same time giving users a type safe way of accessing it. 
+
+Say you want to configure a ISO8601 DateTime, an IP address, a duration or whatever.
 
 ```java
     public class DurationTime {
@@ -277,31 +351,79 @@ Configurable fields are not limited to simple Java types.
     }
 ```    
 
-This class can be used as a configurable field because DurationTime have a default String constructor and a toString
-method that return a String representation that can be used to construct a DurationTime instance. 
+This class is accepted directly when declared on configurable fields because it has a default String constructor 
+and a toString method that return a String representation that can be used to re-construct the DurationTime instance.
+This is the reason why classes like URL and File also can used out of the box.
 
-There are also ways to have configurable fields of classes that that doesnt have a default String constructor.
+It is also possible to register custom string converters for types that does not have a String constructor. Here is an 
+example of how Boolean values are converted internally (which is similar to how enum types are handled).
+
+
+```java
+    static final class StringToBooleanConverter implements Converter<String, Boolean> {
+        private static final Set<String> trueValues = new HashSet<String>();
+        private static final Set<String> falseValues = new HashSet<String>();
+
+        static {
+            trueValues.addAll(Arrays.asList("true", "on", "yes", "y", "1"));
+            falseValues.addAll(Arrays.asList("false", "off", "no", "n", "0"));
+        }
+
+        @Override
+        public Boolean convert(String source, Class<? extends Boolean> specificType) {
+            final String value = source.trim();
+            if (trueValues.contains(value)) {
+                return Boolean.TRUE;
+            } else if (falseValues.contains(value)) {
+                return Boolean.FALSE;
+            } else {
+                throw new ConversionException("Invalid boolean value '" + source + "'");
+            }
+        }
+    }
+
+```
+
+You can get __very creative__ with the fact that every type must be able to represent itself as a String. How about making
+the following things configurable?
+
+* Base64 encoding of images, music or other binary data.
+* Serialize entire object graphs using serialization frameworks like [Kryo](http://code.google.com/p/kryo/) or [XStream](http://xstream.codehaus.org).
+* Java class files with some classloader tricks and customizations, combined with configuration notifications
+* Logback or log4j configurations that may propagate changes to the entire cluster
+* Documents or wikipages
+
+Some downsides with having proprietary formats as configurable values is that they cannot be queried and doesnt have
+sensible default values. These issues can be solved, but it would require some compromises and extra effort.
 
 
 ### Default configuration file
 
 
 Configuration can be bootstrapped using a [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) 
-file (simplified, human optimized, JSON format). A file called application.conf will be loaded by default, if available on classpath. 
-It is possible to change the location of this file by setting a system property. This file is read-only and 
+file (simplified, human optimized, JSON format). A file called application.conf will be loaded by default, if available on classpath
+(it is possible to change the location of this file by setting a system property). This file is read-only and 
 will not be modified by AdminContext. 
 
-Instead, the file works as a fallback that is used only if no configuration is available for a particular class. 
-Configuration provisioned by AdminContext takes precedence.
+Instead, the file work as a fallback that is used only if no configuration is available for a particular class. 
+Configuration provisioned by AdminContext takes precedence. Note also that file configuration override default values.
+
+File configuration is validated according to class schema in the same way as other configuration. Validation is
+performed when configuration is read the first time, which means that an application can break if configuration
+is invalid.
 
 This is an example of a HOCON application.conf, containing configuration of class A and B mentioned earlier.
 
 
     # class A, singleton no instances defined.
     A {
+      # string
       value = someValue
+      # double
       decimal = 1.243453
+      # custom DurationTime
       customType = PT15H
+      # list of URL
       customList = ["http://google.com", "http://github.com"]
       
       # references to instances of class B (below)
@@ -320,6 +442,7 @@ This is an example of a HOCON application.conf, containing configuration of clas
       # instance one
       1 {
         decimal = 12131.13312
+        # list of TimeUnit enum
         enumList = [SECONDS, HOURS]
       }
       
@@ -334,20 +457,22 @@ This is an example of a HOCON application.conf, containing configuration of clas
       }      
     }
 
-
 ### Persistence using file, database or HBase.
 
-Configuration is stored in memory by default, which may not be desirable in deployments with availability 
+Configuration is stored in-memory by default, which may not be desirable in deployments with availability 
 and durability requirements. 
 
-Default storage is changed by adding a provider to classpath, which will automatically override the default
-in memory implementation. Changing storage implementation does not have any code impact on configurable classes.
+At the moment there are provider extensions that allow storing configuration on local disk as files, in a 
+relational database using JPA or in HBase. Default storage is changed by adding a provider to classpath, which will automatically override the default
+in-memory implementation. Using either of these storage mechanism, or switching between them, does not
+impact client code what so ever.
 
 As mentioned earlier, any configuration in persistence storage will override instances in the default 
 [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md)  configuration file.
 
-Even if a persistence provider is used in production, the default in memory storage can be very useful in
-basic tests since it does not require internal/external setup or complex dependencies.
+Even if a persistence provider is used in production, the default in-memory storage can be very useful in
+basic tests since it initalize and get provisioned/cleared very quickly without requiring complex and time
+consuming setup of external dependencies.
 
 #### YAML
 
@@ -388,8 +513,18 @@ Here is an example that use hibernate.
 
 #### HBase
 
-Another option is to store the configuration in [HBase](http://hbase.apache.org/), which is a distributed, 
-scalable, big data store.
+Another option is [HBase](http://hbase.apache.org/), which is a distributed, scalable, big data store. 
+It is ideal for storing configuration because of its schema-less nature, allowing instances to be stored in
+a very compressed binary format.
+
+HBase does not have foreign keys or joins, which normally is a problem when dealing with references. 
+However, these features have been implemented to support referential integrity and eager fecthing of
+configurable instances.
+
+The hbase module implements a custom [filter](http://hbase.apache.org/apidocs/org/apache/hadoop/hbase/filter/Filter.html)
+highly optimized for doing fast queries and pagination over huge amounts of configuration. This jar
+must be deployed on every region server and the easiest way to do this is to put it in the lib directory,
+or append it to HBASE_CLASSPATH.
 
 ```xml
       <dependency>
@@ -476,11 +611,57 @@ configuration data.
 References to other instances are lazy initalized proxies that are not loaded until they are actually touched by
 the application.
 
+* Benchmark
+
+To give an idea of how queries perform a simple benchmark consisting of 10000 instances 
+measured the retrieval time (or latency) for the same query using iteration and query. 
+
+With the iteration approach all instances are stored in a collection (not using configuration) and 
+simply iterated over to find the correct instance. 
+
+```java
+   // list of 10000 instances not stored as configuration
+   ArrayList<B> instances = .. // creation omitted for brevity
+   
+   List<B> found = new ArrayList();
+   Stopwatch time = new Stopwatch().start();
+   for (B b : instances) {
+     if (b.getValue().equals("someValue")) {
+       found.add(b);
+     }
+   }
+   long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
+
+```
+
+The same test using the configuration query approach.
+
+```java
+    // asssuming AdminContext have been provisioned with the same 10000 instances
+    Stopwatch time = new Stopwatch().start();
+    ConfigResultSet<B> result = config.newQuery(B.class).add(equal("value", "someValue")).retrieve();
+    // force retrieval since the result set is lazy, which
+    // includes deserializing instances from the off-heap cache
+    List<B> found = Lists.newArrayList(result);
+    long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
+```
+
+The result from the benchmark show that iteration have a latency of ~2500 microseconds and the query 
+~300 microseconds. If we increase the number of instances 3 times (30000), iteration is almost
+exactly 3 times slower (8.2 ms) while the query finish in ~450 microseconds.
+
+Why? Because the configurable field has an index. This means that we can pick a better algorithm to
+find instances than simply iterating through the list, which can be hugely inefficient as number of
+instances increase. But keep in mind that maintaining an index will make create, update and delete operations
+slower.
+
+
+
 ### Administrative queries and pagination
 
-Having several hundreds or thousands configuration instances can quickly become difficult to administrate.
-The AdminContext and the REST interface comes with query and pagination capabilities to make configuration 
-management easier.
+Having several thousands or more configuration instances can quickly become difficult to administrate.
+AdminContext have therefore been equipped with query and pagination capabilities to make configuration
+management easier for the administrator.
 
 Example query using AdminContext.
 
@@ -534,10 +715,12 @@ Example of an observer.
       }
     }
 ```
-### JAX-RS 2.0 administration
+### Remote administration using REST
 
-Conf-it comes with a REST interface, a JAX-RS 2.0 server endpoint and a AdminContext client proxy
-that can communicate with the endpoint with burdening the client with HTTP or JAX-RS details.
+Configuration can be administrated remotely through the JAX-RS 2.0 server endpoint using either 
+the REST interface or the AdminContext client proxy. The proxy is just a simple convenience 
+class that extend AdminContext and provide the same capabilities (as if it would be running locally)
+without burdening users with HTTP or JAX-RS details.
 
 
 ```java
@@ -548,24 +731,56 @@ that can communicate with the endpoint with burdening the client with HTTP or JA
     admin.createObjects(Arrays.asList(new B("1"), new B("2")));
 ```
 
-The REST endpoint can be deploy in [Jetty](http://www.eclipse.org/jetty/) using [RestEasy](http://www.jboss.org/resteasy)
+Configuration can also be administrated from a shell using curl and the REST interface.
+
+
+```sh
+# fetch instance 10 - 20 for schema 'A' in JSON format
+$ curl -X GET "http://127.0.0.1:8080/confit-admin/query/A?first=10&max=20"
+```
+```sh
+# create instance 1 of schema 'A' with property 'value' set to 'someValue'
+$ curl -i -H "Content-Type: application/json" -X POST -d '{"schemaName":"A","id":"1","properties":{"value":"somevalue"}}' http://127.0.0.1:8080/confit-admin/createBean
+```
+
+The REST endpoint can be deployed in [Jetty](http://www.eclipse.org/jetty/) using [RestEasy](http://www.jboss.org/resteasy)
 (for example). Have a look at the JAX-RS tests.
 
 
 ### Graphical administration using Angular.js
 
-Conf-it comes with a minimal [angular.js](http://angularjs.org/) [bootstrap](http://twitter.github.io/bootstrap/)
-application that use the REST endpoint to administrate configuration graphically. 
+Conf-it comes with a lightweight [angular.js](http://angularjs.org/) [bootstrap](http://twitter.github.io/bootstrap/)
+application that use the REST interface to visualize and administrate configuration graphically.
 
-The interface is generated automatically at runtime by fetching class schemas from the the REST endpoint. 
+The graphical interface is generated dynamically at runtime by discovering class schemas from the server. 
 Classes that are registered through the ConfigContext will appear immediatly in the GUI, at runtime.
 
-It is possible to do the same search queries and pagination as AdminContext in order to get a better overview
-of available configuration.
+Above all, this is a developer tool intended to give a quick overview of configuration in the system, used maybe
+to do exploratory tests. The GUI have search and pagination capabilities.
+
 
 ### Sessions
 
 Planned feature that will enable multiple isolated changes to be committed or rollback in the context of a session.
+
+### ConfigContext vs AdminContext
+
+ConfigContext and AdminContext may seem very similar, but there are important differences between them.
+
+
+ConfigContext is used in an application context, where high volume traffic is processed from the outside 
+world with sub-millisecond latency requirements. Applications load/fetch configuration when needed and 
+never administrate configuration on their own. As far as they are concerned, configuration is read-only. 
+
+
+AdminContext, on the other hand, is used by administrators (not literally) to manage configuration
+published by applications. The administrator is probably a human, but not necessarily. Expectations on
+traffic volume and latency are not as high in this context as for the application itself.
+
+The important point is that configuration is read mostly, with a slow pace of change, not changing
+every second. This is what enable heavy optimizations on read operations, but still able to handle
+persistent changes, in runtime, without restarting applications.
+
 
 ### CDI integration and @Inject
 
@@ -595,19 +810,27 @@ Configuration is loaded when it is first accessed by the CDI bean, then cached f
 
 ### Writing custom service providers
 
-Conf-it can be customized by implementing any of its service provider interfaces.
+Conf-it support development of service providers that implement internal, but reasonably stable,
+interfaces in order to customize certain well defined aspects like how instances are stored or validated. 
+For such efforts there is a TCK that provide a set of tests to ensure that implementations behave
+in the intended way, including in error conditions.
+
+* Converter
+
+Handle serialization of objects, as mentioned earlier. A converter enable declaration and configuration of 
+simple values that have specific types.
 
 * SchemaManager
 
-Manage schema discovery and storage.
+Manage schema discovery and configuration validation.
 
 * BeanManager
 
-Stores configuration.
+Responsible for storing configuration and keeping it consistent.
 
 * NotificationManager
 
-Sends notifications to observers.
+Keeps track of observers and sends notifications to them when changes occur.
 
 * SessionManager
 
@@ -615,9 +838,12 @@ Manage sessions and configuration changes before they are committed to the BeanM
 
 * CacheManager
 
-Cache configurable instances on behalf of the ConfigContext.
+Cache configurable instances and perform application queries on behalf of applications.
 
 
 ## Licensing
 
 This distribution, as a whole, is licensed under the terms of the Apache License, Version 2.0 (see license.txt).
+
+
+
