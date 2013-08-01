@@ -4,6 +4,7 @@ import com.googlecode.cqengine.attribute.Attribute;
 import com.googlecode.cqengine.attribute.MultiValueNullableAttribute;
 import com.googlecode.cqengine.attribute.SimpleNullableAttribute;
 import org.deephacks.confit.Index;
+import org.deephacks.confit.internal.core.Reflections;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.AbstractSchemaProperty;
 import org.deephacks.confit.model.Schema.SchemaProperty;
@@ -27,7 +28,7 @@ public class ConfigIndex {
         for(AbstractSchemaProperty property : schema.getIndexed()) {
             String propertyName = property.getName();
             Class<?> type = getType(property);
-            if(Number.class.isAssignableFrom(type)) {
+            if(Number.class.isAssignableFrom(type) || Reflections.isPrimitiveNumber(type)) {
                 NumberAttribute attr = new NumberAttribute(propertyName);
                 attributes.put(propertyName, attr);
             } else if (Collection.class.isAssignableFrom(type)) {

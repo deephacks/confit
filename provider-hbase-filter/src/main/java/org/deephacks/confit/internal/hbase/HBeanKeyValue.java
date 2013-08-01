@@ -245,17 +245,31 @@ public class HBeanKeyValue {
                 return true;
             } else if (Byte.class.isAssignableFrom(type)) {
                 return true;
+            } else if (byte.class.isAssignableFrom(type)) {
+                return true;
             } else if (Short.class.isAssignableFrom(type)) {
+                return true;
+            } else if (short.class.isAssignableFrom(type)) {
                 return true;
             } else if (Integer.class.isAssignableFrom(type)) {
                 return true;
+            } else if (int.class.isAssignableFrom(type)) {
+                return true;
             } else if (Long.class.isAssignableFrom(type)) {
+                return true;
+            } else if (long.class.isAssignableFrom(type)) {
                 return true;
             } else if (Float.class.isAssignableFrom(type)) {
                 return true;
+            } else if (float.class.isAssignableFrom(type)) {
+                return true;
             } else if (Double.class.isAssignableFrom(type)) {
                 return true;
+            } else if (double.class.isAssignableFrom(type)) {
+                return true;
             } else if (Boolean.class.isAssignableFrom(type)) {
+                return true;
+            } else if (boolean.class.isAssignableFrom(type)) {
                 return true;
             }
             return false;

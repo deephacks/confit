@@ -149,18 +149,18 @@ public class ConfigTestData {
         @Index
         private List<Parent> prop7;
         @Config(desc = "prop8Desc")
-        private Byte prop8;
+        private byte prop8;
         @Config(desc = "prop9Desc")
-        private Long prop9;
+        private long prop9;
         @Config(desc = "prop10Desc")
-        private Short prop10;
+        private short prop10;
         @Config(desc = "prop11Desc")
-        private Float prop11;
+        private float prop11;
         @Config(desc = "prop12Desc")
         @Index
-        private Double prop12;
+        private double prop12;
         @Config(desc = "prop13Desc")
-        private Boolean prop13;
+        private boolean prop13;
         @Config(desc = "prop14Desc")
         private TimeUnit prop14 = TimeUnit.MICROSECONDS;
         @Config(desc = "prop15Desc")
@@ -176,7 +176,7 @@ public class ConfigTestData {
         @Config(desc = "prop20Desc")
         private Map<String, Parent> prop20;
         @Config(desc = "prop21Desc")
-        private Integer prop21;
+        private int prop21;
 
         public Grandfather() {
         }
@@ -217,27 +217,27 @@ public class ConfigTestData {
             return prop7;
         }
 
-        public Byte getProp8() {
+        public byte getProp8() {
             return prop8;
         }
 
-        public Long getProp9() {
+        public long getProp9() {
             return prop9;
         }
 
-        public Short getProp10() {
+        public short getProp10() {
             return prop10;
         }
 
-        public Float getProp11() {
+        public float getProp11() {
             return prop11;
         }
 
-        public Double getProp12() {
+        public double getProp12() {
             return prop12;
         }
 
-        public Boolean getProp13() {
+        public boolean getProp13() {
             return prop13;
         }
 
@@ -269,7 +269,7 @@ public class ConfigTestData {
             return prop20;
         }
 
-        public Integer getProp21() {
+        public int getProp21() {
             return prop21;
         }
 
@@ -301,27 +301,27 @@ public class ConfigTestData {
             this.prop7 = prop7;
         }
 
-        public void setProp8(Byte prop8) {
+        public void setProp8(byte prop8) {
             this.prop8 = prop8;
         }
 
-        public void setProp9(Long prop9) {
+        public void setProp9(long prop9) {
             this.prop9 = prop9;
         }
 
-        public void setProp10(Short prop10) {
+        public void setProp10(short prop10) {
             this.prop10 = prop10;
         }
 
-        public void setProp11(Float prop11) {
+        public void setProp11(float prop11) {
             this.prop11 = prop11;
         }
 
-        public void setProp12(Double prop12) {
+        public void setProp12(double prop12) {
             this.prop12 = prop12;
         }
 
-        public void setProp13(Boolean prop13) {
+        public void setProp13(boolean prop13) {
             this.prop13 = prop13;
         }
 
@@ -353,7 +353,7 @@ public class ConfigTestData {
             this.prop20 = prop20;
         }
 
-        public void setProp21(Integer prop21) {
+        public void setProp21(int prop21) {
             this.prop21 = prop21;
         }
 
@@ -398,7 +398,7 @@ public class ConfigTestData {
         private Byte prop8;
         private Long prop9;
         private Short prop10;
-        private Float prop11;
+        private float prop11;
         private Double prop12;
         private Boolean prop13;
         private TimeUnit prop14;
@@ -449,7 +449,7 @@ public class ConfigTestData {
             return prop10;
         }
 
-        public Float getProp11() {
+        public float getProp11() {
             return prop11;
         }
 
@@ -533,7 +533,7 @@ public class ConfigTestData {
             this.prop10 = prop10;
         }
 
-        public void setProp11(Float prop11) {
+        public void setProp11(float prop11) {
             this.prop11 = prop11;
         }
 
@@ -635,7 +635,7 @@ public class ConfigTestData {
         private Byte prop8;
         @Min(1)
         @Config(desc = "prop9Desc")
-        private Long prop9;
+        private long prop9 = 100000000;
         @Config(desc = "prop10Desc")
         private Short prop10;
         @Config(desc = "prop11Desc")
@@ -690,7 +690,7 @@ public class ConfigTestData {
             return prop8;
         }
 
-        public Long getProp9() {
+        public long getProp9() {
             return prop9;
         }
 
@@ -729,7 +729,6 @@ public class ConfigTestData {
         public List<TimeUnit> getProp19() {
             return prop19;
         }
-
     }
 
     public static final String SINGLETON_SCHEMA_NAME = "SingletonSchemaName";

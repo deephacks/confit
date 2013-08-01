@@ -13,10 +13,6 @@
  */
 package org.deephacks.confit.internal.core.admin;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
-
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
@@ -27,6 +23,12 @@ import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
 import org.deephacks.confit.spi.Conversion;
+
+import java.util.Collection;
+import java.util.List;
+import java.util.Set;
+
+import static org.deephacks.confit.internal.core.Reflections.forName;
 
 public final class SchemaValidator {
     private static Conversion conversion = Conversion.get();
@@ -41,7 +43,7 @@ public final class SchemaValidator {
     }
 
     /**
-     * Validate that the value of the bean is according to schema. 
+     * Validate that the value of the bean is according to schema.
      */
     public static void validateSchema(Bean bean) {
         validateId(bean);
@@ -106,7 +108,6 @@ public final class SchemaValidator {
             if (value == null) {
                 continue;
             }
-
             try {
                 conversion.convert(value, forName(prop.getType()));
             } catch (Exception e) {
@@ -151,13 +152,5 @@ public final class SchemaValidator {
             return null;
         }
         return values.get(0);
-    }
-
-    public static Class<?> forName(String className) {
-        try {
-            return Thread.currentThread().getContextClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 }

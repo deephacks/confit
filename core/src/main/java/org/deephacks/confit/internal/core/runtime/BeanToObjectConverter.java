@@ -39,6 +39,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import static org.deephacks.confit.internal.core.Reflections.forName;
+
 public final class BeanToObjectConverter implements Converter<Bean, Object> {
     private Conversion conversion = Conversion.get();
     private ConcurrentHashMap<String, Class<?>> classCache = new ConcurrentHashMap<String, Class<?>>();
@@ -261,14 +263,6 @@ public final class BeanToObjectConverter implements Converter<Bean, Object> {
     public static <T> T newInstance(Class<T> type) throws InstantiationException,
             IllegalAccessException, InvocationTargetException, NoSuchMethodException {
         return Reflections.newInstance(type);
-    }
-
-    public static Class<?> forName(String className) {
-        try {
-            return Thread.currentThread().getContextClassLoader().loadClass(className);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     /**

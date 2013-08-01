@@ -1,6 +1,7 @@
 package org.deephacks.confit.spi;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Strings;
 import org.deephacks.confit.spi.Conversion.Converter.ObjectToStringConverter;
 import org.deephacks.confit.spi.Conversion.Converter.StringToBooleanConverter;
 import org.deephacks.confit.spi.Conversion.Converter.StringToEnumConverter;
@@ -89,6 +90,10 @@ public final class Conversion {
         }
 
         final Class<?> sourceclass = source.getClass();
+        if (targetclass.isPrimitive() && String.class.isAssignableFrom(sourceclass)) {
+            return (T) parsePrimitive(source.toString(), targetclass);
+        }
+
         final int sourceId = ids.getId(sourceclass);
         final int targetId = ids.getId(targetclass);
         final SourceTargetPairKey key = new SourceTargetPairKey(sourceId, targetId);
@@ -115,6 +120,31 @@ public final class Conversion {
         cache.put(key, converter);
         return (T) converter.convert(source, targetclass);
 
+    }
+
+    private Object parsePrimitive(String value, Class<?> targetclass) {
+        if (Strings.isNullOrEmpty(value)) {
+            throw new IllegalArgumentException("Cannot parse a primitive from empty string.");
+        }
+
+        if (int.class.isAssignableFrom(targetclass)) {
+            return Integer.parseInt(value);
+        } else if (boolean.class.isAssignableFrom(targetclass)) {
+            return Boolean.parseBoolean(value);
+        } else if (long.class.isAssignableFrom(targetclass)) {
+            return Long.parseLong(value);
+        } else if (float.class.isAssignableFrom(targetclass)) {
+            return Float.parseFloat(value);
+        } else if (double.class.isAssignableFrom(targetclass)) {
+            return Double.parseDouble(value);
+        } else if (byte.class.isAssignableFrom(targetclass)) {
+            return Byte.parseByte(value);
+        } else if (short.class.isAssignableFrom(targetclass)) {
+            return Short.parseShort(value);
+        } else if (char.class.isAssignableFrom(targetclass)) {
+            return value.charAt(0);
+        }
+        throw new IllegalArgumentException("Did not recognize primitive type [" + targetclass + "].");
     }
 
     public <T, V> Set<T> convert(Set<V> values, final Class<T> clazz) {

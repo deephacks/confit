@@ -80,7 +80,7 @@ public class ConfigQueryTest {
         g4 = getGrandfather("g4");
         g4.setProp1(null);
         g4.setProp3(Arrays.asList(7, 8, 9));
-        g4.setProp12(null);
+        g4.setProp12(4.0);
 
         p1 = getParent("p1");
         p2 = getParent("p2");
@@ -180,7 +180,7 @@ public class ConfigQueryTest {
                 .add(greaterThan("prop12", 2.0))
                 .retrieve();
         List<Grandfather> list = Lists.newArrayList(result);
-        assertThat(list.size(), is(1));
+        assertThat(list.size(), is(2));
         assertThat(list.get(0).getId(), is("g3"));
     }
 
@@ -237,7 +237,7 @@ public class ConfigQueryTest {
     public void test_greaterThan_or_contains() {
         ConfigResultSet<Grandfather> result = runtime.newQuery(Grandfather.class)
                 .add(or(
-                        greaterThan("prop12", 1.0),
+                        lessThan("prop12", 3.0),
                         contains("prop1", "value")))
                 .retrieve();
         // framework does not do decuplication atm
@@ -257,7 +257,7 @@ public class ConfigQueryTest {
     @Test
     public void test_not_has() {
         ConfigResultSet<Grandfather> result = runtime.newQuery(Grandfather.class)
-                .add(not(has("prop12")))
+                .add(not(has("prop1")))
                 .retrieve();
         List<Grandfather> list = Lists.newArrayList(result);
         assertThat(list.size(), is(1));

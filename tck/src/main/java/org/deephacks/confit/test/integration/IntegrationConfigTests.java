@@ -259,6 +259,13 @@ public class IntegrationConfigTests {
         merged.setProp14(TimeUnit.NANOSECONDS);
         merged.setProp19(Arrays.asList(TimeUnit.DAYS, TimeUnit.HOURS));
         merged.setProp1("newName");
+        merged.setProp8((byte) 0);
+        merged.setProp9(0);
+        merged.setProp10((short) 0);
+        merged.setProp11(0);
+        merged.setProp12(0);
+        merged.setProp13(false);
+        merged.setProp21(0);
 
         Bean mergeBean = toBean(merged);
         admin.merge(mergeBean);
@@ -267,6 +274,13 @@ public class IntegrationConfigTests {
         g1.setProp1(merged.getProp1());
         g1.setProp19(merged.getProp19());
         g1.setProp14(merged.getProp14());
+        g1.setProp8(merged.getProp8());
+        g1.setProp9(merged.getProp9());
+        g1.setProp10(merged.getProp10());
+        g1.setProp11(merged.getProp11());
+        g1.setProp12(merged.getProp12());
+        g1.setProp13(merged.getProp13());
+        g1.setProp21(merged.getProp21());
         getAndAssert(g1);
     }
 
@@ -278,11 +292,26 @@ public class IntegrationConfigTests {
         g1_merged.setProp14(TimeUnit.NANOSECONDS);
         g1_merged.setProp19(Arrays.asList(TimeUnit.DAYS, TimeUnit.HOURS));
         g1_merged.setProp1("newName");
+        g1_merged.setProp1("newName");
+        g1_merged.setProp8((byte) 0);
+        g1_merged.setProp9(0);
+        g1_merged.setProp10((short) 0);
+        g1_merged.setProp11(0);
+        g1_merged.setProp12(0);
+        g1_merged.setProp13(false);
+        g1_merged.setProp21(0);
 
         Grandfather g2_merged = new Grandfather("g2");
         g2_merged.setProp14(TimeUnit.NANOSECONDS);
         g2_merged.setProp19(Arrays.asList(TimeUnit.DAYS, TimeUnit.HOURS));
         g2_merged.setProp1("newName");
+        g2_merged.setProp8((byte) 0);
+        g2_merged.setProp9(0);
+        g2_merged.setProp10((short) 0);
+        g2_merged.setProp11(0);
+        g2_merged.setProp12(0);
+        g2_merged.setProp13(false);
+        g2_merged.setProp21(0);
 
         Collection<Bean> mergeBeans = toBeans(g1_merged, g2_merged);
         admin.merge(mergeBeans);
@@ -291,10 +320,24 @@ public class IntegrationConfigTests {
         g1.setProp1(g1_merged.getProp1());
         g1.setProp19(g1_merged.getProp19());
         g1.setProp14(g1_merged.getProp14());
+        g1.setProp8(g1_merged.getProp8());
+        g1.setProp9(g1_merged.getProp9());
+        g1.setProp10(g1_merged.getProp10());
+        g1.setProp11(g1_merged.getProp11());
+        g1.setProp12(g1_merged.getProp12());
+        g1.setProp13(g1_merged.getProp13());
+        g1.setProp21(g1_merged.getProp21());
 
         g2.setProp1(g2_merged.getProp1());
         g2.setProp19(g2_merged.getProp19());
         g2.setProp14(g2_merged.getProp14());
+        g2.setProp8(g2_merged.getProp8());
+        g2.setProp9(g2_merged.getProp9());
+        g2.setProp10(g2_merged.getProp10());
+        g2.setProp11(g2_merged.getProp11());
+        g2.setProp12(g2_merged.getProp12());
+        g2.setProp13(g2_merged.getProp13());
+        g2.setProp21(g2_merged.getProp21());
 
         listAndAssert(g1.getBeanId().getSchemaName(), g1, g2);
 

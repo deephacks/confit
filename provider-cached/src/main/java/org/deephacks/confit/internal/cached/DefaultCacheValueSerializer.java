@@ -124,7 +124,6 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
         String fieldName = ConfigProxyGenerator.PROXY_FIELD_NAME;
         Field field = null;
         ConfigReferenceHolder holder;
-
         try {
             field = cls.getDeclaredField(ConfigProxyGenerator.PROXY_FIELD_NAME);
             field.setAccessible(true);
@@ -179,7 +178,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             return;
         }
         int size = collection.size();
-        if(Byte.class.isAssignableFrom(propertyClassType)) {
+        if(Byte.class.isAssignableFrom(propertyClassType) || byte.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.BYTE_SET);
@@ -192,7 +191,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
                 buf.writeByte((Byte) value);
             }
 
-        } else if (Short.class.isAssignableFrom(propertyClassType)) {
+        } else if (Short.class.isAssignableFrom(propertyClassType) || short.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.SHORT_SET);
@@ -204,7 +203,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             for (Object value : collection) {
                 buf.writeShort((Short) value);
             }
-        } else if (Integer.class.isAssignableFrom(propertyClassType)) {
+        } else if (Integer.class.isAssignableFrom(propertyClassType) || int.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.INTEGER_SET);
@@ -216,7 +215,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             for (Object value : collection) {
                 buf.writeInt((Integer) value);
             }
-        } else if (Long.class.isAssignableFrom(propertyClassType)) {
+        } else if (Long.class.isAssignableFrom(propertyClassType) || long.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.LONG_SET);
@@ -228,7 +227,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             for (Object value : collection) {
                 buf.writeLong((Long) value);
             }
-        } else if (Float.class.isAssignableFrom(propertyClassType)) {
+        } else if (Float.class.isAssignableFrom(propertyClassType) || float.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.FLOAT_SET);
@@ -240,7 +239,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             for (Object value : collection) {
                 buf.writeFloat((Float) value);
             }
-        } else if (Double.class.isAssignableFrom(propertyClassType)) {
+        } else if (Double.class.isAssignableFrom(propertyClassType) || double.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.DOUBLE_SET);
@@ -252,7 +251,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
             for (Object value : collection) {
                 buf.writeDouble((Double) value);
             }
-        } else if (Boolean.class.isAssignableFrom(propertyClassType)) {
+        } else if (Boolean.class.isAssignableFrom(propertyClassType) || boolean.class.isAssignableFrom(propertyClassType)) {
             Integer id;
             if(isSet) {
                 id = getId(uniqueId, field, fieldName, DataType.BOOLEAN_SET);
@@ -315,31 +314,31 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
         if(value == null) {
             return;
         }
-        if(Byte.class.isAssignableFrom(propertyClassType)) {
+        if(Byte.class.isAssignableFrom(propertyClassType) || byte.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.BYTE);
             buf.writeInt(id);
             buf.writeByte((Byte) value);
-        } else if (Short.class.isAssignableFrom(propertyClassType)) {
+        } else if (Short.class.isAssignableFrom(propertyClassType) || short.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.SHORT);
             buf.writeInt(id);
             buf.writeShort((Short) value);
-        } else if (Integer.class.isAssignableFrom(propertyClassType)) {
+        } else if (Integer.class.isAssignableFrom(propertyClassType) || int.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.INTEGER);
             buf.writeInt(id);
             buf.writeInt((Integer) value);
-        } else if (Long.class.isAssignableFrom(propertyClassType)) {
+        } else if (Long.class.isAssignableFrom(propertyClassType) || long.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.LONG);
             buf.writeInt(id);
             buf.writeLong((Long) value);
-        } else if (Float.class.isAssignableFrom(propertyClassType)) {
+        } else if (Float.class.isAssignableFrom(propertyClassType) || float.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.FLOAT);
             buf.writeInt(id);
             buf.writeFloat((Float) value);
-        } else if (Double.class.isAssignableFrom(propertyClassType)) {
+        } else if (Double.class.isAssignableFrom(propertyClassType) || double.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.DOUBLE);
             buf.writeInt(id);
             buf.writeDouble((Double) value);
-        } else if (Boolean.class.isAssignableFrom(propertyClassType)) {
+        } else if (Boolean.class.isAssignableFrom(propertyClassType) || boolean.class.isAssignableFrom(propertyClassType)) {
             Integer id = getId(uniqueId, field, fieldName, DataType.BOOLEAN);
             buf.writeInt(id);
             if ((Boolean) value) {
@@ -384,28 +383,28 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
                     op.set(object, value);
                     break;
                 case BYTE:
-                    value = reader.readByte();
-                    op.set(object, value);
+                    byte byteValue = (byte) reader.readByte();
+                    op.set(object, byteValue);
                     break;
                 case SHORT:
-                    value = reader.readShort();
-                    op.set(object, value);
+                    short shortVvalue = (short) reader.readShort();
+                    op.set(object, shortVvalue);
                     break;
                 case INTEGER:
-                    value = reader.readInt();
-                    op.set(object, value);
+                    int intValue = reader.readInt();
+                    op.set(object, intValue);
                     break;
                 case LONG:
-                    value = reader.readLong();
-                    op.set(object, value);
+                    long longValue = reader.readLong();
+                    op.set(object, longValue);
                     break;
                 case FLOAT:
-                    value = reader.readFloat();
-                    op.set(object, value);
+                    float floatValue = reader.readFloat();
+                    op.set(object, floatValue);
                     break;
                 case DOUBLE:
-                    value = reader.readDouble();
-                    op.set(object, value);
+                    double doubleValue = reader.readDouble();
+                    op.set(object, doubleValue);
                     break;
                 case STRING:
                     length = reader.readInt();
@@ -668,12 +667,14 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
         public static class UnsafeSetOp {
             private final String fieldName;
             private final DataType type;
+            private final Class<?> fieldType;
             private long offset;
 
             private Class<?> objectClass;
 
             public UnsafeSetOp(Field field, String fieldName, DataType type) {
                 this.fieldName = fieldName;
+                this.fieldType = field.getType();
                 this.type = type;
                 this.offset = unsafe.objectFieldOffset(field);
             }
@@ -693,7 +694,26 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
 
             public void set(Object object, Object value) {
                 try {
-                    unsafe.putObject(object, offset, value);
+                    if (fieldType.isPrimitive()) {
+                        if (byte.class.isAssignableFrom(fieldType)) {
+                            unsafe.putByte(object, offset, (byte) value);
+                        } else if (short.class.isAssignableFrom(fieldType)) {
+                            unsafe.putShort(object, offset, (short) value);
+                        } else if (int.class.isAssignableFrom(fieldType)) {
+                            unsafe.putInt(object, offset, (int) value);
+                        } else if (long.class.isAssignableFrom(fieldType)) {
+                            unsafe.putLong(object, offset, (long) value);
+                        } else if (float.class.isAssignableFrom(fieldType)) {
+                            unsafe.putFloat(object, offset, (float) value);
+                        } else if (double.class.isAssignableFrom(fieldType)) {
+                            unsafe.putDouble(object, offset, (double) value);
+                        } else if (boolean.class.isAssignableFrom(fieldType)) {
+                            unsafe.putBoolean(object, offset, (boolean) value);
+                        }
+                    } else {
+                        unsafe.putObject(object, offset, value);
+                    }
+
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

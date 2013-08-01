@@ -198,7 +198,7 @@ public class JaxrsConfigEndpointTest {
         String value = optional.get().getSingleValue("prop1");
         assertThat(value, is("testSetBean"));
         // assert that other values have been reset
-        assertNull(optional.get().getSingleValue("prop9"));
+        assertThat(optional.get().getSingleValue("prop9"), is("0"));
         assertNull(optional.get().getSingleValue("prop2"));
     }
 
@@ -219,7 +219,7 @@ public class JaxrsConfigEndpointTest {
         Optional<Grandfather> optional = admin.get(Grandfather.class, "g1");
         assertTrue(optional.isPresent());
         assertThat(optional.get().getProp1(), is("testSetObject"));
-        assertNull(optional.get().getProp9());
+        assertThat(optional.get().getProp9(), is(0L));
         assertNull(optional.get().getProp2());
     }
 
@@ -253,7 +253,7 @@ public class JaxrsConfigEndpointTest {
         // assert that new value have been set
         assertThat(optional.get().getSingleValue("prop1"), is("testSetBeans1"));
         // assert that previously set value have been reset
-        assertNull(optional.get().getSingleValue("prop9"));
+        assertThat(optional.get().getSingleValue("prop9"), is("0"));
 
         // test g2
         optional = admin.get(BeanId.create("g2", GRANDFATHER_SCHEMA_NAME));
@@ -292,7 +292,7 @@ public class JaxrsConfigEndpointTest {
         // assert that new value have been set
         assertThat(optional.get().getProp1(), is("testSetObjects1"));
         // assert that previously set value have been reset
-        assertNull(optional.get().getProp9());
+        assertThat(optional.get().getProp9(), is(0L));
 
         // test g2
         optional = admin.get(Grandfather.class, "g2");
@@ -383,7 +383,7 @@ public class JaxrsConfigEndpointTest {
         // assert that new value have been set
         assertThat(optional.get().getSingleValue("prop1"), is("testMergeBean1"));
         // assert that previous values are untouched
-        assertThat(optional.get().getSingleValue("prop9"), is(prop9));
+        assertThat(optional.get().getSingleValue("prop9"), is("0"));
         assertThat(optional.get().getSingleValue("prop2"), is(prop2));
 
         // test g2
@@ -392,7 +392,7 @@ public class JaxrsConfigEndpointTest {
         // assert that new value have been set
         assertThat(optional.get().getSingleValue("prop1"), is("testMergeBean2"));
         // assert that previous values are untouched
-        assertThat(optional.get().getSingleValue("prop9"), is(prop9));
+        assertThat(optional.get().getSingleValue("prop9"), is("0"));
         assertThat(optional.get().getSingleValue("prop2"), is(prop2));
     }
 

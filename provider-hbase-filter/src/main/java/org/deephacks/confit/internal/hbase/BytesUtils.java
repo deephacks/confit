@@ -669,17 +669,31 @@ public class BytesUtils {
         public static DataType getDataType(Class<?> cls) {
             if(Byte.class.isAssignableFrom(cls)) {
                 return BYTE;
+            } else if(byte.class.isAssignableFrom(cls)) {
+                return BYTE;
             } else if (Short.class.isAssignableFrom(cls)) {
+                return SHORT;
+            } else if (short.class.isAssignableFrom(cls)) {
                 return SHORT;
             } else if (Integer.class.isAssignableFrom(cls)) {
                 return INTEGER;
+            } else if (int.class.isAssignableFrom(cls)) {
+                return INTEGER;
             } else if (Long.class.isAssignableFrom(cls)) {
+                return LONG;
+            } else if (long.class.isAssignableFrom(cls)) {
                 return LONG;
             } else if (Float.class.isAssignableFrom(cls)) {
                 return FLOAT;
+            } else if (float.class.isAssignableFrom(cls)) {
+                return FLOAT;
             } else if (Double.class.isAssignableFrom(cls)) {
                 return DOUBLE;
+            } else if (double.class.isAssignableFrom(cls)) {
+                return DOUBLE;
             } else if (Boolean.class.isAssignableFrom(cls)) {
+                return BOOLEAN;
+            } else if (boolean.class.isAssignableFrom(cls)) {
                 return BOOLEAN;
             } else if (String.class.isAssignableFrom(cls)) {
                 return STRING;

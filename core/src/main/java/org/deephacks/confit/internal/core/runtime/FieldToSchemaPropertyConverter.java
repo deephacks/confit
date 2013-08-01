@@ -159,9 +159,5 @@ public final class FieldToSchemaPropertyConverter implements
             // transient @Property not supported.
             throw Events.CFG108_ILLEGAL_MODIFIERS(field.getField());
         }
-        if (field.isPrimitive()) {
-            throw new IllegalStateException("Fields cannot be primitive at the moment: " + field.getField());
-        }
-
     }
 }

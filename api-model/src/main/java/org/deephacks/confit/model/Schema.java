@@ -20,8 +20,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 
 import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import static com.google.common.base.Objects.equal;
@@ -739,9 +742,17 @@ public final class Schema implements Serializable {
         }
 
     }
+    private static final Map<String, Class<?>> PRIMITIVE_TYPES = new HashMap<>();
+    static {
+        for (Class<?> primitive : Arrays.asList(char.class, boolean.class, byte.class, short.class,
+                int.class, long.class, float.class, double.class)) {
+            PRIMITIVE_TYPES.put(primitive.getName(), primitive);
+        }
+    }
     public static Class<?> getClassTypeFromName(String name) {
         try {
-            return Class.forName(name);
+            Class<?> primitive = PRIMITIVE_TYPES.get(name);
+            return  primitive != null ? primitive : Class.forName(name);
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }

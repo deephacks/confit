@@ -15,6 +15,7 @@ import java.lang.reflect.Type;
 import java.lang.reflect.TypeVariable;
 import java.lang.reflect.WildcardType;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,12 +26,31 @@ import java.util.Map;
  * @author Kristoffer Sjogren
  */
 public class Reflections {
+    private static final Map<String, Class<?>> ALL_PRIMITIVE_TYPES = new HashMap<>();
+    private static final Map<String, Class<?>> ALL_PRIMITIVE_NUMBERS = new HashMap<>();
+    static {
+        for (Class<?> primitiveNumber : Arrays.asList(byte.class, short.class,
+                int.class, long.class, float.class, double.class)) {
+            ALL_PRIMITIVE_NUMBERS.put(primitiveNumber.getName(), primitiveNumber);
+            ALL_PRIMITIVE_TYPES.put(primitiveNumber.getName(), primitiveNumber);
+        }
+        for (Class<?> primitive : Arrays.asList(char.class, boolean.class)) {
+            ALL_PRIMITIVE_TYPES.put(primitive.getName(), primitive);
+        }
+    }
+
     public static Class<?> forName(String className) {
         try {
-            return Thread.currentThread().getContextClassLoader().loadClass(className);
+            Class<?> primitive = ALL_PRIMITIVE_TYPES.get(className);
+            return primitive != null ? primitive : Thread.currentThread()
+                    .getContextClassLoader().loadClass(className);
         } catch (ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static boolean isPrimitiveNumber(Class<?> type) {
+        return ALL_PRIMITIVE_NUMBERS.get(type.getName()) != null;
     }
 
     /**
@@ -278,7 +298,7 @@ public class Reflections {
      * </p>
      *
      * @param ownerClass the implementing target class to check against
-     * @param the generic interface to resolve the type argument from
+     * @param ownerClass generic interface to resolve the type argument from
      * @return A list of classes of the parameterized type.
      */
     public static List<Class<?>> getParameterizedType(final Class<?> ownerClass,
