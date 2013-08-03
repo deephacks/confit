@@ -18,9 +18,6 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
-import org.deephacks.confit.internal.core.config.DefaultBeanManager;
-import org.deephacks.confit.internal.core.notification.DefaultNotificationManager;
-import org.deephacks.confit.internal.core.schema.DefaultSchemaManager;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -536,9 +533,9 @@ public final class AdminCoreContext extends AdminContext {
         if (LOOKUP_DONE.get()) {
             return;
         }
-        beanManager = lookup.lookup(BeanManager.class, DefaultBeanManager.class);
-        schemaManager = lookup.lookup(SchemaManager.class, DefaultSchemaManager.class);
-        notificationManager = lookup.lookup(NotificationManager.class, DefaultNotificationManager.class);
+        beanManager = BeanManager.lookup();
+        schemaManager = SchemaManager.lookup();
+        notificationManager = NotificationManager.lookup();
         cacheManager = CacheManager.lookup();
         validationManager = ValidationManager.lookup();
         LOOKUP_DONE.set(true);

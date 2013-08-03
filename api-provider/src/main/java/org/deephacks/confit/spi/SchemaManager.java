@@ -21,24 +21,20 @@ import java.util.Collection;
 import java.util.Map;
 
 /**
- * SchemaManager is responsible for management and storage of schemas.
+ * SchemaManager is responsible for conversion, validation and storage of configurable schemas.
  *
- * @author Kristoffer Sjogren
  */
 public abstract class SchemaManager implements Serializable {
     private static final long serialVersionUID = 4888441728053297694L;
     private static Lookup lookup = Lookup.get();
-    private static final Class<SchemaManager> DEFAULT;
-    static {
-        try {
-            DEFAULT = (Class<SchemaManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.schema.DefaultSchemaManager");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
+    /**
+     * Lookup the most suitable SchemaManager available.
+     *
+     * @return SchemaManager.
+     */
     public static SchemaManager lookup() {
-        return lookup.lookup(SchemaManager.class, DEFAULT);
+        return lookup.lookup(SchemaManager.class);
     }
 
     /**
@@ -96,14 +92,43 @@ public abstract class SchemaManager implements Serializable {
      */
     public abstract Schema remove(final Class<?> cls);
 
+    /**
+     * Validate beans according to their schema, like valid data types.
+     *
+     * @param beans to validate
+     */
     public abstract void validateSchema(Collection<Bean> beans);
 
+    /**
+     * Convert a bean into an object as specified by its schema.
+     *
+     * @param bean to convert
+     * @return object
+     */
     public abstract Object convertBean(Bean bean);
 
+    /**
+     * Convert a collection of beans into an objects as specified by their schema.
+     *
+     * @param beans to convert
+     * @return collection of objects
+     */
     public abstract Collection<Object> convertBeans(Collection<Bean> beans);
 
+    /**
+     * Convert a collection of objects into their bean representation.
+     *
+     * @param objects to convert
+     * @return collection of beans
+     */
     public abstract Collection<Bean> convertObjects(Collection<Object> objects);
 
+    /**
+     * Convert an object into its bean representation.
+     *
+     * @param object to convert
+     * @return a bean
+     */
     public abstract Bean convertObject(Object object);
 
 }

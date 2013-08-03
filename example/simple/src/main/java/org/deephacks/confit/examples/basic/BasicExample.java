@@ -27,10 +27,10 @@ import static org.junit.Assert.*;
  */
 public class BasicExample {
     // ConfigContext is the application interface for fetching configuration.
-    private static ConfigContext config = ConfigContext.get();
+    private static ConfigContext config = ConfigContext.lookup();
 
     // AdminContext is the administrative interface for creating configuration.
-    private static AdminContext admin = AdminContext.get();
+    private static AdminContext admin = AdminContext.lookup();
 
     static {
         // this is optional - classes are registered automatically when

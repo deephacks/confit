@@ -27,8 +27,8 @@ import static org.junit.Assert.assertThat;
  * must be available on classpath.
  */
 public class ValidationExample {
-    private static ConfigContext config = ConfigContext.get();
-    private static AdminContext admin = AdminContext.get();
+    private static ConfigContext config = ConfigContext.lookup();
+    private static AdminContext admin = AdminContext.lookup();
     static {
         // optional
         config.register(C.class);

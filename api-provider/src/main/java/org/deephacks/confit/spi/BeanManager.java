@@ -58,18 +58,13 @@ public abstract class BeanManager implements Serializable {
     private static final long serialVersionUID = -246410305338556633L;
     private static Lookup lookup = Lookup.get();
 
-    private static final Class<BeanManager> DEFAULT;
-
-    static {
-        try {
-            DEFAULT = (Class<BeanManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.config.DefaultBeanManager");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * Lookup the most suitable BeanManager available.
+     *
+     * @return BeanManager.
+     */
     public static BeanManager lookup() {
-        return lookup.lookup(BeanManager.class, DEFAULT);
+        return lookup.lookup(BeanManager.class);
     }
 
     /**

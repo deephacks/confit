@@ -9,6 +9,11 @@ import java.util.Map;
 
 public abstract class PropertyManager {
 
+    /**
+     * Lookup the most suitable PropertyManager available.
+     *
+     * @return PropertyManager.
+     */
     public static PropertyManager lookup() {
         return Lookup.get().lookup(PropertyManager.class);
     }

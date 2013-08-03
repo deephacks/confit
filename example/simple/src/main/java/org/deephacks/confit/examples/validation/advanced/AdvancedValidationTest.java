@@ -9,7 +9,7 @@ import static org.deephacks.confit.examples.validation.advanced.FamilyTestData.c
 public class AdvancedValidationTest {
 
     public static void main(String[] args) {
-        ConfigContext config = ConfigContext.get();
+        ConfigContext config = ConfigContext.lookup();
         config.register(Person.class, Marriage.class);
         Bean child1 = createFamily("1", "MALE");
         Bean child2 = createFamily("2", "FEMALE");

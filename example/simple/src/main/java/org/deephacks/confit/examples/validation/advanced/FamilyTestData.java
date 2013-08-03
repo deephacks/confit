@@ -18,7 +18,7 @@ import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 
 public class FamilyTestData {
-    static AdminContext admin = AdminContext.get();
+    static AdminContext admin = AdminContext.lookup();
 
     public static Bean createFamily(String prefix, String childGender) {
         int counter = 0;

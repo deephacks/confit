@@ -8,6 +8,9 @@ import org.deephacks.confit.examples.basic.BasicExample.B;
 import java.io.File;
 import java.net.URL;
 
+import static org.hamcrest.core.Is.is;
+import static org.junit.Assert.assertThat;
+
 public class ConfExample {
     static {
         // by default conf-it uses example.conf located in the current
@@ -19,8 +22,8 @@ public class ConfExample {
         }
         System.setProperty("application.conf", file.getAbsolutePath());
     }
-    private static final ConfigContext config = ConfigContext.get();
-    private static final AdminContext admin = AdminContext.get();
+    private static final ConfigContext config = ConfigContext.lookup();
+    private static final AdminContext admin = AdminContext.lookup();
     static {
         config.register(A.class, B.class);
     }
@@ -34,8 +37,7 @@ public class ConfExample {
 
     private static void simpleConfFileOnly() {
         A singleton = config.get(A.class);
-        System.out.println(singleton.getValue());
-
+        assertThat(singleton.getValue(), is("filevalue"));
     }
 
     private static void referenceConfFileOnly() {

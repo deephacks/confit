@@ -19,18 +19,13 @@ public abstract class NotificationManager {
 
     private static Lookup lookup = Lookup.get();
 
-    private static final Class<NotificationManager> DEFAULT;
-
-    static {
-        try {
-            DEFAULT = (Class<NotificationManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.notification.DefaultNotificationManager");
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
-
+    /**
+     * Lookup the most suitable NotificationManager available.
+     *
+     * @return NotificationManager.
+     */
     public static NotificationManager lookup() {
-        return lookup.lookup(NotificationManager.class, DEFAULT);
+        return lookup.lookup(NotificationManager.class);
     }
 
     public abstract void register(Observer observer);

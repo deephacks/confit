@@ -11,7 +11,6 @@ import java.util.concurrent.ConcurrentHashMap;
 public abstract class LookupProvider {
     protected final ConcurrentHashMap<Class<?>, Object> objectRegistry = new ConcurrentHashMap<>();
     private static final ThreadLocal<String> RECURSION_SHORTCIRCUIT = new ThreadLocal<>();
-    private static PropertyManager propertyManager = PropertyManager.lookup();
     /**
     * Look up an object matching a given interface.
     *
@@ -98,9 +97,8 @@ public abstract class LookupProvider {
 
         @Override
         public <T> Collection<T> lookupAll(Class<T> clazz) {
-            ArrayList found = new ArrayList<>();
             if (!cdiEnabled) {
-                return Lists.newArrayList(lookup(clazz));
+                return Lists.newArrayList();
             }
             // return all instances found
             try {

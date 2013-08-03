@@ -5,23 +5,19 @@ import com.google.common.base.Optional;
 import java.util.Collection;
 
 /**
- * <p>
- * When beans are created or updated, it is the responsibility of the
- * validator to maintain data integrity by enforcing validation
- * constraints and reject operations that violate these rules.
- * </p>
- * This validator does JSR 303, Bean Validation and will not try to do schema
- * validation, ie check data types or referential integrity etc.
- * <p>
- * Validation will only be peformed if JSR 303 1.0 Bean Validation API
- * and compliant implementation are available on classpath.
- * </p>
+ * When beans are created or updated, it is the responsibility of the validator to
+ * maintain data integrity by enforcing validation constraints and reject operations
+ * that violate these rules.
  *
- * @author Kristoffer Sjogren
  */
 public abstract class ValidationManager {
     private static Lookup lookup = Lookup.get();
 
+    /**
+     * Lookup the most suitable ValidationManager available.
+     *
+     * @return ValidationManager.
+     */
     public static Optional<ValidationManager> lookup() {
         ValidationManager manager = lookup.lookup(ValidationManager.class);
         if (manager != null) {
@@ -31,8 +27,18 @@ public abstract class ValidationManager {
         }
     }
 
+    /**
+     * Validate a collection of beans. Beans have their references initialized.
+     *
+     * @param beans to validate.
+     */
     public abstract void validate(Collection<Object> beans);
 
+    /**
+     * Validate a beans. Bean references are initialized.
+     *
+     * @param bean to validate
+     */
     public abstract void validate(Object bean);
 
 }

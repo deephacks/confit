@@ -36,6 +36,11 @@ public abstract class CacheManager<V> {
     private static final String CONFIG_QUERY_FEATURE_ENABLED_PROPERTY = "confit.query.enabled";
     private static boolean configQueryFeatureEnabled = false;
 
+    /**
+     * Lookup the most suitable CacheManager available.
+     *
+     * @return CacheManager.
+     */
     public static Optional<CacheManager> lookup() {
         Optional<String> optional = propertyManager.get(CONFIG_QUERY_FEATURE_ENABLED_PROPERTY);
         if(optional.isPresent()){

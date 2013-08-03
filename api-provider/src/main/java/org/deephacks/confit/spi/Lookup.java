@@ -12,23 +12,29 @@ import java.util.LinkedList;
 import java.util.Map;
 
 /**
- * Lookup is responsible for solving the problem of dynamic service discovery. Service providers
- * register themselves and clients query for a suitable provider, without knowing how lookupPrefered is
- * performed. The purpose is to achieve modularity and separation between components.
+ * Lookup is responsible for solving the problem of dynamic service discovery in different
+ * environments like standard Java SE ServiceLoader, CDI, Spring, OSGi etc.
+ *
+ * Service providers register themselves and clients query for a suitable provider,
+ * without knowing how lookup is performed. The purpose is to achieve modularity and
+ * separation between components.
+ *
  */
 public class Lookup extends LookupProvider {
     private ArrayList<LookupProvider> lookupProviders = new ArrayList<>();
     private static Lookup LOOKUP;
     private static PropertyManager propertyManager;
     static {
-        propertyManager = LOOKUP.lookup(PropertyManager.class);
+        propertyManager = Lookup.get().lookup(PropertyManager.class);
     }
+
     protected Lookup() {
     }
 
     /**
-     * Aquire the Lookup registry.
-     * @return The lookupPrefered registry.
+     * Acquire the Lookup registry.
+     *
+     * @return The lookup registry.
      */
     public static Lookup get() {
         if (LOOKUP != null) {
@@ -83,9 +89,7 @@ public class Lookup extends LookupProvider {
                 continue;
             }
             T prefered = lookupPrefered(clazz, result);
-            if (prefered == null) {
-                return result.iterator().next();
-            }
+            return prefered != null ? prefered : result.iterator().next();
         }
         return lookupPrefered(clazz, new ArrayList<T>());
     }
@@ -130,19 +134,27 @@ public class Lookup extends LookupProvider {
         return getPreferredInstance(instances, preferred);
     }
 
-    static <T> T getPreferredInstance(Collection<T> instances, Optional<String> prefered) {
-        LinkedList<T> preferedInstances = new LinkedList<>();
+    static <T> T getPreferredInstance(Collection<T> instances, Optional<String> preferred) {
+        LinkedList<T> preferredInstances = new LinkedList<>();
         if (instances == null || instances.size() == 0) {
             return null;
         }
-        if (prefered.isPresent()) {
-            for (T instance : instances) {
-                if (instance.getClass().getName().equals(prefered.get())) {
-                    preferedInstances.addFirst(instance);
+        for (T instance : instances) {
+            if (preferred.isPresent() && instance.getClass().getName().equals(preferred.get())) {
+                return instance;
+            } else {
+                if (instance.getClass().getName().toLowerCase().contains("default")) {
+                    preferredInstances.addLast(instance);
+                } else {
+                    preferredInstances.addFirst(instance);
                 }
             }
         }
-        return null;
+        if (preferredInstances.isEmpty()) {
+            throw new IllegalArgumentException("Could not find preferred instance [" + preferred.get() + "] " +
+                    "among available instances [" + instances + "].");
+        }
+        return preferredInstances.peekFirst();
     }
 
     static Object newInstance(String className) {

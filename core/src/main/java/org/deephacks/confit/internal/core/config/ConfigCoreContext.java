@@ -15,9 +15,6 @@ package org.deephacks.confit.internal.core.config;
 
 import com.google.common.base.Optional;
 import org.deephacks.confit.ConfigContext;
-import org.deephacks.confit.internal.core.notification.DefaultNotificationManager;
-import org.deephacks.confit.internal.core.property.DefaultPropertyManager;
-import org.deephacks.confit.internal.core.schema.DefaultSchemaManager;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -265,10 +262,10 @@ public final class ConfigCoreContext extends ConfigContext {
         if (LOOKUP_DONE.get()) {
             return;
         }
-        propertyManager = lookup.lookup(PropertyManager.class, DefaultPropertyManager.class);
-        schemaManager = lookup.lookup(SchemaManager.class, DefaultSchemaManager.class);
-        beanManager = lookup.lookup(BeanManager.class, DefaultBeanManager.class);
-        notificationManager = lookup.lookup(NotificationManager.class, DefaultNotificationManager.class);
+        propertyManager = PropertyManager.lookup();
+        schemaManager = SchemaManager.lookup();
+        beanManager = BeanManager.lookup();
+        notificationManager = NotificationManager.lookup();
         cacheManager = CacheManager.lookup();
         LOOKUP_DONE.set(true);
     }

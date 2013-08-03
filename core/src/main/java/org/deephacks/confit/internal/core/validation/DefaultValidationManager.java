@@ -11,6 +11,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Set;
 
+/**
+ * </p>
+ * This validator does JSR 303, Bean Validation and will not try to do schema
+ * validation, ie check data types or referential integrity etc.
+ * <p>
+ * Validation will only be performed if JSR 303 1.0 Bean Validation API
+ * and compliant implementation are available on classpath.
+ * </p>
+ */
 public class DefaultValidationManager extends ValidationManager {
     private Validator validator;
 
