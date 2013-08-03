@@ -1,6 +1,5 @@
 package org.deephacks.confit.internal.core.validation;
 
-import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.spi.ValidationManager;
 
@@ -31,21 +30,12 @@ public class DefaultValidationManager extends ValidationManager {
         try {
             cl.loadClass(JSR303_1_0_CLASSNAME);
         } catch (Exception e) {
+            // since no JSR303 implementation is available we tell
+            // Lookup that DefaultValidationManager is not present.
             throw new RuntimeException(e);
         }
     }
 
-    /**
-     * Validate a collection of bean instances. This method is called
-     * when beans are provisioned from an administrative context.
-     * <p>
-     * Beans can correlate their respective validation constraints using
-     * the schema name.
-     * </p>
-     *
-     * @param beans to be validated.
-     * @throws AbortRuntimeException
-     */
     @Override
     public void validate(Collection<Object> beans) {
         if (validator == null) {

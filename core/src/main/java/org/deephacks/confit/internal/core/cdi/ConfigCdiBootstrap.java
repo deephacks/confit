@@ -10,6 +10,7 @@ import javax.enterprise.inject.spi.AfterDeploymentValidation;
 import javax.enterprise.inject.spi.AnnotatedType;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessAnnotatedType;
 import javax.inject.Singleton;
@@ -20,22 +21,15 @@ import java.util.Set;
 public class ConfigCdiBootstrap implements Extension {
 private static final Set<Class<?>> schemas = new HashSet<>();
 
-    public void afterBeanDiscovery(@Observes AfterBeanDiscovery event, BeanManager bm) {
-        event.addContext(new ConfigCdiContext(bm));
+    public void afterBeanDiscovery(@Observes AfterBeanDiscovery event) {
+        event.addContext(new ConfigCdiContext());
     }
 
-    public void afterDeploymentValidation(@Observes AfterDeploymentValidation event, BeanManager bm) {
-        ConfigContext ctx = getInstance(ConfigContext.class, bm);
+    public void afterDeploymentValidation(@Observes AfterDeploymentValidation event) {
+        ConfigContext ctx = CDI.current().select(ConfigContext.class).get();
         for (Class<?> cls : schemas){
             ctx.register(cls);
         }
-    }
-
-    public static <T> T getInstance(Class<T> cls, BeanManager bm){
-        Set<Bean<?>> beans = bm.getBeans(cls);
-        Bean<?> bean = bm.resolve(beans);
-        CreationalContext cc = bm.createCreationalContext(bean);
-        return (T) bm.getReference(bean, cls, cc);
     }
 
     public <X> void processAnnotatedType(@Observes ProcessAnnotatedType<X> pat) {

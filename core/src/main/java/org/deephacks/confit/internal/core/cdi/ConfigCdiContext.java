@@ -7,22 +7,19 @@ import javax.enterprise.context.spi.Context;
 import javax.enterprise.context.spi.Contextual;
 import javax.enterprise.context.spi.CreationalContext;
 import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import javax.enterprise.inject.spi.CDI;
 import javax.inject.Singleton;
 import java.lang.annotation.Annotation;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Singleton
 @SuppressWarnings(value = { "unchecked", "rawtypes" })
 public class ConfigCdiContext implements Context {
-    private BeanManager bm;
     private ConfigContext ctx;
     private CreationalContext cctx = null;
     private static final ConcurrentHashMap<Class<?>, Object> cache = new ConcurrentHashMap<>();
 
-    public ConfigCdiContext(BeanManager bm) {
-        this.bm = bm;
+    public ConfigCdiContext() {
     }
 
     @Override
@@ -35,7 +32,7 @@ public class ConfigCdiContext implements Context {
         Bean<T> bean = (Bean<T>) contextual;
         cctx = creationalContext;
         if (ctx == null) {
-            ctx = lookupRuntimeContext();
+            ctx = CDI.current().select(ConfigContext.class).get();
         }
         final Object object;
         if (cache.containsKey(bean.getBeanClass())) {
@@ -53,7 +50,7 @@ public class ConfigCdiContext implements Context {
             return null;
         }
         if (ctx == null) {
-            ctx = lookupRuntimeContext();
+            ctx = CDI.current().select(ConfigContext.class).get();
         }
         Bean<T> bean = (Bean<T>) contextual;
 
@@ -70,12 +67,5 @@ public class ConfigCdiContext implements Context {
     @Override
     public boolean isActive() {
         return true;
-    }
-
-    private ConfigContext lookupRuntimeContext() {
-        Set<Bean<?>> beans = bm.getBeans(ConfigContext.class);
-        Bean<?> bean = bm.resolve(beans);
-        CreationalContext cc = bm.createCreationalContext(bean);
-        return (ConfigContext) bm.getReference(bean, ConfigContext.class, cc);
     }
 }
