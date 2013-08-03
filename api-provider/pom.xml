@@ -25,6 +25,10 @@
       <artifactId>confit-api-admin</artifactId>
     </dependency>
     <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+    </dependency>
+    <dependency>
       <groupId>com.google.guava</groupId>
       <artifactId>guava</artifactId>
     </dependency>

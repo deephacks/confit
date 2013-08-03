@@ -56,7 +56,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
     private final int port;
     private final String prefixUri;
 
-    private final AdminContext admin = AdminContext.get();
+    private final AdminContext admin = AdminContext.lookup();
 
     private AdminContextJaxrsProxy(String host, int port, String prefixUri) {
         client = ClientBuilder.newBuilder().build();

@@ -17,7 +17,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.admin.AdminContext;
-import org.deephacks.confit.internal.core.runtime.DefaultBeanManager;
+import org.deephacks.confit.internal.core.config.DefaultBeanManager;
 import org.deephacks.confit.query.ConfigResultSet;
 import org.deephacks.confit.test.ConfigTestData.Child;
 import org.deephacks.confit.test.ConfigTestData.Grandfather;
@@ -32,7 +32,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.deephacks.confit.internal.core.runtime.ConversionUtils.toBean;
+import static org.deephacks.confit.internal.core.schema.ConversionUtils.toBean;
 import static org.deephacks.confit.query.ConfigQueryBuilder.*;
 import static org.deephacks.confit.test.ConfigTestData.getGrandfather;
 import static org.deephacks.confit.test.ConfigTestData.getParent;
@@ -44,8 +44,8 @@ public class ConfigQueryTest {
     static {
         System.setProperty("confit.query.enabled", "true");
     }
-    static final ConfigContext runtime = ConfigContext.get();
-    static final AdminContext admin = AdminContext.get();
+    static final ConfigContext runtime = ConfigContext.lookup();
+    static final AdminContext admin = AdminContext.lookup();
     private Grandfather g1;
     private Grandfather g2;
     private Grandfather g3;

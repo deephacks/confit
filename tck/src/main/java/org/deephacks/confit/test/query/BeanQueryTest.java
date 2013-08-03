@@ -22,8 +22,8 @@ import static org.junit.matchers.JUnitMatchers.hasItems;
 
 @RunWith(FeatureTestsRunner.class)
 public class BeanQueryTest {
-    private AdminContext admin = AdminContext.get();
-    private ConfigContext config = ConfigContext.get();
+    private AdminContext admin = AdminContext.lookup();
+    private ConfigContext config = ConfigContext.lookup();
 
     private List<Grandfather> grandfathers = new ArrayList<>();
     private List<Parent> parents = new ArrayList<>();

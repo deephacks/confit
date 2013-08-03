@@ -3,7 +3,7 @@ package org.deephacks.confit.test.cdi;
 import org.deephacks.confit.Config;
 import org.deephacks.confit.ConfigScope;
 
-@Config(name = "CdiSingletonConfig", desc = "A cdi enabled get configuration")
+@Config(name = "CdiSingletonConfig", desc = "A cdi enabled lookup configuration")
 @ConfigScope
 public class CdiSingletonConfig {
 

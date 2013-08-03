@@ -25,8 +25,8 @@ import static org.deephacks.confit.test.ConfigTestData.*;
 import static org.deephacks.confit.test.ConversionUtils.toBeans;
 
 public abstract class ConfigDefaultSetup {
-    protected ConfigContext config = ConfigContext.get();
-    protected AdminContext admin = AdminContext.get();
+    protected ConfigContext config = ConfigContext.lookup();
+    protected AdminContext admin = AdminContext.lookup();
     protected Child c1;
     protected Child c2;
     protected Parent p1;

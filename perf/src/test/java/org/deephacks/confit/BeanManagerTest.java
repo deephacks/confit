@@ -7,13 +7,11 @@ import com.google.common.collect.Lists;
 import com.yammer.metrics.core.Histogram;
 import com.yammer.metrics.core.MetricsRegistry;
 import org.deephacks.confit.admin.AdminContext;
-import org.deephacks.confit.internal.core.runtime.ClassToSchemaConverter;
-import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.internal.core.Lookup;
 import org.deephacks.confit.query.ConfigResultSet;
 import org.deephacks.confit.spi.BeanManager;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.spi.Lookup;
+import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.slf4j.LoggerFactory;
 
@@ -27,13 +25,9 @@ public abstract class BeanManagerTest {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.ERROR);
     }
-    public static Conversion conversion = Conversion.get();
-    static {
-        conversion.register(new ClassToSchemaConverter());
-        conversion.register(new FieldToSchemaPropertyConverter());
-    }
-    public ConfigContext config = ConfigContext.get();
-    public AdminContext admin = AdminContext.get();
+    public ConfigContext config = ConfigContext.lookup();
+    public AdminContext admin = AdminContext.lookup();
+    public SchemaManager schemaManager = SchemaManager.lookup();
 
     public static final List<List<Bean>> beans = new ArrayList<>();
     private MetricsRegistry registry = new MetricsRegistry();
@@ -53,9 +47,9 @@ public abstract class BeanManagerTest {
             g.add(p);
             p.add(c);
             ArrayList<Bean> unit = new ArrayList<>();
-            unit.add(conversion.convert(g, Bean.class));
-            unit.add(conversion.convert(p, Bean.class));
-            unit.add(conversion.convert(c, Bean.class));
+            unit.add(schemaManager.convertObject(g));
+            unit.add(schemaManager.convertObject(p));
+            unit.add(schemaManager.convertObject(c));
             beans.add(unit);
         }
         config.register(Grandfather.class, Parent.class, Child.class);

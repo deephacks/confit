@@ -35,8 +35,8 @@ import static org.unitils.reflectionassert.ReflectionComparatorMode.LENIENT_ORDE
 @RunWith(FeatureTestsRunner.class)
 public class IntegrationConfigTests {
     private ConfigObserver observer = new ConfigObserver();
-    private ConfigContext config = ConfigContext.get();
-    private AdminContext admin = AdminContext.get();
+    private ConfigContext config = ConfigContext.lookup();
+    private AdminContext admin = AdminContext.lookup();
     private Child c1;
     private Child c2;
     private Parent p1;
@@ -74,7 +74,7 @@ public class IntegrationConfigTests {
         g2.add(p1, p2);
         g2.put(p1);
         config.registerObserver(observer);
-        config.register(Grandfather.class, Parent.class, Child.class, Singleton.class,
+        config.register(Person.class, Grandfather.class, Parent.class, Child.class, Singleton.class,
                 SingletonParent.class, JSR303Validation.class);
         if (defaultBeans == null) {
             // toBeans steals quite a bit of performance when having larger hierarchies.
@@ -185,7 +185,7 @@ public class IntegrationConfigTests {
     }
 
     /**
-     * Test that get beans have their default instance created after registration.
+     * Test that lookup beans have their default instance created after registration.
      */
     @Test
     public void test_register_singleton() {
@@ -194,19 +194,19 @@ public class IntegrationConfigTests {
     }
 
     /**
-     * Test that get references are automatically assigned.
+     * Test that lookup references are automatically assigned.
      */
     @Test
     public void test_singleton_references() {
-        // provision a bean without the get reference.
+        // provision a bean without the lookup reference.
         Bean singletonParent = toBean(sp1);
         admin.create(singletonParent);
 
-        // assert that the get reference is set for config
+        // assert that the lookup reference is set for config
         SingletonParent parent = config.get(SingletonParent.class);
         assertNotNull(parent.getSingleton());
 
-        // assert that the get is available from admin but
+        // assert that the lookup is available from admin but
         // references, however, is not set because it does not exist
         Bean result = admin.get(singletonParent.getId()).get();
         assertNotNull(result);
@@ -611,7 +611,7 @@ public class IntegrationConfigTests {
         d.addReference("colleauges", Arrays.asList(aId, bId, cId));
         /**
          * Now test list operations from admin and config to make
-         * sure that none of them get stuck in infinite recrusion.
+         * sure that none of them lookup stuck in infinite recrusion.
          */
 
         admin.merge(Arrays.asList(a, b, c, d));

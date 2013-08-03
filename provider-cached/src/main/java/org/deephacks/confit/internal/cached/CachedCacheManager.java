@@ -20,14 +20,12 @@ import org.deephacks.cached.buffer.util.internal.chmv8.ConcurrentHashMapV8;
 import org.deephacks.confit.internal.cached.proxy.ConfigProxyGenerator;
 import org.deephacks.confit.internal.cached.query.ConfigIndex;
 import org.deephacks.confit.internal.cached.query.ConfigIndexedCollection;
-import org.deephacks.confit.internal.core.runtime.BeanToObjectConverter;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.query.ConfigQuery;
 import org.deephacks.confit.spi.CacheManager;
-import org.deephacks.confit.spi.Conversion;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -59,17 +57,12 @@ public class CachedCacheManager extends CacheManager<Object> {
 
     /** proxies are serialized into binary ByteBuf form using this serializer */
     private static final DefaultCacheValueSerializer defaultSerializer = new DefaultCacheValueSerializer();
-    private static final Conversion conv = Conversion.get();
 
     /** schemaName -> index */
     private static final HashMap<String, ConfigIndex> configIndexes = new HashMap<>();
 
     /** schemaName -> indexed collection */
     private static final HashMap<String, ConfigIndexedCollection> indexCollections = new HashMap<>();
-
-    static {
-        conv.register(new BeanToObjectConverter());
-    }
 
     @Override
     public void registerSchema(Schema schema) {

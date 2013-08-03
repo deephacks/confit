@@ -17,10 +17,6 @@ import com.google.common.base.Optional;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
-import org.deephacks.confit.internal.core.runtime.BeanToObjectConverter;
-import org.deephacks.confit.internal.core.runtime.ClassToSchemaConverter;
-import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
-import org.deephacks.confit.internal.core.runtime.ObjectToBeanConverter;
 import org.deephacks.confit.internal.jaxrs.JaxrsBeans.JaxrsBean;
 import org.deephacks.confit.internal.jaxrs.JaxrsObjects.JaxrsObject;
 import org.deephacks.confit.internal.jaxrs.JaxrsSchemas.JaxrsSchema;
@@ -29,7 +25,6 @@ import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
-import org.deephacks.confit.spi.Conversion;
 
 import javax.inject.Inject;
 import javax.ws.rs.Consumes;
@@ -64,15 +59,6 @@ public class JaxrsConfigEndpoint {
     private AdminContext admin;
 
     private static final Map<String, Schema> schemas = new HashMap<>();
-
-    private static final Conversion conv = Conversion.get();
-
-    static {
-        conv.register(new ObjectToBeanConverter());
-        conv.register(new ClassToSchemaConverter());
-        conv.register(new FieldToSchemaPropertyConverter());
-        conv.register(new BeanToObjectConverter());
-    }
 
     @Inject
     public JaxrsConfigEndpoint(AdminContext admin) {

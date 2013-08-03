@@ -162,7 +162,7 @@ public class HBeanProperties {
      * properties into a String matrix. The first element is the property name
      * followed by its values.
      *
-     * @param bean Bean to get properties from.
+     * @param bean Bean to lookup properties from.
      * @return String matrix
      */
     public static String[][] getProperties(final Bean bean) {

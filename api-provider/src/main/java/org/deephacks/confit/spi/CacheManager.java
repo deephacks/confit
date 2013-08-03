@@ -13,6 +13,7 @@
  */
 package org.deephacks.confit.spi;
 
+import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
@@ -29,6 +30,27 @@ import java.util.List;
  * @author Kristoffer Sjogren
  */
 public abstract class CacheManager<V> {
+
+    private static Lookup lookup = Lookup.get();
+    private static PropertyManager propertyManager = PropertyManager.lookup();
+    private static final String CONFIG_QUERY_FEATURE_ENABLED_PROPERTY = "confit.query.enabled";
+    private static boolean configQueryFeatureEnabled = false;
+
+    public static Optional<CacheManager> lookup() {
+        Optional<String> optional = propertyManager.get(CONFIG_QUERY_FEATURE_ENABLED_PROPERTY);
+        if(optional.isPresent()){
+            configQueryFeatureEnabled = true;
+        }
+        if(!configQueryFeatureEnabled) {
+            return Optional.absent();
+        }
+        CacheManager manager = lookup.lookup(CacheManager.class);
+        if (manager != null) {
+            return Optional.of(manager);
+        } else {
+            return Optional.absent();
+        }
+    }
 
     /**
      * Register a know schema with the cache.

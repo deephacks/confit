@@ -26,6 +26,8 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.deephacks.confit.internal.cached.UnsafeUtils.*;
+
 /**
  * Serializer that read and write object proxies to a binary off-heap cache.
  * DefaultCacheValueSerializer is roughly twice as fast KryoCacheValueSerializer.
@@ -43,7 +45,7 @@ public class DefaultCacheValueSerializer extends CacheValueSerializer<Object>  {
     private static final ConcurrentHashMapV8<Integer, UniqueId> idToUniqueIds = new ConcurrentHashMapV8<>();
 
     private static final ConcurrentHashMapV8<String, Schema> schemas = new ConcurrentHashMapV8<>();
-    private static final Unsafe unsafe = UnsafeUtils.getUnsafe();
+    private static final Unsafe unsafe = getUnsafe();
 
     /** maintain unique ids to classes */
     private static final AtomicInteger clsCount = new AtomicInteger(0);

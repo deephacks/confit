@@ -1,6 +1,5 @@
 package org.deephacks.confit.internal.jpa;
 
-import org.deephacks.confit.internal.core.SystemProperties;
 import org.deephacks.confit.test.JUnitUtils;
 
 import java.io.File;
@@ -47,8 +46,6 @@ public class Database {
     public static final String SQLITE = "sqlite";
     public static final String HSQL = "hsql";
 
-    private static final SystemProperties PROPS = SystemProperties.instance();
-
     private String username;
     private String password;
     private String host;
@@ -65,7 +62,7 @@ public class Database {
         this.uninstallDdl = uninstallDdl;
         this.username = System.getProperty("user.name");
         this.password = System.getProperty("user.name");
-        this.host = PROPS.get(DB_HOST_CONFIT_PROPERTY).or("localhost");
+        this.host = "localhost";
         this.tablespace = System.getProperty("user.name");
         if (DERBY.equals(dbProvider)) {
             driver = DERBY_DRIVER;

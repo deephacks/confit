@@ -31,7 +31,7 @@ public class JettyServer {
     private static Server server;
     private static AtomicBoolean RUNNING = new AtomicBoolean(false);
     static  {
-        ConfigContext config = ConfigContext.get();
+        ConfigContext config = ConfigContext.lookup();
         config.register(Child.class, Parent.class, Grandfather.class, Singleton.class, SingletonParent.class);
     }
     public static void start() {
@@ -89,7 +89,7 @@ public class JettyServer {
     private static class JaxrsApplication extends Application {
         private static final Set<Object> singletons = new HashSet<>();
         static {
-            singletons.add(new JaxrsConfigEndpoint(AdminContext.get()));
+            singletons.add(new JaxrsConfigEndpoint(AdminContext.lookup()));
         }
 
         @Override
@@ -150,7 +150,7 @@ public class JettyServer {
         // located in ./target/test-classes or ./eclipse-out/target
         final File target_test_classes = new File(clsPath.substring(0,
                 clsPath.length() - clsUri.length()));
-        // get parent's parent
+        // lookup parent's parent
         return target_test_classes.getParentFile().getParentFile();
     }
 }

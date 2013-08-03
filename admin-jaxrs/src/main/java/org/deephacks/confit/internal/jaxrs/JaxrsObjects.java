@@ -8,13 +8,15 @@ import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.introspect.VisibilityChecker;
 import org.codehaus.jackson.map.module.SimpleModule;
-import org.deephacks.confit.internal.core.Lookup;
+import org.deephacks.confit.spi.Lookup;
 
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
-import static org.deephacks.confit.internal.core.Reflections.getParameterizedType;
 
 public class JaxrsObjects {
     private Collection<JaxrsObject> objects = new ArrayList<>();
@@ -123,4 +125,46 @@ public class JaxrsObjects {
             }
         }
     }
+
+    private static List<Class<?>> getParameterizedType(final Class<?> ownerClass,
+                                                      Class<?> genericSuperClass) {
+        Type[] types = null;
+        if (genericSuperClass.isInterface()) {
+            types = ownerClass.getGenericInterfaces();
+        } else {
+            types = new Type[] { ownerClass.getGenericSuperclass() };
+        }
+
+        List<Class<?>> classes = new ArrayList<>();
+        for (Type type : types) {
+
+            if (!ParameterizedType.class.isAssignableFrom(type.getClass())) {
+                // the field is it a raw type and does not have generic type
+                // argument. Return empty list.
+                return new ArrayList<Class<?>>();
+            }
+
+            ParameterizedType ptype = (ParameterizedType) type;
+            Type[] targs = ptype.getActualTypeArguments();
+
+            for (Type aType : targs) {
+
+                classes.add(extractClass(ownerClass, aType));
+            }
+        }
+        return classes;
+    }
+
+    private static Class<?> extractClass(Class<?> ownerClass, Type arg) {
+        if (arg instanceof ParameterizedType) {
+            return extractClass(ownerClass, ((ParameterizedType) arg).getRawType());
+        } else if (arg instanceof GenericArrayType) {
+            throw new UnsupportedOperationException("GenericArray types are not supported.");
+        } else if (arg instanceof TypeVariable) {
+            throw new UnsupportedOperationException("GenericArray types are not supported.");
+        }
+        return (arg instanceof Class ? (Class<?>) arg : Object.class);
+    }
+
+
 }

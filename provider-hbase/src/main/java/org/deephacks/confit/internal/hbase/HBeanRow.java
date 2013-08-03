@@ -361,11 +361,11 @@ public final class HBeanRow {
         final String instanceId = uids.getUiid().getName(iid);
 
         if (Strings.isNullOrEmpty(schemaName)) {
-            throw new IllegalStateException("Could not get schema name from sid "
+            throw new IllegalStateException("Could not lookup schema name from sid "
                     + Arrays.toString(sid));
         }
         if (Strings.isNullOrEmpty(instanceId)) {
-            throw new IllegalStateException("Could not get instance id from iid "
+            throw new IllegalStateException("Could not lookup instance id from iid "
                     + Arrays.toString(iid));
         }
         return BeanId.create(instanceId, schemaName);

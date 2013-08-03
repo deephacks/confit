@@ -3,17 +3,13 @@ package org.deephacks.confit.internal.jaxrs;
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
 import com.google.common.base.Optional;
-import org.deephacks.confit.internal.core.runtime.BeanToObjectConverter;
-import org.deephacks.confit.internal.core.runtime.ClassToSchemaConverter;
-import org.deephacks.confit.internal.core.runtime.DefaultBeanManager;
-import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
-import org.deephacks.confit.internal.core.runtime.ObjectToBeanConverter;
+import org.deephacks.confit.internal.core.config.DefaultBeanManager;
 import org.deephacks.confit.jaxrs.AdminContextJaxrsProxy;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -35,13 +31,6 @@ import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEqua
 import static org.unitils.reflectionassert.ReflectionComparatorMode.LENIENT_ORDER;
 
 public class JaxrsConfigEndpointTest {
-    private static final Conversion conversion = Conversion.get();
-    static {
-        conversion.register(new BeanToObjectConverter());
-        conversion.register(new ObjectToBeanConverter());
-        conversion.register(new ClassToSchemaConverter());
-        conversion.register(new FieldToSchemaPropertyConverter());
-    }
     static {
         Logger root = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
         root.setLevel(Level.INFO);
@@ -62,7 +51,7 @@ public class JaxrsConfigEndpointTest {
     private Collection<Parent> parents = Arrays.asList(p1, p2, p3);
     private Collection<Bean> grandfathersBeans;
     private Collection<Bean> parentBeans;
-
+    private SchemaManager schemaManager = SchemaManager.lookup();
     @BeforeClass
     public static void beforeClass(){
         JettyServer.start();
@@ -159,12 +148,12 @@ public class JaxrsConfigEndpointTest {
 
     @Test
     public void testCreateBean() {
-        // tested from get tests
+        // tested from lookup tests
     }
 
     @Test
     public void testCreateObject() {
-        // tested from get tests
+        // tested from lookup tests
     }
 
     @Test
@@ -208,8 +197,8 @@ public class JaxrsConfigEndpointTest {
             admin.setObject("");
         } catch (AbortRuntimeException e) {
             // don't know if schema or instances were invalid from
-            // a HTTP 404 response, hence CFG090 and not CFG101
-            assertThat(e.getEvent().getCode(), is(CFG088));
+            // a HTTP 404 response
+            assertThat(e.getEvent().getCode(), is(CFG090));
         }
         assertFalse(admin.get(Grandfather.class, "g1").isPresent());
         admin.createObject(g1);
@@ -338,8 +327,8 @@ public class JaxrsConfigEndpointTest {
             admin.mergeObject("");
         } catch (AbortRuntimeException e) {
             // don't know if schema or instances were invalid from
-            // a HTTP 404 response, hence CFG090 and not CFG101
-            assertThat(e.getEvent().getCode(), is(CFG088));
+            // a HTTP 404 response
+            assertThat(e.getEvent().getCode(), is(CFG090));
         }
         assertFalse(admin.get(Grandfather.class, "g1").isPresent());
         admin.createObject(g1);
@@ -486,7 +475,7 @@ public class JaxrsConfigEndpointTest {
         final Map<String,Schema> schemas = admin.getSchemas();
         assertThat(schemas.values().size(), is(5));
         for (Schema schema : schemas.values()) {
-            Schema expected = conversion.convert(schema.getClassType(), Schema.class);
+            Schema expected = schemaManager.getSchema(schema.getClassType());
             assertReflectionEquals(expected, schema, LENIENT_ORDER);
         }
     }
@@ -498,7 +487,7 @@ public class JaxrsConfigEndpointTest {
         optional = admin.getSchema(GRANDFATHER_SCHEMA_NAME);
         assertTrue(optional.isPresent());
         Schema schema = optional.get();
-        Schema expected = conversion.convert(Grandfather.class, Schema.class);
+        Schema expected = schemaManager.getSchema(Grandfather.class);
         assertReflectionEquals(expected, schema, LENIENT_ORDER);
     }
 

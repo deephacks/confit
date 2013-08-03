@@ -19,7 +19,6 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.HBaseConfiguration;
 import org.apache.hadoop.hbase.client.RowMutations;
 import org.deephacks.confit.admin.query.BeanQuery;
-import org.deephacks.confit.internal.core.SystemProperties;
 import org.deephacks.confit.internal.hbase.HBeanTable.HBeanNotFoundException;
 import org.deephacks.confit.internal.hbase.query.HBaseBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
@@ -29,6 +28,7 @@ import org.deephacks.confit.model.BeanUtils;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
+import org.deephacks.confit.spi.PropertyManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -64,7 +64,7 @@ public class HBaseBeanManager extends BeanManager {
     public static final String HBASE_BEAN_ZOOKEEPER_QUORUM = "hbase.zookeeper.quorum";
 
     public HBaseBeanManager() {
-        SystemProperties systemProperties = SystemProperties.instance();
+        PropertyManager systemProperties = PropertyManager.lookup();
         String value = systemProperties.get(HBASE_BEAN_ZOOKEEPER_QUORUM).or("localhost");
         conf = HBaseConfiguration.create();
         conf.set(HBASE_BEAN_ZOOKEEPER_QUORUM, value);

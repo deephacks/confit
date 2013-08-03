@@ -33,7 +33,9 @@ import org.deephacks.confit.spi.Conversion;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.List;
@@ -41,8 +43,6 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.deephacks.confit.internal.core.Reflections.findField;
-import static org.deephacks.confit.internal.core.Reflections.newInstance;
 
 /**
  * Responsible for generating proxy classes of real configurable classes and creating
@@ -290,6 +290,45 @@ public class ConfigProxyGenerator {
         proxyClass = enhancedCtClass.toClass( cl, ConfigProxyGenerator.class.getProtectionDomain() );
         proxyClassCache.put(schema.getName(), proxyClass);
         return proxyClass;
+    }
+
+    private static Field findField(final Class<?> cls, String fieldName) {
+        Class<?> searchType = cls;
+        while (!Object.class.equals(searchType) && (searchType != null)) {
+            Field field = null;
+            try {
+                field = searchType.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException e) {
+                // ignore
+            }
+            if(field != null) {
+                field.setAccessible(true);
+                return field;
+            }
+            searchType = searchType.getSuperclass();
+        }
+        throw new RuntimeException("Could not find field " + fieldName + " on " + cls);
+    }
+
+    static <T> T newInstance(Class<T> type) throws InstantiationException,
+            IllegalAccessException, InvocationTargetException, NoSuchMethodException {
+        Constructor<?> c;
+        if(Modifier.isStatic(type.getModifiers())) {
+            c = type.getDeclaredConstructor(new Class[] {});
+        } else {
+            try {
+                Class<?> enclosing = type.getEnclosingClass();
+                if(type.getName().contains("$") && enclosing != null) {
+                    throw new IllegalArgumentException("Non-static inner classes are not supported: " + type);
+                }
+            } catch (Exception e) {
+                // this may occur for byte code generated proxies
+                throw new IllegalArgumentException("Non-static inner classes are not supported: " + type);
+            }
+            c = type.getDeclaredConstructor();
+        }
+        c.setAccessible(true);
+        return type.cast(c.newInstance());
     }
 
 }

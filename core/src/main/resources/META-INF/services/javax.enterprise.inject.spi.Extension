@@ -1,1 +1,1 @@
-org.deephacks.confit.internal.core.ConfigCdiBootstrap
+org.deephacks.confit.internal.core.cdi.ConfigCdiBootstrap

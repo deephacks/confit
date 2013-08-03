@@ -24,8 +24,8 @@ import static org.junit.Assert.*;
 @RunWith(FeatureTestsRunner.class)
 public class IntegrationValidationTests {
     protected JSR303Validation jsr303;
-    private ConfigContext config = ConfigContext.get();
-    private AdminContext admin = AdminContext.get();
+    private ConfigContext config = ConfigContext.lookup();
+    private AdminContext admin = AdminContext.lookup();
 
     @Before
     public void before() {

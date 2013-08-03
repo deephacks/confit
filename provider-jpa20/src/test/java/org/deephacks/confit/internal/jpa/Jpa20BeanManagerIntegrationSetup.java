@@ -14,7 +14,7 @@
 package org.deephacks.confit.internal.jpa;
 
 import org.deephacks.confit.internal.jpa.JpaUtils.Jpaprovider;
-import org.deephacks.confit.internal.core.Lookup;
+import org.deephacks.confit.spi.Lookup;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.test.FeatureSetupTeardown;
 import org.deephacks.confit.test.JUnitUtils;

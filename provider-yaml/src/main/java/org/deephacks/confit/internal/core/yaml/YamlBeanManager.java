@@ -20,13 +20,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import com.google.common.io.Files;
 import org.deephacks.confit.admin.query.BeanQuery;
-import org.deephacks.confit.internal.core.SystemProperties;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
+import org.deephacks.confit.spi.PropertyManager;
 import org.yaml.snakeyaml.Yaml;
 
 import java.io.File;
@@ -44,8 +44,15 @@ public class YamlBeanManager extends BeanManager {
     static final String YAML_BEAN_FILE_STORAGE_DIR_PROP = "config.spi.bean.yaml.dir";
     static final String YAML_BEAN_FILE_NAME = "bean.yaml";
     static final String YAML_EMPTY_FILE = "{}";
-    private static final SystemProperties PROP = SystemProperties.instance();
+    static File file;
     private static Yaml yaml = new Yaml();
+
+    public YamlBeanManager() {
+        PropertyManager propertyManager = PropertyManager.lookup();
+        propertyManager.get(YAML_BEAN_FILE_STORAGE_DIR_PROP);
+        String dirValue = propertyManager.get(YAML_BEAN_FILE_STORAGE_DIR_PROP).or(System.getProperty("java.io.tmpdir"));
+        file = new File(new File(dirValue), YAML_BEAN_FILE_NAME);
+    }
 
     @Override
     public Optional<Bean> getEager(BeanId id) {
@@ -165,7 +172,7 @@ public class YamlBeanManager extends BeanManager {
             if (bean.getId().getSchemaName().equals(schemaName)) {
                 if (!bean.getId().isSingleton()) {
                     throw new IllegalArgumentException("Schema [" + schemaName
-                            + "] is not a get.");
+                            + "] is not a lookup.");
                 }
                 BeanId singletonId = bean.getId();
                 return getEagerly(singletonId, all);
@@ -463,8 +470,6 @@ public class YamlBeanManager extends BeanManager {
     }
 
     private List<Bean> readValues() {
-        String dirValue = PROP.get(YAML_BEAN_FILE_STORAGE_DIR_PROP).or(System.getProperty("java.io.tmpdir"));
-        File file = new File(new File(dirValue), YAML_BEAN_FILE_NAME);
         ArrayList<Bean> result = new ArrayList<>();
         try {
             String input = Files.toString(file, Charsets.UTF_8);
@@ -543,7 +548,6 @@ public class YamlBeanManager extends BeanManager {
     }
 
     static File getStorageDir() {
-        String dirValue = PROP.get(YAML_BEAN_FILE_STORAGE_DIR_PROP).or(System.getProperty("java.io.tmpdir"));
-        return new File(dirValue);
+        return file.getParentFile();
     }
 }

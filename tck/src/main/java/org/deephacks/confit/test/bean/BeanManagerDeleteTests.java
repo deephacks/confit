@@ -4,7 +4,6 @@ import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.test.FeatureTestsRunner;
-import org.deephacks.confit.test.LookupProxy;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -18,7 +17,7 @@ import static org.junit.Assert.*;
 
 @RunWith(FeatureTestsRunner.class)
 public class BeanManagerDeleteTests {
-    BeanManager manager = LookupProxy.lookup(BeanManager.class);
+    BeanManager manager = BeanManager.lookup();
 
     @Before
     public void before() {

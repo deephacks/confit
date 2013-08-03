@@ -13,10 +13,11 @@
  */
 package org.deephacks.confit.spi;
 
-import com.google.common.base.Optional;
+import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Schema;
 
 import java.io.Serializable;
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -26,8 +27,19 @@ import java.util.Map;
  */
 public abstract class SchemaManager implements Serializable {
     private static final long serialVersionUID = 4888441728053297694L;
+    private static Lookup lookup = Lookup.get();
+    private static final Class<SchemaManager> DEFAULT;
+    static {
+        try {
+            DEFAULT = (Class<SchemaManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.schema.DefaultSchemaManager");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
 
-    public static final String PROPERTY = "config.schemamanager";
+    public static SchemaManager lookup() {
+        return lookup.lookup(SchemaManager.class, DEFAULT);
+    }
 
     /**
      * List name of all schemas managed by the manager.
@@ -37,12 +49,27 @@ public abstract class SchemaManager implements Serializable {
     public abstract Map<String, Schema> getSchemas();
 
     /**
+     * Set schema on provided beans.
+     *
+     * @param beans to set schema on.
+     */
+    public abstract void setSchema(Collection<Bean> beans);
+
+    /**
      * Return information that describing the schema for a particular type.
      *
      * @param schemaName of schema.
      * @return Schema identified by name.
      */
-    public abstract Optional<Schema> getSchema(final String schemaName);
+    public abstract Schema getSchema(final String schemaName);
+
+    /**
+     * Return information that describing the schema for a particular type.
+     *
+     * @param cls Configurable class.
+     * @return Schema identified by name.
+     */
+    public abstract Schema getSchema(final Class<?> cls);
 
     /**
      * In cluster deployments every server runs same application and
@@ -54,20 +81,29 @@ public abstract class SchemaManager implements Serializable {
      * manager implementations through specific properties.
      * </p>
      *
-     * @param schema list of schemas to register.
+     * @param classes list of classes to register.
      */
-    public abstract void registerSchema(final Schema... schema);
+    public abstract void register(final Class<?>... classes);
 
     /**
-     * Removes the schema and will not longer be managed by this
-     * configuration manager.
+     * Removes a class and will not longer be managed.
      * <p>
      * This operation DOES NOT remove beans instances that are
      * associated with the schema that is to be removed.
      * </p>
      *
-     * @param schemaName identifiying the schema.
+     * @param cls identifiying the schema.
      */
-    public abstract void removeSchema(final String schemaName);
+    public abstract Schema remove(final Class<?> cls);
+
+    public abstract void validateSchema(Collection<Bean> beans);
+
+    public abstract Object convertBean(Bean bean);
+
+    public abstract Collection<Object> convertBeans(Collection<Bean> beans);
+
+    public abstract Collection<Bean> convertObjects(Collection<Object> objects);
+
+    public abstract Bean convertObject(Object object);
 
 }

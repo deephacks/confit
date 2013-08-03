@@ -157,7 +157,7 @@ public abstract class ConfigTckTests extends ConfigDefaultSetup {
     }
 
     /**
-     * Test that get beans have their default instance created after registration.
+     * Test that lookup beans have their default instance created after registration.
      */
     @Test
     public void test_register_singleton() {
@@ -166,23 +166,23 @@ public abstract class ConfigTckTests extends ConfigDefaultSetup {
     }
 
     /**
-     * Test that get references are automatically assigned without needing to provision them
+     * Test that lookup references are automatically assigned without needing to provision them
      * from admin context.
      */
     @Test
     public void test_singleton_references() {
-        // provision a bean without the get reference.
+        // provision a bean without the lookup reference.
         Bean singletonParent = toBean(sp1);
         admin.create(singletonParent);
 
-        // asert that the get reference is set for config
+        // asert that the lookup reference is set for config
         SingletonParent parent = config.get(singletonParent.getId().getInstanceId(),
                 SingletonParent.class).get();
         assertNotNull(parent.getSingleton());
 
-        // assert that the get reference is set for admin
+        // assert that the lookup reference is set for admin
         Bean result = admin.get(singletonParent.getId()).get();
-        BeanId singletonId = result.getFirstReference("get");
+        BeanId singletonId = result.getFirstReference("lookup");
         assertThat(singletonId, is(s1.getBeanId()));
         assertThat(singletonId.getBean(), is(toBean(s1)));
 
@@ -470,7 +470,7 @@ public abstract class ConfigTckTests extends ConfigDefaultSetup {
         d.addReference("colleauges", Arrays.asList(aId, bId, cId));
         /**
          * Now test list operations from admin and config to make
-         * sure that none of them get stuck in infinite recrusion.
+         * sure that none of them lookup stuck in infinite recrusion.
          */
 
         admin.merge(Arrays.asList(a, b, c, d));

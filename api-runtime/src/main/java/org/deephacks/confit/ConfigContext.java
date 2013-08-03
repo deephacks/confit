@@ -31,7 +31,7 @@ import java.util.List;
  * @author Kristoffer Sjogren
  */
 public abstract class ConfigContext {
-    private static final String CORE_IMPL = "org.deephacks.confit.internal.core.runtime.ConfigCoreContext";
+    private static final String CORE_IMPL = "org.deephacks.confit.internal.core.config.ConfigCoreContext";
 
     private static ConfigContext ctx;
 
@@ -48,7 +48,7 @@ public abstract class ConfigContext {
      *
      * @return the context.
      */
-    public static synchronized ConfigContext get() {
+    public static synchronized ConfigContext lookup() {
         if (ctx != null) {
             return ctx;
         }
@@ -110,7 +110,7 @@ public abstract class ConfigContext {
      * </p>
      *
      * @param configurable {@link Config} class.
-     * @return The get instance of {@link Config} T class.
+     * @return The lookup instance of {@link Config} T class.
      */
     public abstract <T> T get(final Class<T> configurable);
 

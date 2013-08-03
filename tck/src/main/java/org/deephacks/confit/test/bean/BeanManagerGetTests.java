@@ -5,8 +5,6 @@ import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.test.FeatureTestsRunner;
-import org.deephacks.confit.test.LookupProxy;
-import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.List;
@@ -16,9 +14,8 @@ import static org.junit.Assert.*;
 
 @RunWith(FeatureTestsRunner.class)
 public class BeanManagerGetTests {
-    BeanManager manager = LookupProxy.lookup(BeanManager.class);
+    BeanManager manager = BeanManager.lookup();
 
-    @Test
     public void test_get_eagerly() {
         // add child
         Bean child = Bean.create(BeanId.create("child", "java.lang.String"));

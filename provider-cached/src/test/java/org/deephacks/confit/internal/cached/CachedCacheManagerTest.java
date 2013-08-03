@@ -13,19 +13,16 @@
  */
 package org.deephacks.confit.internal.cached;
 
-import org.deephacks.confit.internal.core.runtime.ClassToSchemaConverter;
-import org.deephacks.confit.internal.core.runtime.FieldToSchemaPropertyConverter;
-import org.deephacks.confit.internal.core.runtime.ObjectToBeanConverter;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.junit.Before;
 import org.junit.Test;
 
-import static org.deephacks.confit.internal.core.runtime.ConversionUtils.toBean;
+import static org.deephacks.confit.internal.core.schema.ConversionUtils.toBean;
 import static org.deephacks.confit.test.ConfigTestData.*;
-import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.*;
 
 public class CachedCacheManagerTest {
     private static final CachedCacheManager manager = new CachedCacheManager();
@@ -36,19 +33,19 @@ public class CachedCacheManagerTest {
     private Grandfather grandfather = getGrandfather(g1.getInstanceId());
     private Parent parent = getParent(p1.getInstanceId());
     private Child child = getChild(c1.getInstanceId());
-
-    private static Conversion con = Conversion.get();
+    static SchemaManager schemaManager = SchemaManager.lookup();
 
     static {
-        con.register(new ClassToSchemaConverter());
-        con.register(new ObjectToBeanConverter());
-        con.register(new FieldToSchemaPropertyConverter());
+        schemaManager.register(Grandfather.class, Parent.class, Child.class);
     }
 
-    static Schema gSchema = con.convert(Grandfather.class, Schema.class);
-    static Schema pSchema = con.convert(Parent.class, Schema.class);
-    static Schema cSchema = con.convert(Child.class, Schema.class);
+    static Schema gSchema = schemaManager.getSchema(Grandfather.class);
+    static Schema pSchema = schemaManager.getSchema(Parent.class);
+    static Schema cSchema = schemaManager.getSchema(Child.class);
 
+    static {
+
+    }
     static  {
         manager.registerSchema(gSchema);
         manager.registerSchema(pSchema);

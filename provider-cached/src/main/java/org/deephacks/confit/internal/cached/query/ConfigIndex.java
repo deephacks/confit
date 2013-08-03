@@ -4,7 +4,6 @@ import com.googlecode.cqengine.attribute.Attribute;
 import com.googlecode.cqengine.attribute.MultiValueNullableAttribute;
 import com.googlecode.cqengine.attribute.SimpleNullableAttribute;
 import org.deephacks.confit.Index;
-import org.deephacks.confit.internal.core.Reflections;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.AbstractSchemaProperty;
 import org.deephacks.confit.model.Schema.SchemaProperty;
@@ -15,6 +14,7 @@ import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
 
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -28,7 +28,7 @@ public class ConfigIndex {
         for(AbstractSchemaProperty property : schema.getIndexed()) {
             String propertyName = property.getName();
             Class<?> type = getType(property);
-            if(Number.class.isAssignableFrom(type) || Reflections.isPrimitiveNumber(type)) {
+            if(Number.class.isAssignableFrom(type) || isPrimitiveNumber(type)) {
                 NumberAttribute attr = new NumberAttribute(propertyName);
                 attributes.put(propertyName, attr);
             } else if (Collection.class.isAssignableFrom(type)) {
@@ -118,7 +118,7 @@ public class ConfigIndex {
                 }
                 return values;
             } else {
-                throw new IllegalArgumentException("Could not get correct collection from ["+o+"]");
+                throw new IllegalArgumentException("Could not lookup correct collection from ["+o+"]");
             }
         }
     }
@@ -136,4 +136,15 @@ public class ConfigIndex {
         }
     }
 
+    private static final Map<String, Class<?>> ALL_PRIMITIVE_NUMBERS = new HashMap<>();
+    static {
+        for (Class<?> primitiveNumber : Arrays.asList(byte.class, short.class,
+                int.class, long.class, float.class, double.class)) {
+            ALL_PRIMITIVE_NUMBERS.put(primitiveNumber.getName(), primitiveNumber);
+        }
+    }
+
+    public static boolean isPrimitiveNumber(Class<?> type) {
+        return ALL_PRIMITIVE_NUMBERS.get(type.getName()) != null;
+    }
 }

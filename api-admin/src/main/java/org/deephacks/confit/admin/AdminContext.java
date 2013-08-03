@@ -59,7 +59,7 @@ public abstract class AdminContext {
     /**
      * @return the admin context.
      */
-    public static synchronized AdminContext get() {
+    public static synchronized AdminContext lookup() {
         if (ctx != null) {
             return ctx;
         }

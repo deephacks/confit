@@ -61,7 +61,7 @@ public class ConfigReferenceHolder {
     }
 
     /**'
-     * Called by a proxy to get single object reference. The proxy knows
+     * Called by a proxy to lookup single object reference. The proxy knows
      * the schema name so the hold does not need to bother storing it.
      */
     public Object getObjectReference(String field, String schemaName) {
@@ -84,7 +84,7 @@ public class ConfigReferenceHolder {
     }
 
     /**'
-     * Called by a proxy to get a list of object references. The proxy knows
+     * Called by a proxy to lookup a list of object references. The proxy knows
      * the schema name so the hold does not need to bother storing it.
      */
     public Collection<Object> getObjectReferenceList(String field, String schemaName) {
@@ -108,7 +108,7 @@ public class ConfigReferenceHolder {
     }
 
     /**'
-     * Called by a proxy to get a map of object references. The proxy knows
+     * Called by a proxy to lookup a map of object references. The proxy knows
      * the schema name so the hold does not need to bother storing it.
      */
     public Map<String, Object> getObjectReferenceMap(String field, String schemaName) {

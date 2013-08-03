@@ -44,7 +44,7 @@ public class JUnitUtils {
         // located in ./target/test-classes or ./eclipse-out/target
         final File target_test_classes = new File(clsPath.substring(0,
                 clsPath.length() - clsUri.length()));
-        // get parent's parent
+        // lookup parent's parent
         return target_test_classes.getParentFile().getParentFile();
     }
 

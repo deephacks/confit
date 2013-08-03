@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.deephacks.confit.internal.core.runtime.ConversionUtils.toBean;
+import static org.deephacks.confit.internal.core.schema.ConversionUtils.toBean;
 import static org.deephacks.confit.test.ConfigTestData.*;
 
 public class CacheManagerCaliperTest extends SimpleBenchmark {

@@ -4,7 +4,6 @@ import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.test.FeatureTestsRunner;
-import org.deephacks.confit.test.LookupProxy;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -16,9 +15,8 @@ import static org.junit.Assert.*;
 
 @RunWith(FeatureTestsRunner.class)
 public class BeanManagerCreateTests {
-    BeanManager manager = LookupProxy.lookup(BeanManager.class);
+    BeanManager manager = BeanManager.lookup();
 
-    @Test
     public void test_create_single() {
         List<Bean> beans = generateBeans(2, 2);
         for (Bean b : beans) {

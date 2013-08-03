@@ -55,9 +55,22 @@ import java.util.Map;
  */
 public abstract class BeanManager implements Serializable {
 
-    public static final String PROPERTY = "config.beanmanager";
-
     private static final long serialVersionUID = -246410305338556633L;
+    private static Lookup lookup = Lookup.get();
+
+    private static final Class<BeanManager> DEFAULT;
+
+    static {
+        try {
+            DEFAULT = (Class<BeanManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.config.DefaultBeanManager");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static BeanManager lookup() {
+        return lookup.lookup(BeanManager.class, DEFAULT);
+    }
 
     /**
      * Creates a new bean.
@@ -176,7 +189,7 @@ public abstract class BeanManager implements Serializable {
      * references traversed and fetched eagerly.
      * </p>
      *
-     * @param id to get
+     * @param id to lookup
      * @return A set of beans
      * @exception AbortRuntimeException is thrown when the system itself cannot
      * recover from a certain event and must therefore abort execution, see
@@ -192,7 +205,7 @@ public abstract class BeanManager implements Serializable {
      * Beans will have their basic properties and all
      * references initialized, but not traversed and fetched eagerly.
      * </p>
-     * @param id to get
+     * @param id to lookup
      * @return Bean
      * @throws AbortRuntimeException
      */

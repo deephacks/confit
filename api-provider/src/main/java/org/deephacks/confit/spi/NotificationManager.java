@@ -17,6 +17,22 @@ import java.util.Map;
 public abstract class NotificationManager {
     private static Conversion conversion = Conversion.get();
 
+    private static Lookup lookup = Lookup.get();
+
+    private static final Class<NotificationManager> DEFAULT;
+
+    static {
+        try {
+            DEFAULT = (Class<NotificationManager>) Thread.currentThread().getContextClassLoader().loadClass("org.deephacks.confit.internal.core.notification.DefaultNotificationManager");
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static NotificationManager lookup() {
+        return lookup.lookup(NotificationManager.class, DEFAULT);
+    }
+
     public abstract void register(Observer observer);
 
     public abstract void fire(ConfigChanges<?> changes);

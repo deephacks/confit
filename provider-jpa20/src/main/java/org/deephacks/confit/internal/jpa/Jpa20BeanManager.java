@@ -16,8 +16,6 @@ package org.deephacks.confit.internal.jpa;
 import com.google.common.base.Optional;
 import com.google.common.collect.Sets;
 import org.deephacks.confit.admin.query.BeanQuery;
-import org.deephacks.confit.internal.core.Lookup;
-import org.deephacks.confit.internal.core.SystemProperties;
 import org.deephacks.confit.internal.jpa.query.JpaBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
@@ -25,6 +23,8 @@ import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.ThreadLocalManager;
 import org.deephacks.confit.spi.BeanManager;
+import org.deephacks.confit.spi.Lookup;
+import org.deephacks.confit.spi.PropertyManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +63,6 @@ import static org.deephacks.confit.model.Events.*;
 @Singleton
 public final class Jpa20BeanManager extends BeanManager {
     public static final String AUTO_COMMIT_PROP = "beanmanager.jpa.autocommit";
-    private static final SystemProperties properties = SystemProperties.instance();
     private static final Logger log = LoggerFactory.getLogger(Jpa20BeanManager.class);
     private static final long serialVersionUID = -1356093069248894779L;
     private boolean autoCommit = true;
@@ -79,7 +78,8 @@ public final class Jpa20BeanManager extends BeanManager {
     private static final int BATCH_SIZE = 20;
 
     public Jpa20BeanManager() {
-        Optional<String> value = properties.get(AUTO_COMMIT_PROP);
+        PropertyManager propertyManager = PropertyManager.lookup();
+        Optional <String> value = propertyManager.get(AUTO_COMMIT_PROP);
         if (value.isPresent()) {
             autoCommit = false;
         }
@@ -152,7 +152,7 @@ public final class Jpa20BeanManager extends BeanManager {
             }
             if (singleton.size() > 1) {
                 throw new IllegalArgumentException(
-                        "There are several get instances, which is not allowed.");
+                        "There are several lookup instances, which is not allowed.");
             }
             commit();
             return Optional.of(singleton.get(0));

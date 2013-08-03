@@ -54,7 +54,7 @@ public class JaxrsConfigExceptionHandler implements ExceptionMapper<Exception> {
                 status = Status.NOT_FOUND;
                 break;
             case Events.CFG102:
-                status = Status.BAD_REQUEST;
+                status = Status.NOT_FOUND;
                 break;
             case Events.CFG103:
                 status = Status.BAD_REQUEST;

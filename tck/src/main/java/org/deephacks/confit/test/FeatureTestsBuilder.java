@@ -15,6 +15,7 @@ package org.deephacks.confit.test;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import org.deephacks.confit.spi.Lookup;
 import org.junit.runners.Parameterized.Parameters;
 import org.scannotation.AnnotationDB;
 import org.scannotation.ClasspathUrlFinder;
@@ -38,15 +39,16 @@ public abstract class FeatureTestsBuilder {
     /** name of the test suite as shown in junit test execution */
     protected String name;
     /** Run before every test */
-    private Map<Class<?>, Object> setUp = new LinkedHashMap<Class<?>, Object>();
+    private Map<Class<?>, Object> setUp = new LinkedHashMap<>();
     /** Run after every test */
-    private Map<Class<?>, Object> tearDown = new LinkedHashMap<Class<?>, Object>();
+    private Map<Class<?>, Object> tearDown = new LinkedHashMap<>();
     /** TestSetupTeardown classes found on classpath */
-    private static final Map<String, Class<?>> setupTeardownRegistry = new HashMap<String, Class<?>>();
+    private static final Map<String, Class<?>> setupTeardownRegistry = new HashMap<>();
     /** TestSetupTeardown to run for each test */
-    private static final LinkedHashMap<String, Class<?>> setupTeardowns = new LinkedHashMap<String, Class<?>>();
+    private static final LinkedHashMap<String, Class<?>> setupTeardowns = new LinkedHashMap<>();
     /** TestSetupTeardown that are parameterized to run for each test */
-    private static final Map<Class<?>, Method> parameterizedMethods = new HashMap<Class<?>, Method>();
+    private static final Map<Class<?>, Method> parameterizedMethods = new HashMap<>();
+    private static final Lookup lookup = Lookup.get();
 
     static {
         // search classpath for @TestSetupTeardown annotated classes
@@ -58,9 +60,9 @@ public abstract class FeatureTestsBuilder {
      * enforce any setup/teardown requirements that the implementation might have
      * by searching classpath for TestSetupTeardown annotated classes.
      */
-    public FeatureTestsBuilder using(Class<?> service, Object impl) {
-        // make sure Lookup.get().lookup() find the the right implementation.
-        LookupProxy.register(service, impl);
+    public <T> FeatureTestsBuilder using(Class<T> service, T impl) {
+        // make sure Lookup.lookup().lookup() find the the right implementation.
+        lookup.register(service, impl);
         Class<?> setupTeardown = setupTeardownRegistry.get(service.getName());
         if (setupTeardown != null) {
             // make sure implementation setup/teardown is run.
@@ -118,7 +120,7 @@ public abstract class FeatureTestsBuilder {
                             (Object[]) null);
                     for (Object[] args : argMatrix) {
                         Object setup = newInstance(setupTeardown, args);
-                        ArrayList<Object> roundSetups = new ArrayList<Object>(setups);
+                        ArrayList<Object> roundSetups = new ArrayList<>(setups);
                         roundSetups.add(setup);
                         rounds.add(new TestRound(test, args[0].toString(), roundSetups));
                     }

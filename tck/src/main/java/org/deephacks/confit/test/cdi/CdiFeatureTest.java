@@ -29,7 +29,7 @@ public class CdiFeatureTest {
 
     @Before
     public void setup() {
-        // touch get to force injection
+        // touch lookup to force injection
         singleton.getValue();
     }
 
