@@ -17,6 +17,7 @@ import org.deephacks.confit.test.FeatureTests;
 import org.deephacks.confit.test.FeatureTestsBuilder.TestRound;
 import org.deephacks.confit.test.FeatureTestsRunner;
 import org.deephacks.confit.test.integration.IntegrationConfigTests;
+import org.deephacks.confit.test.integration.IntegrationNotificationTests;
 import org.deephacks.confit.test.integration.IntegrationTestsBuilder;
 import org.deephacks.confit.test.integration.IntegrationValidationTests;
 import org.deephacks.confit.test.query.BeanQueryTest;
@@ -36,6 +37,7 @@ public class HBaseIntegrationTest implements FeatureTests {
         return IntegrationTestsBuilder.named(HBaseIntegrationTest.class.getSimpleName())
                 .using(manager)
                 .addTest(BeanQueryTest.class)
+                .addTest(IntegrationNotificationTests.class)
                 .addTest(IntegrationConfigTests.class)
                 .addTest(IntegrationValidationTests.class)
                 .build();

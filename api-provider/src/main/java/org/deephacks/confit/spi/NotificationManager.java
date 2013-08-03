@@ -1,11 +1,8 @@
 package org.deephacks.confit.spi;
 
 import org.deephacks.confit.ConfigChanges;
-import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.ConfigObserver;
-import org.deephacks.confit.model.Bean;
 
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -49,43 +46,4 @@ public abstract class NotificationManager {
      * @param changes state changes
      */
     public abstract void fire(ConfigChanges changes);
-
-    /**
-     * Fire a change notification for beans have been successfully created.
-     *
-     * @param beans was created
-     */
-    public final void fireCreate(Collection<Bean> beans) {
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            changes.add(ConfigChange.created(bean));
-        }
-        fire(changes);
-    }
-
-    /**
-     * Fire a change notification for beans have been successfully deleted.
-     *
-     * @param beans was deleted
-     */
-    public final void fireDelete(Collection<Bean> beans) {
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            changes.add(ConfigChange.deleted(bean));
-        }
-        fire(changes);
-    }
-
-    /**
-     * Fire a change notification for beans have been successfully updated.
-     *
-     * @param beans was updated
-     */
-    public final void fireUpdated(Collection<Bean> beans) {
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            changes.add(ConfigChange.updated(bean, bean));
-        }
-        fire(changes);
-    }
 }

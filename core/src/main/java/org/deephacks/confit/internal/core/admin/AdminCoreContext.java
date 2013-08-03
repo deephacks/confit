@@ -15,7 +15,8 @@ package org.deephacks.confit.internal.core.admin;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.Lists;
+import org.deephacks.confit.ConfigChanges;
+import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
@@ -154,10 +155,15 @@ public final class AdminCoreContext extends AdminContext {
             validationManager.get().validate(objects);
         }
         beanManager.create(beans);
-        notificationManager.fireCreate(beans);
+
+        ConfigChanges changes = new ConfigChanges();
+        for (Bean bean : beans) {
+            changes.add(ConfigChange.created(bean));
+        }
         if (cacheManager.isPresent()) {
             cacheManager.get().putAll(beans);
         }
+        notificationManager.fire(changes);
     }
 
     @Override
@@ -190,16 +196,26 @@ public final class AdminCoreContext extends AdminContext {
         doLookup();
         schemaManager.setSchema(beans);
         schemaManager.validateSchema(beans);
-
         if (validationManager.isPresent()) {
             initReferences(beans);
             validateSet(beans);
         }
+
+        ConfigChanges changes = new ConfigChanges();
+        for (Bean bean : beans) {
+            Optional<Bean> optional = get(bean.getId());
+            if (!optional.isPresent()) {
+                throw Events.CFG304_BEAN_DOESNT_EXIST(bean.getId());
+            }
+            changes.add(ConfigChange.updated(optional.get(), bean));
+            get(bean.getId());
+        }
+
         beanManager.set(beans);
-        notificationManager.fireUpdated(beans);
         if (cacheManager.isPresent()) {
             cacheManager.get().putAll(beans);
         }
+        notificationManager.fire(changes);
     }
 
     @Override
@@ -235,8 +251,18 @@ public final class AdminCoreContext extends AdminContext {
         if (validationManager.isPresent()) {
             validateMerge(beans);
         }
+
+        ConfigChanges changes = new ConfigChanges();
+        for (Bean bean : beans) {
+            Optional<Bean> optional = get(bean.getId());
+            if (!optional.isPresent()) {
+                throw Events.CFG304_BEAN_DOESNT_EXIST(bean.getId());
+            }
+            changes.add(ConfigChange.updated(optional.get(), bean));
+            get(bean.getId());
+        }
         beanManager.merge(beans);
-        notificationManager.fireUpdated(beans);
+
         if (cacheManager.isPresent()) {
             for (Bean bean : beans) {
                 // must refresh the bean from storage since it is merged.
@@ -246,6 +272,7 @@ public final class AdminCoreContext extends AdminContext {
                 }
             }
         }
+        notificationManager.fire(changes);
     }
 
     @Override
@@ -262,15 +289,20 @@ public final class AdminCoreContext extends AdminContext {
     public void delete(BeanId beanId) {
         Preconditions.checkNotNull(beanId);
         doLookup();
+        ConfigChanges changes = new ConfigChanges();
+        Optional<Bean> before = get(beanId);
+        if (!before.isPresent()) {
+            throw Events.CFG304_BEAN_DOESNT_EXIST(beanId);
+        }
+        changes.add(ConfigChange.deleted(before.get()));
         Bean bean = beanManager.delete(beanId);
         if (bean == null) {
             throw Events.CFG304_BEAN_DOESNT_EXIST(beanId);
         }
-        schemaManager.setSchema(Arrays.asList(bean));
-        notificationManager.fireDelete(Lists.newArrayList(bean));
         if (cacheManager.isPresent()) {
             cacheManager.get().remove(beanId);
         }
+        notificationManager.fire(changes);
     }
 
     @Override
@@ -286,13 +318,22 @@ public final class AdminCoreContext extends AdminContext {
             return;
         }
         doLookup();
+        ConfigChanges changes = new ConfigChanges();
+        for (String instanceId : instances) {
+            BeanId id = BeanId.create(instanceId, name);
+            Optional<Bean> before = get(id);
+            if (!before.isPresent()) {
+                throw Events.CFG304_BEAN_DOESNT_EXIST(id);
+            }
+            changes.add(ConfigChange.deleted(before.get()));
+        }
         Collection<Bean> beans = beanManager.delete(name, instances);
         schemaManager.setSchema(beans);
-        notificationManager.fireDelete(beans);
 
         if (cacheManager.isPresent()) {
             cacheManager.get().remove(name, instances);
         }
+        notificationManager.fire(changes);
     }
 
     @Override
