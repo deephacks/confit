@@ -20,19 +20,19 @@ with system size.
 
 ## The solution
 
-Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java. 
-Applications are decoupled from how and where to store, retrieve and validate configuration. Runtime changes
-and tracking may proceed without restarting the application. 
+Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java, where runtime changes
+and tracking may proceed without restarting the application. Applications are decoupled from how and where to store,
+retrieve and validate configuration. 
 
 This allow _reuse_ and _unification_ of how configuration is managed across application boundaries (that form a system) 
-without portability issues. Configuration integrate seamlessly based on the terms of the particular runtime environment
-without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
+without causing integration conflicts. Configuration can be used seamlessly based on terms of a particular runtime
+environment without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
 
 Developers are not forced to learn new technology, query languages or define complex schema models upfront.
 Configuration is defined programmatically in Java using simple APIs.
 
 Companies should be able to use their existing storage mechanism(s), like a database, Hadoop/HBase, Cassandra or MongoDB to 
-leverage on current investments, internal knowledge and routines, like backup and restore.
+leverage on current investments, internal knowledge and routines (like backup and restore).
 
 * Applications that only need a static configuration file in a simplistic Java SE environment can safely 
 ignore more advanced features and dependencies of the framework.
