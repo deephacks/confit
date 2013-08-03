@@ -676,12 +676,14 @@ Example query using AdminContext.
 
 ### Notifications
 
-Some applications need to know when configuration is created, updated or deleted. Maybe by pushing notifications 
-to a graphical UI, rebuilding internal state (like a cache) or similar.
+Some applications need to perform certain actions as configuration is created, updated or deleted. Maybe 
+pushing notifications to a graphical UI, rebuilding internal state (like a cache) or similar. 
 
 Notifications are sent after changes have been validated, committed to storage and cached. Every observer will 
 receive each notification once and any exception thrown by an observer will be ignored, no retries.
-Observer notification failures will not affect notification delivery to another observer.
+Observer notification failures will not affect notification delivery to another observer. Every notification convey
+information on state before and after the change was made.
+
 
 Observers are created by implementing ConfigObserver and registering them with ConfigContext. 
 
