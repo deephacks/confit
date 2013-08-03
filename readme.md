@@ -6,26 +6,26 @@ The mission of the project is to provide a simple (yet feature rich) and typesaf
 
 ## The problem
 
-Configuration is often scattered around systems in different files and using vastly different formats,
+Configuration is often scattered around systems in different files, using vastly different formats,
 in different locations, jars, deployment descriptors, maybe a little is stored in the database, the
-server runtime is configured using other tools. No documentation. Duplication. 
+server/container/platform runtime is configured using other tools. No documentation. Duplication. 
 
 Usually there is no mechanism to protect the system from faulty modifications and mistakes. Even making
-changes in the first place is risky, timeconsuming and error-prone. Tracking changes to running applications
+changes in the first place is risky, timeconsuming and error-prone. Tracking changes made to running applications
 become difficult as they are upgraded.
 
-This makes it very hard to get a clear overview and manage the system as a whole. And the problem grows
-along with size.
+This makes it very hard to get a clear overview and manage the system as a whole. A problem that grows along
+with system size.
 
 
 ## The solution
 
 Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java. 
-Applications are decoupled from how and where to store, retrieve and validate configuration, allowing
-runtime changes and tracking without restarting the application. 
+Applications are decoupled from how and where to store, retrieve and validate configuration. Runtime changes
+and tracking may proceed without restarting the application. 
 
-This allow configuration reuse and unification of how its managed without burdening applications with
-portability issues. It integrates seamlessly based on the terms of the particular runtime environment
+This allow _reuse_ and _unification_ of how configuration is managed across application boundaries (that form a system) 
+without portability issues. Configuration integrate seamlessly based on the terms of the particular runtime environment
 without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
 
 Developers are not forced to learn new technology, query languages or define complex schema models upfront.
