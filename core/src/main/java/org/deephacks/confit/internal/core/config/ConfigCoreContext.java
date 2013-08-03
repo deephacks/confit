@@ -23,11 +23,11 @@ import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.query.ConfigQuery;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.CacheManager;
-import org.deephacks.confit.spi.Lookup;
 import org.deephacks.confit.spi.NotificationManager;
 import org.deephacks.confit.spi.NotificationManager.Observer;
 import org.deephacks.confit.spi.PropertyManager;
 import org.deephacks.confit.spi.SchemaManager;
+import org.deephacks.confit.spi.ValidationManager;
 
 import javax.inject.Singleton;
 import java.util.ArrayList;
@@ -45,11 +45,11 @@ import static org.deephacks.confit.model.Events.CFG303;
  */
 @Singleton
 public final class ConfigCoreContext extends ConfigContext {
-    private static final Lookup lookup = Lookup.get();
     private SchemaManager schemaManager;
     private BeanManager beanManager;
     private NotificationManager notificationManager;
     private PropertyManager propertyManager;
+    private Optional<ValidationManager> validationManager;
     private Optional<CacheManager> cacheManager;
     private static HashMap<BeanId, Bean> FILE_CONFIG;
     private static final ThreadLocal<String> RECURSION_SHORTCIRCUIT = new ThreadLocal<>();
@@ -254,6 +254,10 @@ public final class ConfigCoreContext extends ConfigContext {
         }
         Schema schema = schemaManager.getSchema(configurable);
         for (Bean bean : propertyManager.list(schema, schemaManager.getSchemas())) {
+            if (validationManager.isPresent()) {
+                Object object = schemaManager.convertBean(bean);
+                validationManager.get().validate(object);
+            }
             FILE_CONFIG.put(bean.getId(), bean);
         }
     }
@@ -265,6 +269,7 @@ public final class ConfigCoreContext extends ConfigContext {
         propertyManager = PropertyManager.lookup();
         schemaManager = SchemaManager.lookup();
         beanManager = BeanManager.lookup();
+        validationManager = ValidationManager.lookup();
         notificationManager = NotificationManager.lookup();
         cacheManager = CacheManager.lookup();
         LOOKUP_DONE.set(true);

@@ -69,6 +69,7 @@ public final class AdminCoreContext extends AdminContext {
 
     @Override
     public <T> Collection<T> list(Class<T> configurable) throws AbortRuntimeException {
+        doLookup();
         final Schema schema = schemaManager.getSchema(configurable);
         Collection<Bean> beans = list(schema.getName());
         return (Collection<T>) schemaManager.convertBeans(beans);
@@ -102,6 +103,7 @@ public final class AdminCoreContext extends AdminContext {
 
     @Override
     public <T> Optional<T> get(Class<T> configurable) throws AbortRuntimeException {
+        doLookup();
         Schema schema = schemaManager.getSchema(configurable);
         Optional<Bean> bean = get(BeanId.createSingleton(schema.getName()));
         if (!bean.isPresent()) {
@@ -112,6 +114,7 @@ public final class AdminCoreContext extends AdminContext {
 
     @Override
     public <T> Optional<T> get(Class<T> configurable, String instanceId) throws AbortRuntimeException {
+        doLookup();
         Schema schema = schemaManager.getSchema(configurable);
         Optional<Bean> bean = get(BeanId.create(instanceId, schema.getName()));
         if (!bean.isPresent()) {
@@ -123,6 +126,7 @@ public final class AdminCoreContext extends AdminContext {
 
     @Override
     public void create(Bean bean) {
+        doLookup();
         Preconditions.checkNotNull(bean);
         create(Arrays.asList(bean));
         if (cacheManager.isPresent()) {
@@ -203,6 +207,7 @@ public final class AdminCoreContext extends AdminContext {
         if (objects == null || objects.isEmpty()) {
             return;
         }
+        doLookup();
         Collection<Bean> beans = schemaManager.convertObjects((Collection<Object>) objects);
         set(beans);
     }
@@ -248,6 +253,7 @@ public final class AdminCoreContext extends AdminContext {
         if (objects == null || objects.isEmpty()) {
             return;
         }
+        doLookup();
         Collection<Bean> beans = schemaManager.convertObjects((Collection<Object>) objects);
         merge(beans);
     }
@@ -305,6 +311,7 @@ public final class AdminCoreContext extends AdminContext {
 
     @Override
     public Optional<Schema> getSchema(String schemaName) {
+        doLookup();
         try {
             Schema schema = schemaManager.getSchema(schemaName);
             return Optional.of(schema);
