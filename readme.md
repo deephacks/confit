@@ -14,7 +14,8 @@ And usually there is also no mechanism that protect the system from faulty modif
 changes in the first place is risky, timeconsuming and error-prone. Tracking changes is essential to
 make sure the system is kept in a consistent state as applications are upgraded.
 
-It is very hard to get a clear overview of the system as a whole. And the problem grows along with size.
+This makes it very hard to get a clear overview and manage the system as a whole. And the problem grows
+along with size.
 
 
 ## The solution
