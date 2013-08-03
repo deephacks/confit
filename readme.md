@@ -677,7 +677,8 @@ Example query using AdminContext.
 ### Notifications
 
 Some applications need to perform certain actions as configuration is created, updated or deleted. Maybe 
-pushing notifications to a graphical UI, rebuilding internal state (like a cache) or similar. 
+pushing notifications to a graphical UI, rebuilding internal state (like a cache or 
+redirect a TCP connection) or similar. 
 
 Notifications are sent only after changes have been successfully validated, committed to storage and cached. 
 Observers receive notifications once and any exception (thrown by observer) will be ignored, no retries.
