@@ -55,6 +55,9 @@ final class FieldToSchemaPropertyConverter implements
             }
             return convertReferences(source);
         }
+        if (source.isArray()) {
+            throw new IllegalArgumentException("Arrays are not supported, use java.util.Collection instead: " + source.getField());
+        }
         Class<?> type = source.getType();
         if (type.isAnnotationPresent(Config.class)) {
             return convertReferences(source);

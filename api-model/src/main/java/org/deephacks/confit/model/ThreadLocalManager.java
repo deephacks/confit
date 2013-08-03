@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Stack;
 
 public class ThreadLocalManager {
-    private static final ThreadLocal<Map<Class<?>, Stack<Object>>> threadLocal = new ThreadLocal<Map<Class<?>, Stack<Object>>>();
+    private static final ThreadLocal<Map<Class<?>, Stack<Object>>> threadLocal = new ThreadLocal<>();
 
     public static <T> void push(Class<T> cls, T value) {
         Map<Class<?>, Stack<Object>> map = threadLocal.get();

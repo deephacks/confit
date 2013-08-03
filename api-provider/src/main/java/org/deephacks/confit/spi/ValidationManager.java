@@ -30,12 +30,16 @@ public abstract class ValidationManager {
     /**
      * Validate a collection of beans. Beans have their references initialized.
      *
+     * This method is called when beans are provisioned from an administrative context.
+     *
      * @param beans to validate.
      */
     public abstract void validate(Collection<Object> beans);
 
     /**
      * Validate a beans. Bean references are initialized.
+     *
+     * This method is called when beans are provisioned from an administrative context.
      *
      * @param bean to validate
      */

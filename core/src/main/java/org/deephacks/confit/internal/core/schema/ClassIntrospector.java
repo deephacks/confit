@@ -86,6 +86,7 @@ class ClassIntrospector {
         private boolean isMap = false;
         private Object defaultDeclaringInstance;
         private boolean primitive;
+        private boolean array;
 
         public FieldWrap(Field f, Annotation annotation) {
             this.field = f;
@@ -283,6 +284,9 @@ class ClassIntrospector {
             }
         }
 
+        public boolean isArray() {
+            return field.getType().isArray();
+        }
     }
 
     public <T extends Annotation> List<Field> getFieldsAnnotatedWith(Class<T> clazz) {
