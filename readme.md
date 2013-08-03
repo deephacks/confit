@@ -679,10 +679,10 @@ Example query using AdminContext.
 Some applications need to perform certain actions as configuration is created, updated or deleted. Maybe 
 pushing notifications to a graphical UI, rebuilding internal state (like a cache) or similar. 
 
-Notifications are sent after changes have been validated, committed to storage and cached. Every observer will 
-receive each notification once and any exception thrown by an observer will be ignored, no retries.
-Observer notification failures will not affect notification delivery to another observer. Every notification convey
-information on state before and after the change was made.
+Notifications are sent only after changes have been successfully validated, committed to storage and cached. 
+Observers receive notifications once and any exception (thrown by observer) will be ignored, no retries.
+Notification failures will not affect delivery to other observers. Notifications convey
+information on state before and after a change was made to support fine-grained comparisons.
 
 
 Observers are created by implementing ConfigObserver and registering them with ConfigContext. 
