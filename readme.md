@@ -353,7 +353,7 @@ Say you want to configure a ISO8601 DateTime, an IP address, a duration or whate
 
 This class is accepted directly when declared on configurable fields because it has a default String constructor 
 and a toString method that return a String representation that can be used to re-construct the DurationTime instance.
-This is the reason why classes like URL and File also can used out of the box.
+This is the reason why classes like URL and File can be used out of the box.
 
 It is also possible to register custom string converters for types that does not have a String constructor. Here is an 
 example of how Boolean values are converted internally (which is similar to how enum types are handled).
@@ -552,8 +552,8 @@ Planned storage implementation.
 
 ### Configuration queries, caching and lazy fetching
 
-Configuration may not be accessed quickly enough by the application when having several thousands instances 
-exist in storage. Conf-it have several mechanisms to reduce lookup latency. Caching is used to avoid costly disk
+Configuration may not be accessed quickly enough by the application when several thousands instances 
+exist in storage but several mechanisms exist to reduce lookup latency. Caching is used to avoid costly disk
 operations and in memory queries/indexes can be used to reduce number of instances that are scanned at lookup.
 
 Caching and queries are enabled using the following dependency.
@@ -822,11 +822,20 @@ simple values that have specific types.
 
 * SchemaManager
 
-Manage schema discovery and configuration validation.
+Manage schema discovery, conversion, storage and data type validation.
 
 * BeanManager
 
 Responsible for storing configuration and keeping it consistent.
+
+* PropertyManager
+
+Reads configuration from property files using an unspecified format, used 
+for bootstrap and fallback for configuration that do not exist in the BeanManager.
+
+* ValidationManager
+
+Maintain data integrity by enforcing validation constraints and reject operations that violate these rules.
 
 * NotificationManager
 
