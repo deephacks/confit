@@ -815,9 +815,12 @@ interfaces in order to customize certain well defined aspects like how instances
 For such efforts there is a TCK that provide a set of tests to ensure that implementations behave
 in the intended way, including in error conditions.
 
+* LookupProvider
+
 [ServiceLoader](http://docs.oracle.com/javase/7/docs/api/java/util/ServiceLoader.html) 
-and [CDI](http://www.cdi-spec.org/) are used to lookup implementations by default, but virtually any method
-can be used by registering additional LookupProviders (Spring, OSGi, Guice, JNDI, etc).
+and [CDI](http://www.cdi-spec.org/) are used to lookup manager implementations by default, but 
+virtually any method can be used by registering additional LookupProviders (Spring, OSGi, Guice, JNDI, etc).
+Lookup providers themselves are registered using the standard Java ServiceLoader mechanism.
 
 * Converter
 
@@ -840,6 +843,7 @@ Default: In memory storage.
 
 Reads configuration from property files using an unspecified format, used 
 for bootstrap and fallback for configuration that do not exist in the BeanManager.
+Also used internally by other managers to configure themselves and force preferred lookup.
 
 Default: [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) file format.
 
