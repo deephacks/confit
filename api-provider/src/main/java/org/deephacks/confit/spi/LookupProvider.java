@@ -6,6 +6,8 @@ import javax.enterprise.inject.CreationException;
 import javax.enterprise.inject.spi.CDI;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.ServiceConfigurationError;
 import java.util.concurrent.ConcurrentHashMap;
 
 public abstract class LookupProvider {
@@ -28,7 +30,7 @@ public abstract class LookupProvider {
     public abstract <T> Collection<T> lookupAll(Class<T> clazz);
 
     /**
-     * ServiceLoaderLookup is responsible for handling standard java service loader lookupPrefered.
+     * ServiceLoaderLookup is responsible for handling standard java service loader lookup.
      */
     static class ServiceLoaderLookup extends LookupProvider {
 
@@ -38,13 +40,15 @@ public abstract class LookupProvider {
 
         public final <T> T lookup(Class<T> clazz) {
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            for (T standardJavaProvider : java.util.ServiceLoader.load(clazz, cl)) {
-                // return first provider found. May need more elaborate mechanism in future.
-                if (standardJavaProvider == null) {
-                    continue;
+            Iterator<T> iterator = java.util.ServiceLoader.load(clazz, cl).iterator();
+
+            while (iterator.hasNext()) {
+                try {
+                    // return first provider found.
+                    return iterator.next();
+                } catch (ServiceConfigurationError e) {
+                    // treat lookup failures as if the implementation is unavailable
                 }
-                // return the provider that was first found.
-                return standardJavaProvider;
             }
             return null;
         }
@@ -53,9 +57,14 @@ public abstract class LookupProvider {
         public <T> Collection<T> lookupAll(Class<T> clazz) {
             ArrayList<T> found = new ArrayList<>();
             ClassLoader cl = Thread.currentThread().getContextClassLoader();
-            for (T o : java.util.ServiceLoader.load(clazz, cl)) {
-                // return first provider found. May need more elaborate mechanism in future.
-                found.add(o);
+            Iterator<T> iterator = java.util.ServiceLoader.load(clazz, cl).iterator();
+
+            while (iterator.hasNext()) {
+                try {
+                    found.add(iterator.next());
+                } catch (ServiceConfigurationError e) {
+                    // treat lookup failures as if the implementation is unavailable
+                }
             }
             return found;
         }
