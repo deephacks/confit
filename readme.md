@@ -10,9 +10,9 @@ Configuration is often scattered around systems in different files and using vas
 in different locations, jars, deployment descriptors, maybe a little is stored in the database, the
 server runtime is configured using other tools. No documentation. Duplication. 
 
-And usually there is also no mechanism that protect the system from faulty modification or mistakes. Even making
-changes in the first place is risky, timeconsuming and error-prone. Tracking changes is essential to
-make sure the system is kept in a consistent state as applications are upgraded.
+Usually there is no mechanism to protect the system from faulty modifications and mistakes. Even making
+changes in the first place is risky, timeconsuming and error-prone. Tracking changes to running applications
+become difficult as they are upgraded.
 
 This makes it very hard to get a clear overview and manage the system as a whole. And the problem grows
 along with size.
@@ -22,7 +22,7 @@ along with size.
 
 Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java. 
 Applications are decoupled from how and where to store, retrieve and validate configuration, allowing
-changes without restarting the application. 
+runtime changes and tracking without restarting the application. 
 
 This allow configuration reuse and unification of how its managed without burdening applications with
 portability issues. It integrates seamlessly based on the terms of the particular runtime environment
@@ -31,7 +31,7 @@ without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming
 Developers are not forced to learn new technology, query languages or define complex schema models upfront.
 Configuration is defined programmatically in Java using simple APIs.
 
-Companies should be able to use their existing storage mechanism(s), like a database, Hadoop/HBase or MongoDB to 
+Companies should be able to use their existing storage mechanism(s), like a database, Hadoop/HBase, Cassandra or MongoDB to 
 leverage on current investments, internal knowledge and routines, like backup and restore.
 
 * Applications that only need a static configuration file in a simplistic Java SE environment can safely 
