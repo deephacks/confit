@@ -12,6 +12,8 @@ import java.util.Map;
  *
  * Configuration read from property files is used for bootstrap and fallback for configuration
  * that do not exist in the BeanManager.
+ *
+ * PropertyManager may also be used internally by other managers to configure themselves.
  */
 public abstract class PropertyManager {
 
