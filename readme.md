@@ -20,7 +20,7 @@ It is very hard to get a clear overview of the system as a whole. And the proble
 ## The solution
 
 Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java. 
-Configuration is decoupled from how and where to store, retrieve and validate configuration, also allowing
+Applications are decoupled from how and where to store, retrieve and validate configuration, allowing
 changes without restarting the application. 
 
 This allow configuration reuse and unification of how its managed without burdening applications with
