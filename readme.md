@@ -676,25 +676,26 @@ Example query using AdminContext.
 
 ### Notifications
 
-Applications can register observers that are notified whenever configuration is created, updated or deleted.
-Notifications are sent after changes have been validated, committed to storage and cached.
+Some applications need to know when configuration is created, updated or deleted. Maybe by pushing notifications 
+to a graphical UI, rebuilding internal state (like a cache) or similar.
 
-An observer method is a non-abstract method which have exactly one parameter of type ConfigChanges annotated with
-the CDI annotation [Observes](http://docs.jboss.org/cdi/api/1.1/javax/enterprise/event/Observes.html).
+Notifications are sent after changes have been validated, committed to storage and cached. Every observer will 
+receive each notification once and any exception thrown by an observer will be ignored, no retries.
+Observer notification failures will not affect notification delivery to another observer.
 
-Observers are not required to run in a CDI environment, but will be registered automatically if doing so.
+Observers are created by implementing ConfigObserver and registering them with ConfigContext. 
+
 
 ```java
-    // How to register an observer in a pure Java SE environment
     config.registerObserver(new Observer());
 ```
 
 Example of an observer.
 
 ```java
-    public class Observer {
-    
-      public void notify(@Observes ConfigChanges changes) {
+    public class Observer implements ConfigObserver {
+
+      public void notify(ConfigChanges changes) {
         
         // iterate changes affecting class A
         for (ConfigChange<A> change : changes.getChanges(A.class)) {
