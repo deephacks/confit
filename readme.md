@@ -824,22 +824,32 @@ simple values that have specific types.
 
 Manage schema discovery, conversion, storage and data type validation.
 
+Default: Reflection based, storing schema in memory.
+
 * BeanManager
 
 Responsible for storing configuration and keeping it consistent.
+
+Default: In memory storage.
 
 * PropertyManager
 
 Reads configuration from property files using an unspecified format, used 
 for bootstrap and fallback for configuration that do not exist in the BeanManager.
 
+Default: [HOCON](https://github.com/typesafehub/config/blob/master/HOCON.md) file format.
+
 * ValidationManager
 
 Maintain data integrity by enforcing validation constraints and reject operations that violate these rules.
 
+Default: [JSR303](http://beanvalidation.org/1.0/spec/) validation.
+
 * NotificationManager
 
 Keeps track of observers and sends notifications to them when changes occur.
+
+Default: Non-clustered, in-process notifications.
 
 * SessionManager
 
@@ -849,6 +859,8 @@ Manage sessions and configuration changes before they are committed to the BeanM
 
 Cache configurable instances and perform application queries on behalf of applications.
 
+Default: Off-heap storage with [javassist](http://www.jboss.org/javassist) proxies and 
+heap based indexes based on [cqengine](https://code.google.com/p/cqengine/).
 
 ## Licensing
 
