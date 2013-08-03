@@ -2,8 +2,7 @@
 
 [![Build Status](https://travis-ci.org/deephacks/confit.png?branch=master)](https://travis-ci.org/deephacks/confit)
 
-The mission of the project is to provide a simple (yet feature rich), unified and type safe 
-way to configure Java applications.
+The mission of the project is to provide a simple (yet feature rich) and typesafe way to configure Java applications.
 
 ## The problem
 
@@ -20,12 +19,12 @@ It is very hard to get a clear overview of the system as a whole. And the proble
 
 ## The solution
 
-Conf-it provide a productive, intuitive, non-intrusive, non-constraining, unified and type safe
-way to manage configuration in Java. Configuration is decoupled from how and where to store, retrieve 
-and validate configuration, also allowing changes without restarting the application. 
+Conf-it provide a productive, typesafe and non-intrusive way to manage configuration in Java. 
+Configuration is decoupled from how and where to store, retrieve and validate configuration, also allowing
+changes without restarting the application. 
 
-Configuration is reusable in different contexts to avoid duplication and without burdening applications
-with portability issues. It integrates seamlessly based on the terms of the particular runtime environment
+This allow configuration reuse and unification of how its managed without burdening applications with
+portability issues. It integrates seamlessly based on the terms of the particular runtime environment
 without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
 
 Developers are not forced to learn new technology, query languages or define complex schema models upfront.
