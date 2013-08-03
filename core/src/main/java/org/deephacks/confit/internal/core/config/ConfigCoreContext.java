@@ -15,6 +15,7 @@ package org.deephacks.confit.internal.core.config;
 
 import com.google.common.base.Optional;
 import org.deephacks.confit.ConfigContext;
+import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -24,7 +25,6 @@ import org.deephacks.confit.query.ConfigQuery;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.CacheManager;
 import org.deephacks.confit.spi.NotificationManager;
-import org.deephacks.confit.spi.NotificationManager.Observer;
 import org.deephacks.confit.spi.PropertyManager;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.spi.ValidationManager;
@@ -210,9 +210,9 @@ public final class ConfigCoreContext extends ConfigContext {
     }
 
     @Override
-    public void registerObserver(Object observer) {
+    public void registerObserver(ConfigObserver observer) {
         doLookup();
-        notificationManager.register(new Observer(observer));
+        notificationManager.register(observer);
     }
 
     private BeanId getSingletonId(Schema s, Class<?> configurable) {

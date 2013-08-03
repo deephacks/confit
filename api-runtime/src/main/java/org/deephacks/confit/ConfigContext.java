@@ -157,6 +157,6 @@ public abstract class ConfigContext {
      *
      * @param observer class of the observer.
      */
-    public abstract void registerObserver(Object observer);
+    public abstract void registerObserver(ConfigObserver observer);
 
 }

@@ -4,25 +4,37 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
-public class ConfigChanges<T> {
-    private Multimap<Class<?>, ConfigChange<T>> changes = ArrayListMultimap.create();
-    private Class<?> changeClass;
+public class ConfigChanges {
+    private Multimap<Class<?>, ConfigChange<Object>> changes = ArrayListMultimap.create();
     public ConfigChanges() {
     }
 
-    public void add(ConfigChange<T> change) {
-        changeClass = change.getChangeClass();
+    public void add(ConfigChange change) {
         changes.put(change.getChangeClass(), change);
     }
 
-    public Class<?> getChangeClass() {
-        return changeClass;
+    public Collection<ConfigChange<Object>> getChanges() {
+        Collection<ConfigChange<Object>> result = new ArrayList<>();
+        for (ConfigChange<?> change : changes.values()) {
+            result.add((ConfigChange<Object>) change);
+        }
+        return result;
     }
 
-    public Collection<ConfigChange<T>> getChanges() {
-        return changes.values();
+
+    public <T> Collection<ConfigChange<T>> getChanges(Class<T> cls) {
+        Collection<ConfigChange<T>> result = new ArrayList<>();
+        for (ConfigChange<?> change : changes.get(cls)) {
+            result.add((ConfigChange<T>) change);
+        }
+        return result;
+    }
+
+    public int size() {
+        return changes.values().size();
     }
 
     public static class ConfigChange<T> {

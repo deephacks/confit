@@ -6,6 +6,7 @@ import junit.framework.AssertionFailedError;
 import org.deephacks.confit.ConfigChanges;
 import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.ConfigContext;
+import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
@@ -34,7 +35,7 @@ import static org.unitils.reflectionassert.ReflectionComparatorMode.LENIENT_ORDE
 
 @RunWith(FeatureTestsRunner.class)
 public class IntegrationConfigTests {
-    private ConfigObserver observer = new ConfigObserver();
+    private TestConfigObserver observer = new TestConfigObserver();
     private ConfigContext config = ConfigContext.lookup();
     private AdminContext admin = AdminContext.lookup();
     private Child c1;
@@ -628,8 +629,7 @@ public class IntegrationConfigTests {
         observer.clear();
         admin.create(bean);
         assertThat(observer.getChanges().size(), is(1));
-        assertThat(observer.getFirstAfter(), is(bean));
-        assertFalse(observer.isBeforePresent());
+        assertFalse(observer.isBeforePresent(object.getClass()));
         getAndAssert(object);
     }
 
@@ -667,39 +667,39 @@ public class IntegrationConfigTests {
         assertReflectionEquals(objects, reslut, LENIENT_ORDER);
     }
 
-    public static class ConfigObserver {
-        private ConfigChanges<Bean> changes = new ConfigChanges<>();
-        public void notify(ConfigChanges<Bean> changes) {
+    public static class TestConfigObserver implements ConfigObserver {
+        private ConfigChanges changes = new ConfigChanges();
+
+        @Override
+        public void notify(ConfigChanges changes) {
             this.changes = changes;
         }
 
-        public Collection<ConfigChange<Bean>> getChanges() {
-            return changes.getChanges();
+        public ConfigChanges getChanges() {
+            return changes;
         }
 
-        public ConfigChange<Bean> getFirstChange() {
-            return changes.getChanges().iterator().next();
+        public <T> ConfigChange<T> getFirstChange(Class<T> cls) {
+            return changes.getChanges(cls).iterator().next();
         }
 
-        public Bean getFirstAfter() {
-            return getFirstChange().after().get();
+        public <T> T getFirstAfter(Class<T> cls) {
+            return getFirstChange(cls).after().get();
         }
 
-        public Bean getFirstBefore() {
-            return getFirstChange().before().get();
+        public <T> T getFirstBefore(Class<T> cls) {
+            return getFirstChange(cls).before().get();
         }
 
         public void clear() {
-            changes = new ConfigChanges<>();
+            changes = new ConfigChanges();
         }
 
-        public boolean isBeforePresent() {
-            return getFirstChange().before().isPresent();
+        public <T> boolean isBeforePresent(Class<T> cls) {
+            return getFirstChange(cls).before().isPresent();
         }
-
-        public boolean isAfterPresent() {
-            return getFirstChange().after().isPresent();
+        public <T> boolean isAfterPresent(Class<T> cls) {
+            return getFirstChange(cls).after().isPresent();
         }
-
     }
 }
