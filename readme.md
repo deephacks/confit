@@ -784,8 +784,8 @@ persistent changes, in runtime, without restarting applications.
 
 ### CDI integration and @Inject
 
-Singleton class configuration can be injected into CDI beans using the @Inject annotation. AdminContext and 
-ConfigContext can also be injected. Configuration that have multiple instances cannot be injected at the
+Singleton class configuration can be injected into [CDI](http://www.cdi-spec.org/) beans using the @Inject annotation.
+AdminContext and ConfigContext can also be injected. Configuration that have multiple instances cannot be injected at the
 moment. 
 
 Configuration is loaded when it is first accessed by the CDI bean, then cached forever.
@@ -814,6 +814,10 @@ Conf-it support development of service providers that implement internal, but re
 interfaces in order to customize certain well defined aspects like how instances are stored or validated. 
 For such efforts there is a TCK that provide a set of tests to ensure that implementations behave
 in the intended way, including in error conditions.
+
+[ServiceLoader](http://docs.oracle.com/javase/7/docs/api/java/util/ServiceLoader.html) 
+and [CDI](http://www.cdi-spec.org/) are used to lookup implementations by default, but virtually any method
+can be used by registering additional LookupProviders (Spring, OSGi, Guice, JNDI, etc).
 
 * Converter
 
