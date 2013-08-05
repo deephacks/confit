@@ -19,11 +19,13 @@ import org.deephacks.confit.admin.query.BeanQueryBuilder;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanUtils;
 import org.deephacks.confit.model.Schema;
 
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -66,6 +68,34 @@ public abstract class BeanManager implements Serializable {
     public static BeanManager lookup() {
         return lookup.lookup(BeanManager.class);
     }
+
+    /**
+     * Initialize references that lack a bean instance eagerly.
+     *
+     * @param beans to be initialized
+     */
+    public final void initializeReferences(Collection<Bean> beans) {
+        Map<BeanId, Bean> indexed = BeanUtils.uniqueIndex(beans);
+        for (Bean bean : beans) {
+            for (String name : bean.getReferenceNames()) {
+                List<BeanId> ids = bean.getReference(name);
+                if (ids == null) {
+                    continue;
+                }
+                for (BeanId id : ids) {
+                    Bean ref = indexed.get(id);
+                    if (ref == null) {
+                        Optional<Bean> optionalRef = getEager(id);
+                        if (optionalRef.isPresent()) {
+                            ref = optionalRef.get();
+                        }
+                    }
+                    id.setBean(ref);
+                }
+            }
+        }
+    }
+
 
     /**
      * Creates a new bean.
@@ -317,4 +347,5 @@ public abstract class BeanManager implements Serializable {
      * @return Used for composing a query in conjuction with {@link BeanQueryBuilder}.
      */
     public abstract BeanQuery newQuery(Schema schema);
+
 }

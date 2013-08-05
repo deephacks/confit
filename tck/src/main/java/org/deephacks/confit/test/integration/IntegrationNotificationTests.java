@@ -13,12 +13,11 @@ import org.deephacks.confit.test.FeatureTestsRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.Arrays;
 import java.util.Collection;
 
 import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 import static org.unitils.reflectionassert.ReflectionAssert.assertReflectionEquals;
 import static org.unitils.reflectionassert.ReflectionComparatorMode.LENIENT_ORDER;
 
@@ -49,9 +48,11 @@ public class IntegrationNotificationTests {
         Parent parent = ConfigTestData.getParent("1");
         admin.createObject(parent);
         assertThat(observer.getChanges().size(), is(1));
-        for (ConfigChange<Grandfather>  change : observer.getChanges(Grandfather.class)) {
-            assertFalse(change.before().isPresent());
-            assertTrue(change.after().isPresent());
+        admin.deleteObject(parent);
+        assertThat(observer.getChanges().size(), is(1));
+        for (ConfigChange<Parent>  change : observer.getChanges(Parent.class)) {
+            assertTrue(change.before().isPresent());
+            assertFalse(change.after().isPresent());
             assertReflectionEquals(change.before().get(), parent, LENIENT_ORDER);
         }
     }
@@ -92,6 +93,138 @@ public class IntegrationNotificationTests {
         }
     }
 
+    @Test
+    public void test_advanced_create_notification() {
+        Grandfather grandfather = ConfigTestData.getGrandfather("1");
+        Parent parent = ConfigTestData.getParent("1");
+        Child child = ConfigTestData.getChild("1");
+        parent.add(child);
+        grandfather.add(parent);
+
+        admin.createObjects(Arrays.asList(grandfather, parent, child));
+        assertThat(observer.getChanges().size(), is(3));
+        for (ConfigChange<Grandfather>  change : observer.getChanges(Grandfather.class)) {
+            assertFalse(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(grandfather, change.after().get(), LENIENT_ORDER);
+        }
+        for (ConfigChange<Parent>  change : observer.getChanges(Parent.class)) {
+            assertFalse(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(parent, change.after().get(), LENIENT_ORDER);
+        }
+        for (ConfigChange<Child>  change : observer.getChanges(Child.class)) {
+            assertFalse(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(child, change.after().get(), LENIENT_ORDER);
+        }
+    }
+
+    @Test
+    public void test_advanced_delete_notification() {
+        Parent p1 = ConfigTestData.getParent("1");
+        Parent p2 = ConfigTestData.getParent("2");
+        Parent p3 = ConfigTestData.getParent("3");
+        admin.createObjects(Arrays.asList(p1, p2, p3));
+        assertThat(observer.getChanges().size(), is(3));
+        admin.delete(ConfigTestData.PARENT_SCHEMA_NAME, Arrays.asList("1", "2", "3"));
+        assertThat(observer.getChanges().size(), is(3));
+        for (ConfigChange<Parent>  change : observer.getChanges(Parent.class)) {
+            assertTrue(change.before().isPresent());
+            assertFalse(change.after().isPresent());
+            if (change.before().get().getId().equals("1")) {
+                assertReflectionEquals(p1, change.before().get(), LENIENT_ORDER);
+            } else if (change.before().get().getId().equals("2")) {
+                assertReflectionEquals(p2, change.before().get(), LENIENT_ORDER);
+            } else if (change.before().get().getId().equals("3")) {
+                assertReflectionEquals(p3, change.before().get(), LENIENT_ORDER);
+            } else {
+                fail("change not recognized");
+            }
+        }
+    }
+
+    @Test
+    public void test_advanced_set_notification() {
+        Grandfather grandfather = ConfigTestData.getGrandfather("1");
+        Parent parent = ConfigTestData.getParent("1");
+        Child child = ConfigTestData.getChild("1");
+        parent.add(child);
+        grandfather.add(parent);
+
+        Grandfather grandfatherAfter = ConfigTestData.getGrandfather("1");
+        Parent parentAfter = ConfigTestData.getParent("1");
+        Child childAfter = ConfigTestData.getChild("1");
+        parentAfter.add(childAfter);
+        grandfatherAfter.add(parentAfter);
+
+        admin.createObjects(Arrays.asList(grandfather, parent, child));
+        assertThat(observer.getChanges().size(), is(3));
+        grandfatherAfter.setProp1("new");
+        parentAfter.setProp1("new");
+        childAfter.setProp1("new");
+        admin.setObjects(Arrays.asList(grandfatherAfter, parentAfter, childAfter));
+        assertThat(observer.getChanges().size(), is(3));
+        for (ConfigChange<Grandfather>  change : observer.getChanges(Grandfather.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(grandfather, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(grandfatherAfter, change.after().get(), LENIENT_ORDER);
+        }
+        for (ConfigChange<Parent>  change : observer.getChanges(Parent.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(parent, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(parentAfter, change.after().get() , LENIENT_ORDER);
+        }
+        for (ConfigChange<Child>  change : observer.getChanges(Child.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(child, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(childAfter, change.after().get(), LENIENT_ORDER);
+        }
+    }
+
+    @Test
+    public void test_advanced_merge_notification() {
+        Grandfather grandfather = ConfigTestData.getGrandfather("1");
+        Parent parent = ConfigTestData.getParent("1");
+        Child child = ConfigTestData.getChild("1");
+        parent.add(child);
+        grandfather.add(parent);
+
+        Grandfather grandfatherAfter = ConfigTestData.getGrandfather("1");
+        Parent parentAfter = ConfigTestData.getParent("1");
+        Child childAfter = ConfigTestData.getChild("1");
+        parentAfter.add(childAfter);
+        grandfatherAfter.add(parentAfter);
+
+        admin.createObjects(Arrays.asList(grandfather, parent, child));
+        assertThat(observer.getChanges().size(), is(3));
+        grandfatherAfter.setProp1("new");
+        parentAfter.setProp1("new");
+        childAfter.setProp1("new");
+        admin.mergeObjects(Arrays.asList(grandfatherAfter, parentAfter, childAfter));
+        assertThat(observer.getChanges().size(), is(3));
+        for (ConfigChange<Grandfather>  change : observer.getChanges(Grandfather.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(grandfather, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(grandfatherAfter, change.after().get(), LENIENT_ORDER);
+        }
+        for (ConfigChange<Parent>  change : observer.getChanges(Parent.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(parent, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(parentAfter, change.after().get() , LENIENT_ORDER);
+        }
+        for (ConfigChange<Child>  change : observer.getChanges(Child.class)) {
+            assertTrue(change.before().isPresent());
+            assertTrue(change.after().isPresent());
+            assertReflectionEquals(child, change.before().get(), LENIENT_ORDER);
+            assertReflectionEquals(childAfter, change.after().get(), LENIENT_ORDER);
+        }
+    }
 
     public static class TestConfigObserver implements ConfigObserver {
         private ConfigChanges changes = new ConfigChanges();

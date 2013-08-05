@@ -16,7 +16,6 @@ package org.deephacks.confit.internal.core.admin;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.deephacks.confit.ConfigChanges;
-import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
@@ -28,7 +27,6 @@ import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.CacheManager;
-import org.deephacks.confit.spi.Lookup;
 import org.deephacks.confit.spi.NotificationManager;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.spi.ValidationManager;
@@ -51,7 +49,6 @@ import static org.deephacks.confit.model.Events.CFG301_MISSING_RUNTIME_REF;
 @Singleton
 public final class AdminCoreContext extends AdminContext {
     private AtomicBoolean LOOKUP_DONE = new AtomicBoolean(false);
-    private static final Lookup lookup = Lookup.get();
     private BeanManager beanManager;
     private SchemaManager schemaManager;
     private NotificationManager notificationManager;
@@ -130,9 +127,6 @@ public final class AdminCoreContext extends AdminContext {
         doLookup();
         Preconditions.checkNotNull(bean);
         create(Arrays.asList(bean));
-        if (cacheManager.isPresent()) {
-            cacheManager.get().put(bean);
-        }
     }
 
     @Override
@@ -146,24 +140,19 @@ public final class AdminCoreContext extends AdminContext {
             return;
         }
         doLookup();
+        beanManager.initializeReferences(beans);
         schemaManager.setSchema(beans);
         schemaManager.validateSchema(beans);
         if (validationManager.isPresent()) {
-            initReferences(beans);
             // ready to validate
             Collection<Object> objects = schemaManager.convertBeans(beans);
             validationManager.get().validate(objects);
         }
         beanManager.create(beans);
-
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            changes.add(ConfigChange.created(bean));
-        }
         if (cacheManager.isPresent()) {
             cacheManager.get().putAll(beans);
         }
-        notificationManager.fire(changes);
+        notificationManager.fireCreate(beans);
     }
 
     @Override
@@ -194,23 +183,14 @@ public final class AdminCoreContext extends AdminContext {
             return;
         }
         doLookup();
+        beanManager.initializeReferences(beans);
         schemaManager.setSchema(beans);
         schemaManager.validateSchema(beans);
         if (validationManager.isPresent()) {
-            initReferences(beans);
-            validateSet(beans);
+            validateSet(Bean.copy(beans));
         }
-
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            Optional<Bean> optional = get(bean.getId());
-            if (!optional.isPresent()) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(bean.getId());
-            }
-            changes.add(ConfigChange.updated(optional.get(), bean));
-            get(bean.getId());
-        }
-
+        schemaManager.setSchema(beans);
+        ConfigChanges changes = notificationManager.updated(beans);
         beanManager.set(beans);
         if (cacheManager.isPresent()) {
             cacheManager.get().putAll(beans);
@@ -249,20 +229,11 @@ public final class AdminCoreContext extends AdminContext {
         schemaManager.validateSchema(beans);
         // ok to not have validation manager available
         if (validationManager.isPresent()) {
-            validateMerge(beans);
+            validateMerge(Bean.copy(beans));
         }
-
-        ConfigChanges changes = new ConfigChanges();
-        for (Bean bean : beans) {
-            Optional<Bean> optional = get(bean.getId());
-            if (!optional.isPresent()) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(bean.getId());
-            }
-            changes.add(ConfigChange.updated(optional.get(), bean));
-            get(bean.getId());
-        }
+        schemaManager.setSchema(beans);
+        ConfigChanges changes = notificationManager.updated(beans);
         beanManager.merge(beans);
-
         if (cacheManager.isPresent()) {
             for (Bean bean : beans) {
                 // must refresh the bean from storage since it is merged.
@@ -289,12 +260,10 @@ public final class AdminCoreContext extends AdminContext {
     public void delete(BeanId beanId) {
         Preconditions.checkNotNull(beanId);
         doLookup();
-        ConfigChanges changes = new ConfigChanges();
         Optional<Bean> before = get(beanId);
         if (!before.isPresent()) {
             throw Events.CFG304_BEAN_DOESNT_EXIST(beanId);
         }
-        changes.add(ConfigChange.deleted(before.get()));
         Bean bean = beanManager.delete(beanId);
         if (bean == null) {
             throw Events.CFG304_BEAN_DOESNT_EXIST(beanId);
@@ -302,7 +271,7 @@ public final class AdminCoreContext extends AdminContext {
         if (cacheManager.isPresent()) {
             cacheManager.get().remove(beanId);
         }
-        notificationManager.fire(changes);
+        notificationManager.fireDelete(Arrays.asList(before.get()));
     }
 
     @Override
@@ -318,15 +287,7 @@ public final class AdminCoreContext extends AdminContext {
             return;
         }
         doLookup();
-        ConfigChanges changes = new ConfigChanges();
-        for (String instanceId : instances) {
-            BeanId id = BeanId.create(instanceId, name);
-            Optional<Bean> before = get(id);
-            if (!before.isPresent()) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(id);
-            }
-            changes.add(ConfigChange.deleted(before.get()));
-        }
+        ConfigChanges changes = notificationManager.deleted(name, instances);
         Collection<Bean> beans = beanManager.delete(name, instances);
         schemaManager.setSchema(beans);
 
@@ -366,30 +327,6 @@ public final class AdminCoreContext extends AdminContext {
         doLookup();
         Schema schema = schemaManager.getSchema(schemaName);
         return beanManager.newQuery(schema);
-    }
-
-    private void initReferences(Collection<Bean> beans) {
-        Map<BeanId, Bean> indexed = BeanUtils.uniqueIndex(beans);
-        for (Bean bean : beans) {
-            for (String name : bean.getReferenceNames()) {
-                List<BeanId> ids = bean.getReference(name);
-                if (ids == null) {
-                    continue;
-                }
-                for (BeanId id : ids) {
-                    Bean ref = indexed.get(id);
-                    if (ref == null) {
-                        // TODO: investigate if eager is really needed
-                        Optional<Bean> optionalRef = beanManager.getEager(id);
-                        if (optionalRef.isPresent()) {
-                            schemaManager.setSchema(Arrays.asList(optionalRef.get()));
-                            ref = optionalRef.get();
-                        }
-                    }
-                    id.setBean(ref);
-                }
-            }
-        }
     }
 
     private void validateMerge(Collection<Bean> mergebeans) {
@@ -503,26 +440,6 @@ public final class AdminCoreContext extends AdminContext {
                 source.setReferences(name, refs);
             }
 
-        }
-    }
-
-    /**
-     * Used for setting or creating a single bean.
-     */
-    @SuppressWarnings("unused")
-    private void initalizeReferences(Bean bean) {
-        for (String name : bean.getReferenceNames()) {
-            List<BeanId> values = bean.getReference(name);
-            if (values == null) {
-                continue;
-            }
-            for (BeanId beanId : values) {
-                Optional<Bean> ref = beanManager.getEager(beanId);
-                if (ref.isPresent()) {
-                    beanId.setBean(ref.get());
-                }
-                schemaManager.setSchema(Arrays.asList(beanId.getBean()));
-            }
         }
     }
 

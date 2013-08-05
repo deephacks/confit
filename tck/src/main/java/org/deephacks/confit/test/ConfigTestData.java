@@ -623,6 +623,8 @@ public class ConfigTestData {
 
         @Id(desc = "desc")
         private String id;
+        @Config(desc = "prop1Desc")
+        private String prop1;
         @Config(desc = "prop2Desc")
         private Set<String> prop2;
         @Config(desc = "prop3Desc")
@@ -728,6 +730,74 @@ public class ConfigTestData {
 
         public List<TimeUnit> getProp19() {
             return prop19;
+        }
+
+        public void setId(String id) {
+            this.id = id;
+        }
+
+        public void setProp1(String prop1) {
+            this.prop1 = prop1;
+        }
+
+        public void setProp2(Set<String> prop2) {
+            this.prop2 = prop2;
+        }
+
+        public void setProp3(List<Integer> prop3) {
+            this.prop3 = prop3;
+        }
+
+        public void setProp4(DateTime prop4) {
+            this.prop4 = prop4;
+        }
+
+        public void setProp5(DurationTime prop5) {
+            this.prop5 = prop5;
+        }
+
+        public void setProp8(Byte prop8) {
+            this.prop8 = prop8;
+        }
+
+        public void setProp9(long prop9) {
+            this.prop9 = prop9;
+        }
+
+        public void setProp10(Short prop10) {
+            this.prop10 = prop10;
+        }
+
+        public void setProp11(Float prop11) {
+            this.prop11 = prop11;
+        }
+
+        public void setProp12(Double prop12) {
+            this.prop12 = prop12;
+        }
+
+        public void setProp13(Boolean prop13) {
+            this.prop13 = prop13;
+        }
+
+        public void setProp15(URL prop15) {
+            this.prop15 = prop15;
+        }
+
+        public void setProp16(File prop16) {
+            this.prop16 = prop16;
+        }
+
+        public void setProp17(List<File> prop17) {
+            this.prop17 = prop17;
+        }
+
+        public void setProp18(List<URL> prop18) {
+            this.prop18 = prop18;
+        }
+
+        public void setProp19(List<TimeUnit> prop19) {
+            this.prop19 = prop19;
         }
     }
 

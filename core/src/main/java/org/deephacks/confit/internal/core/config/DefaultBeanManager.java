@@ -222,9 +222,6 @@ public class DefaultBeanManager extends BeanManager {
         }
         // references may not exist in storage, but are provided
         // as part of the transactions, so add them before validating references.
-
-
-
         for (Bean bean : set) {
             checkReferencesExist(bean, set);
         }
@@ -461,16 +458,14 @@ public class DefaultBeanManager extends BeanManager {
         private static final HashMap<BeanId, Bean> beans = new HashMap<>();
 
         public void put(Bean bean) {
-            // disconnect any references that have been set
-            for (BeanId id : bean.getReferences()) {
-                id.setBean(null);
-            }
-            beans.put(bean.getId(), bean);
+            // make a copy
+            Bean store =  Bean.copy(bean);
+            beans.put(bean.getId(), store);
         }
 
         public Bean get(BeanId id){
             Bean found = beans.get(id);
-            return copy(found);
+            return Bean.copy(found);
         }
 
         public Collection<Bean> all() {
@@ -483,23 +478,6 @@ public class DefaultBeanManager extends BeanManager {
 
         public Bean remove(BeanId id) {
             return beans.remove(id);
-        }
-
-        private Bean copy(Bean bean) {
-            if (bean == null) {
-                return null;
-            }
-            Bean copy = Bean.create(bean.getId());
-            for (String property : bean.getPropertyNames()) {
-                copy.setProperty(property, bean.getValues(property));
-            }
-            for (String property : bean.getReferenceNames()) {
-                List<BeanId> ids = bean.getReference(property);
-                for (BeanId id : ids) {
-                    copy.addReference(property, BeanId.create(id.getInstanceId(), id.getSchemaName()));
-                }
-            }
-            return copy;
         }
     }
 

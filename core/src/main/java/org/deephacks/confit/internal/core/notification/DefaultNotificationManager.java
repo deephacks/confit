@@ -5,14 +5,12 @@ import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.spi.NotificationManager;
-import org.deephacks.confit.spi.SchemaManager;
 
 /**
  * Default notification manager that forwards notifications to observers
  * that have been registered.
  */
 public class DefaultNotificationManager extends NotificationManager  {
-    private static SchemaManager schemaManager = SchemaManager.lookup();
 
     @Override
     public void fire(ConfigChanges changes) {

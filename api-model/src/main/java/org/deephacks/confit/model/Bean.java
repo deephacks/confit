@@ -459,6 +459,39 @@ public final class Bean implements Serializable {
                 .add("properties", properties).add("references", references).toString();
     }
 
+    public static Collection<Bean> copy(Collection<Bean> beans) {
+        Collection<Bean> copies = new ArrayList<>();
+        for (Bean bean : beans) {
+            copies.add(copy(bean));
+        }
+        return copies;
+    }
+
+    public static Bean copy(Bean bean) {
+        if (bean == null) {
+            return null;
+        }
+        Bean copy = Bean.create(bean.getId());
+        for (String property : bean.getPropertyNames()) {
+            Collection<String> values = bean.getValues(property);
+            if (values == null) {
+                continue;
+            }
+            copy.setProperty(property, bean.getValues(property));
+        }
+        for (String property : bean.getReferenceNames()) {
+            List<BeanId> ids = bean.getReference(property);
+            if (ids == null) {
+                continue;
+            }
+            for (BeanId id : ids) {
+                copy.addReference(property, BeanId.create(id.getInstanceId(), id.getSchemaName()));
+            }
+        }
+        return copy;
+    }
+
+
     /**
      * Identifies bean instances of a particular schema. Instances are unique per id and schema.
      */
