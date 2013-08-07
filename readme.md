@@ -661,17 +661,27 @@ slower.
 
 Having several thousands or more configuration instances can quickly become difficult to administrate.
 AdminContext have therefore been equipped with query and pagination capabilities to make configuration
-management easier for the administrator.
+management easier for the administrator. 
+
+Forward pagination is supported, backward or seeking to an arbitary page is not. Clients are
+responsible for implementing such features if needed (maybe using page caching or similar).
 
 Example query using AdminContext.
 
 ```java
-    List<Bean> result = admin.newQuery("Employee")
+    BeanQuery query = admin.newQuery("Employee")
                              .add(lessThan("salary", 10000.0))
                              .add(contains("email", "gmail"))
-                             .setFirstResult(100)
+                             .setMaxResults(50)
+    // first page
+    BeanQueryResult result = query.retrieve();
+    
+    // page forward by using same query and next first result of first page
+    BeanQueryResult next = query.setFirstResult(result.nextFirstResult())
                              .setMaxResults(50)
                              .retrieve();
+
+
 ```
 
 ### Notifications
