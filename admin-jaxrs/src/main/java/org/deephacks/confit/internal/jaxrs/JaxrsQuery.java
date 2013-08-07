@@ -2,7 +2,7 @@ package org.deephacks.confit.internal.jaxrs;
 
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
-import org.deephacks.confit.model.Bean;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +29,7 @@ public class JaxrsQuery implements BeanQuery {
     }
 
     @Override
-    public BeanQuery setFirstResult(int firstResult) {
+    public BeanQuery setFirstResult(String firstResult) {
         return null;
     }
 
@@ -39,7 +39,7 @@ public class JaxrsQuery implements BeanQuery {
     }
 
     @Override
-    public List<Bean> retrieve() {
+    public BeanQueryResult retrieve() {
         return null;
     }
 

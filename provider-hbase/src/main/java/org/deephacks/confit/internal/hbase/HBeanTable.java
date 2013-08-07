@@ -14,6 +14,7 @@
 package org.deephacks.confit.internal.hbase;
 
 import com.google.common.base.Preconditions;
+import com.google.common.base.Strings;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hbase.KeyValue;
 import org.apache.hadoop.hbase.client.Delete;
@@ -292,18 +293,23 @@ public class HBeanTable {
      * Only scan instances of a specific schemaName (sid) by setting
      * start and stop row accordingly on the filter.
      */
-    public List<HBeanRow> scan(byte[] sid, MultiKeyValueComparisonFilter filter) {
+    public List<HBeanRow> scan(byte[] sid, MultiKeyValueComparisonFilter filter, String firstResult) {
         Scan scan = new Scan();
         HBeanRow.setColumnFilter(scan);
         scan.setFilter(filter);
+        final byte[] firstRowKey;
+        if (!Strings.isNullOrEmpty(firstResult)) {
+            byte[] uid = uids.getUiid().getId(firstResult);
+            firstRowKey = getRowKey(sid, uid);
+        } else {
+            byte[] uid = uids.getUiid().getMinWidth();
+            firstRowKey = getRowKey(sid, uid);
+        }
+        scan.setStartRow(firstRowKey);
 
-        byte[] uid = uids.getUiid().getMinWidth();
-        byte[] rowkey = getRowKey(sid, uid);
-        scan.setStartRow(rowkey);
-
-        uid = uids.getUiid().getMaxWidth();
-        rowkey = getRowKey(sid, uid);
-        scan.setStopRow(rowkey);
+        byte[] uid = uids.getUiid().getMaxWidth();
+        byte[] stopRowKey = getRowKey(sid, uid);
+        scan.setStopRow(stopRowKey);
         ArrayList<HBeanRow> rows = new ArrayList<>();
         try {
             ResultScanner scanner = table.getScanner(scan);

@@ -3,6 +3,7 @@ package org.deephacks.confit.test.query;
 
 import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.admin.AdminContext;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.deephacks.confit.test.FeatureTestsRunner;
@@ -67,11 +68,11 @@ public class BeanQueryTest {
 
     @Test
     public void test_select_all() {
-        List<Bean> list = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .retrieve();
-        assertThat(list.size(), is(5));
+        assertThat(result.get().size(), is(5));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : list) {
+        for (Bean g :result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[] {"g1", "g2", "g3", "g4", "g5"}));
@@ -82,12 +83,12 @@ public class BeanQueryTest {
      */
     @Test
     public void test_single_equal() {
-        List<Bean> list = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result  = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(equal("prop1", "test"))
                 .retrieve();
-        assertThat(list.size(), is(1));
+        assertThat(result.get().size(), is(1));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : list) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[] {"g1"}));
@@ -95,12 +96,12 @@ public class BeanQueryTest {
 
     @Test
     public void test_single_equal_number() {
-        List<Bean> list = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(equal("prop12", 333.333))
                 .retrieve();
-        assertThat(list.size(), is(1));
+        assertThat(result.get().size(), is(1));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : list) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[] {"g2"}));
@@ -111,12 +112,12 @@ public class BeanQueryTest {
      */
     @Test
     public void test_single_not_equal() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(not(equal("prop1", "value")))
                 .retrieve();
-        assertThat(result.size(), is(1));
+        assertThat(result.get().size(), is(1));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[] {"g1"}));
@@ -128,12 +129,12 @@ public class BeanQueryTest {
      */
     @Test
     public void test_single_contains() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop1", "val"))
                 .retrieve();
-        assertThat(result.size(), is(4));
+        assertThat(result.get().size(), is(4));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[] {"g2","g3","g4","g5"}));
@@ -144,25 +145,25 @@ public class BeanQueryTest {
      */
     @Test
     public void test_not_contains() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(not(contains("prop1", "val")))
                 .retrieve();
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
-        assertThat(result.size(), is(1));
+        assertThat(result.get().size(), is(1));
         assertThat(ids, hasItems(new String[] {"g1"}));
     }
 
     @Test
     public void test_single_greaterThan() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(greaterThan("prop12", 4.0))
                 .retrieve();
-        assertThat(result.size(), is(2));
+        assertThat(result.get().size(), is(2));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g2", "g5"}));
@@ -170,23 +171,23 @@ public class BeanQueryTest {
 
     @Test
     public void test_single_lessThan() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(lessThan("prop12", 2.0))
                 .retrieve();
-        assertThat(result.size(), is(1));
-        assertThat(result.get(0).getId().getInstanceId(), is("g1"));
+        assertThat(result.get().size(), is(1));
+        assertThat(result.get().get(0).getId().getInstanceId(), is("g1"));
     }
 
 
     @Test
     public void test_lessThan_and_contains() {
         try {
-            List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+            BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                     .add(lessThan("prop12", 1000.0))
                     .add(contains("prop1", "tes"))
                     .retrieve();
-            assertThat(result.size(), is(1));
-            assertThat(result.get(0).getId().getInstanceId(), is("g1"));
+            assertThat(result.get().size(), is(1));
+            assertThat(result.get().get(0).getId().getInstanceId(), is("g1"));
         } catch(Exception e) {
             if (e.getMessage().contains("Invalid character string format for type DECIMAL")){
                 // Exception thrown by derby. seems to happen when writing queries with multiple conditions
@@ -208,14 +209,14 @@ public class BeanQueryTest {
     @Test
     public void test_lessThan_and_not_contains() {
         try {
-            List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+            BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                     .add(not(contains("prop1", "t")))
                     .add(lessThan("prop12", 1000.0))
                     .retrieve();
 
-            assertThat(result.size(), is(4));
+            assertThat(result.get().size(), is(4));
             ArrayList<String> ids = new ArrayList<>();
-            for (Bean g : result) {
+            for (Bean g : result.get()) {
                 ids.add(g.getId().getInstanceId());
             }
             assertThat(ids, hasItems(new String[]{"g2", "g3", "g4", "g5", }));
@@ -240,14 +241,14 @@ public class BeanQueryTest {
 
     @Test
     public void test_in_query() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(in("prop3", 3, 4))
                 .retrieve();
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
-        assertThat(result.size(), is(2));
+        assertThat(result.get().size(), is(2));
         assertThat(ids, hasItems(new String[]{"g2", "g3"}));
     }
 
@@ -271,12 +272,12 @@ public class BeanQueryTest {
 
     @Test
     public void test_query_references() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop7", "p1"))
                 .retrieve();
-        assertThat(result.size(), is(1));
+        assertThat(result.get().size(), is(1));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g1"}));
@@ -284,9 +285,9 @@ public class BeanQueryTest {
         result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop7", "p2"))
                 .retrieve();
-        assertThat(result.size(), is(2));
+        assertThat(result.get().size(), is(2));
         ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g1", "g2"}));
@@ -294,9 +295,9 @@ public class BeanQueryTest {
         result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop7", "p3"))
                 .retrieve();
-        assertThat(result.size(), is(3));
+        assertThat(result.get().size(), is(3));
         ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g1", "g2", "g3"}));
@@ -304,13 +305,13 @@ public class BeanQueryTest {
 
     @Test
     public void test_query_references_and_properties() {
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop7", "p5"))
                 .add(contains("prop1", "t"))
                 .retrieve();
-        assertThat(result.size(), is(1));
+        assertThat(result.get().size(), is(1));
         ArrayList<String> ids = new ArrayList<>();
-        for (Bean g : result) {
+        for (Bean g : result.get()) {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g1"}));
@@ -320,22 +321,22 @@ public class BeanQueryTest {
     @Test
     public void test_pagination() {
         List<String> seen = new ArrayList<>();
-        List<Bean> result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
+        BeanQueryResult result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                 .add(contains("prop7", "p5"))
-                .setFirstResult(0)
                 .setMaxResults(1)
                 .retrieve();
-        assertThat(result.size(), is(1));
-        String instanceId = result.get(0).getId().getInstanceId();
+        assertThat(result.get().size(), is(1));
+        String instanceId = result.get().get(0).getId().getInstanceId();
         seen.add(instanceId);
         for (int i = 1; i < 5; i++) {
+            String nextFirstResult = result.nextFirstResult();
             result = admin.newQuery(GRANDFATHER_SCHEMA_NAME)
                     .add(contains("prop7", "p5"))
-                    .setFirstResult(i)
+                    .setFirstResult(nextFirstResult)
                     .setMaxResults(1)
                     .retrieve();
-            assertThat(result.size(), is(1));
-            instanceId = result.get(0).getId().getInstanceId();
+            assertThat(result.get().size(), is(1));
+            instanceId = result.get().get(0).getId().getInstanceId();
             assertTrue(!seen.contains(instanceId));
             seen.add(instanceId);
         }

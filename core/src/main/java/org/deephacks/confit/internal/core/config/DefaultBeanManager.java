@@ -5,6 +5,7 @@ import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.LogicalRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.PropertyRestriction;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -485,7 +486,7 @@ public class DefaultBeanManager extends BeanManager {
         private final ArrayList<Bean> beans;
         private final Schema schema;
         private int maxResults = Integer.MAX_VALUE;
-        private int firstResult = 0;
+        private int firstResult;
 
         public DefaultBeanQuery(Schema schema, ArrayList<Bean> beans) {
             this.beans = beans;
@@ -503,8 +504,12 @@ public class DefaultBeanManager extends BeanManager {
         }
 
         @Override
-        public BeanQuery setFirstResult(int firstResult) {
-            this.firstResult = firstResult;
+        public BeanQuery setFirstResult(String firstResult) {
+            try {
+                this.firstResult = Integer.parseInt(firstResult);
+            } catch (Exception e) {
+                throw new IllegalArgumentException("Could not parse firstResult into an integer.");
+            }
             return this;
         }
 
@@ -514,9 +519,11 @@ public class DefaultBeanManager extends BeanManager {
             return this;
         }
         @Override
-        public List<Bean> retrieve() {
-            ArrayList<Bean> result = new ArrayList<>();
+        public BeanQueryResult retrieve() {
+            final ArrayList<Bean> result = new ArrayList<>();
+            int firstResult = 0;
             for (int i = 0; i < beans.size(); i++) {
+                firstResult = i + 1;
                 if (i >= firstResult && result.size() < maxResults) {
                     result.add(beans.get(i));
                 }
@@ -524,7 +531,18 @@ public class DefaultBeanManager extends BeanManager {
                     break;
                 }
             }
-            return result;
+            final String nextFirstResult = Integer.toString(firstResult);
+            return new BeanQueryResult() {
+                @Override
+                public List<Bean> get() {
+                    return result;
+                }
+
+                @Override
+                public String nextFirstResult() {
+                    return nextFirstResult;
+                }
+            };
         }
     }
 

@@ -1,6 +1,5 @@
 package org.deephacks.confit.internal.jpa.query;
 
-import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
@@ -14,6 +13,7 @@ import org.deephacks.confit.admin.query.BeanQueryBuilder.LogicalRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.Not;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.PropertyRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.StringContains;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.internal.jpa.Jpa20BeanManager;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Schema;
@@ -38,8 +38,8 @@ public class JpaBeanQuery implements BeanQuery {
     private String schemaName;
     private List<String> join = new ArrayList<>();
     private List<String> where = new ArrayList<>();
-    private Optional<Integer> maxResults = Optional.absent();
-    private Optional<Integer> firstResult = Optional.absent();
+    private int maxResults = Integer.MAX_VALUE;
+    private int firstResult = 0;
     private boolean autoCommit;
 
     public JpaBeanQuery(Schema schema, EntityManager em, Jpa20BeanManager manager, boolean autoCommit) {
@@ -144,14 +144,18 @@ public class JpaBeanQuery implements BeanQuery {
     }
 
     @Override
-    public BeanQuery setFirstResult(int firstResult) {
-        this.firstResult = Optional.of(firstResult);
+    public BeanQuery setFirstResult(String firstResult) {
+        try {
+            this.firstResult = Integer.parseInt(firstResult);
+        } catch (Exception e) {
+            throw new IllegalArgumentException("Could not parse firstResult to an int.");
+        }
         return this;
     }
 
     @Override
     public BeanQuery setMaxResults(int maxResults) {
-        this.maxResults = Optional.of(maxResults);
+        this.maxResults = maxResults;
         return this;
     }
 
@@ -171,7 +175,7 @@ public class JpaBeanQuery implements BeanQuery {
     }
 
     @Override
-    public List<Bean> retrieve() {
+    public BeanQueryResult retrieve() {
         try {
             StringBuilder sb = new StringBuilder();
             sb.append("SELECT b.BEAN_ID FROM CONFIG_BEAN b ");
@@ -188,16 +192,22 @@ public class JpaBeanQuery implements BeanQuery {
 
             sb.append(" GROUP BY b.BEAN_ID ");
             Query q = em.createNativeQuery(sb.toString());
-            if(firstResult.isPresent()) {
-                q.setFirstResult(firstResult.get());
-            }
-            if(maxResults.isPresent()) {
-                q.setMaxResults(maxResults.get());
-            }
+            q.setFirstResult(firstResult);
+            q.setMaxResults(maxResults);
             List<String> instanceIds = q.getResultList();
-            List<Bean> result = Lists.newArrayList(manager.list(schemaName, instanceIds).values());
+            final List<Bean> result = Lists.newArrayList(manager.list(schemaName, instanceIds).values());
             commit(em);
-            return result;
+            return new BeanQueryResult() {
+                @Override
+                public List<Bean> get() {
+                    return result;
+                }
+
+                @Override
+                public String nextFirstResult() {
+                    return Integer.toString(firstResult + maxResults);
+                }
+            };
         } catch (Throwable e) {
             rollback(em);
             throw new RuntimeException(e);

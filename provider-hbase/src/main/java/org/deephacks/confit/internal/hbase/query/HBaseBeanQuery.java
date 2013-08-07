@@ -14,6 +14,7 @@ import org.deephacks.confit.admin.query.BeanQueryBuilder.LogicalRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.Not;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.PropertyRestriction;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.StringContains;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.internal.hbase.HBeanRow;
 import org.deephacks.confit.internal.hbase.HBeanTable;
 import org.deephacks.confit.internal.hbase.UniqueIds;
@@ -36,7 +37,7 @@ public class HBaseBeanQuery implements BeanQuery {
     private final MultiKeyValueComparisonFilter filter;
     private final UniqueIds uids;
     private final byte[] sid;
-    private int firstResult = 0;
+    private String firstResult;
     private int maxResults = Integer.MAX_VALUE;
 
     public HBaseBeanQuery(Schema schema, HBeanTable table, UniqueIds uids) {
@@ -113,8 +114,7 @@ public class HBaseBeanQuery implements BeanQuery {
     }
 
     @Override
-    public BeanQuery setFirstResult(int firstResult) {
-        filter.setFirstResult(firstResult);
+    public BeanQuery setFirstResult(String firstResult) {
         this.firstResult = firstResult;
         return this;
     }
@@ -127,15 +127,30 @@ public class HBaseBeanQuery implements BeanQuery {
     }
 
     @Override
-    public List<Bean> retrieve() {
+    public BeanQueryResult retrieve() {
         final List<Bean> beans = new ArrayList<>();
-        final List<HBeanRow> rows = table.scan(sid, filter);
+        final List<HBeanRow> rows = table.scan(sid, filter, firstResult);
         int i = 0;
+        String firstResult = null;
         for (HBeanRow row : rows) {
             if (i++ < maxResults) {
                 beans.add(row.getBean());
+            } else {
+                firstResult = row.getBean().getId().getInstanceId();
+                break;
             }
         }
-        return beans;
+        final String nextFirstResult = firstResult;
+        return new BeanQueryResult() {
+            @Override
+            public List<Bean> get() {
+                return beans;
+            }
+
+            @Override
+            public String nextFirstResult() {
+                return nextFirstResult;
+            }
+        };
     }
 }

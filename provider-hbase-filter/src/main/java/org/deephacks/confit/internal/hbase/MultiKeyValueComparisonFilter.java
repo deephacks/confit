@@ -56,7 +56,6 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
     private boolean filterRow = true;
     private boolean filterAllRemaining = false;
     private List<QualifierRestriction> restrictions = new ArrayList<>();
-    private int firstResult;
     private int maxResults = Integer.MAX_VALUE;
     private int matchedRows;
     private boolean foundColumn = false;
@@ -114,7 +113,7 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
 
     @Override
     public boolean filterAllRemaining() {
-        return (matchedRows - firstResult) > maxResults || filterAllRemaining;
+        return (matchedRows - 1) > maxResults || filterAllRemaining;
     }
 
     @Override
@@ -124,11 +123,6 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
 
     @Override
     public boolean filterRowKey(byte[] buffer, int offset, int length) {
-        if (matchedRows < firstResult) {
-            return true;
-        }
-        // no need, at the moment, since startRow and stopRow is used on scanner
-        // return compareTo(sid, 0, sid.length, buffer, offset, sid.length) != 0;
         return false;
     }
 
@@ -196,7 +190,6 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
     public void write(DataOutput output) throws IOException {
         WritableUtils.writeVInt(output, sid.length);
         output.write(sid);
-        WritableUtils.writeVInt(output, firstResult);
         WritableUtils.writeVInt(output, maxResults);
         WritableUtils.writeVInt(output, restrictions.size());
         for (QualifierRestriction restriction : restrictions) {
@@ -211,7 +204,6 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
         int sidSize = WritableUtils.readVInt(input);
         sid = new byte[sidSize];
         input.readFully(sid);
-        firstResult = WritableUtils.readVInt(input);
         maxResults = WritableUtils.readVInt(input);
         int restrictionLength = WritableUtils.readVInt(input);
         for (int i = 0; i < restrictionLength; i++) {
@@ -223,9 +215,5 @@ public class MultiKeyValueComparisonFilter extends FilterBase {
 
     public void setMaxResults(int maxResults) {
         this.maxResults = maxResults;
-    }
-
-    public void setFirstResult(int firstResult) {
-        this.firstResult = firstResult;
     }
 }

@@ -18,6 +18,7 @@ import com.google.common.base.Strings;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.internal.jaxrs.JaxrsBeans;
 import org.deephacks.confit.internal.jaxrs.JaxrsBeans.JaxrsBean;
 import org.deephacks.confit.internal.jaxrs.JaxrsConfigEndpoint;
@@ -348,7 +349,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
     public BeanQuery newQuery(final String schemaName) {
 
         return new BeanQuery() {
-            private int first = 0;
+            private String first;
             private int max = 0;
             @Override
             public BeanQuery add(BeanRestriction restriction) {
@@ -356,7 +357,7 @@ public class AdminContextJaxrsProxy extends AdminContext {
             }
 
             @Override
-            public BeanQuery setFirstResult(int firstResult) {
+            public BeanQuery setFirstResult(String firstResult) {
                 first = firstResult;
                 return this;
             }
@@ -368,15 +369,24 @@ public class AdminContextJaxrsProxy extends AdminContext {
             }
 
             @Override
-            public List<Bean> retrieve() {
+            public BeanQueryResult retrieve() {
                 URI uri = getUri("query")
-                        .queryParam("q", "df=120&asdfd=1212")
                         .queryParam("first", first)
                         .queryParam("max", max)
                         .build(schemaName);
                 JaxrsQuery query = new JaxrsQuery();
                 Response response = get(uri);
-                return new ArrayList<>();
+                return new BeanQueryResult() {
+                    @Override
+                    public List<Bean> get() {
+                        return new ArrayList<>();
+                    }
+
+                    @Override
+                    public String nextFirstResult() {
+                        return null;
+                    }
+                };
             }
         };
     }

@@ -1,10 +1,6 @@
 package org.deephacks.confit.admin.query;
 
 
-import org.deephacks.confit.model.Bean;
-
-import java.util.List;
-
 /**
  * This is a convenient function for administrators that enable them to search for
  * configuration and limit/paginate through result sets. Beans are not required to
@@ -25,17 +21,18 @@ public interface BeanQuery {
     public abstract BeanQuery add(BeanQueryBuilder.BeanRestriction restriction);
 
     /**
-     * Set the position of the first result to retrieve.
+     * Set the position of the first result to retrieve. If this parameter is not
+     * set, the query starts from the absolute first instance.
      *
-     * @param firstResult start position of the first result, numbered from 0
+     * @param firstResult start position of the first result.
      * @return the same query instance
      */
-    public abstract BeanQuery setFirstResult(int firstResult);
+    public abstract BeanQuery setFirstResult(String firstResult);
 
     /**
      * Set the maximum number of results to retrieve.
      *
-     * @param maxResults -
+     * @param maxResults max number of instances to fetch (all by default)
      * @return the same query instance
      */
     public abstract BeanQuery setMaxResults(int maxResults);
@@ -45,6 +42,6 @@ public interface BeanQuery {
      *
      * @return result set.
      */
-    public List<Bean> retrieve();
+    public BeanQueryResult retrieve();
 
 }

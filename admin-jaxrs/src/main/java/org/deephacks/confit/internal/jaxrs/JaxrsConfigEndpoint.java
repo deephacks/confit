@@ -17,6 +17,7 @@ import com.google.common.base.Optional;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
+import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.internal.jaxrs.JaxrsBeans.JaxrsBean;
 import org.deephacks.confit.internal.jaxrs.JaxrsObjects.JaxrsObject;
 import org.deephacks.confit.internal.jaxrs.JaxrsSchemas.JaxrsSchema;
@@ -278,7 +279,7 @@ public class JaxrsConfigEndpoint {
     @Produces({ APPLICATION_JSON })
     @Path("query/{schemaName}")
     public JaxrsBeans query(@PathParam("schemaName") String schemaName, @QueryParam("q") String query,
-                            @QueryParam("first") int first, @QueryParam("max") int max) {
+                            @QueryParam("first") String first, @QueryParam("max") int max) {
         max = max == 0 ? Integer.MAX_VALUE : max;
         JaxrsQuery jaxrsQuery = new JaxrsQuery(query);
         BeanQuery beanQuery = admin.newQuery(schemaName)
@@ -287,8 +288,8 @@ public class JaxrsConfigEndpoint {
         for (BeanRestriction restriction : jaxrsQuery.getRestrictions()) {
             beanQuery.add(restriction);
         }
-        List<Bean> beans = beanQuery.retrieve();
-        JaxrsBeans jaxrsBeans = new JaxrsBeans(beans);
+        BeanQueryResult result = beanQuery.retrieve();
+        JaxrsBeans jaxrsBeans = new JaxrsBeans(result.get());
         return jaxrsBeans;
     }
 
