@@ -24,8 +24,8 @@ Conf-it provide a productive, typesafe and non-intrusive way to manage configura
 and tracking may proceed without restarting the application. Applications are decoupled from how and where to store,
 retrieve and validate configuration. 
 
-This allow _reuse_ and _unification_ of how configuration is managed across application boundaries (that form a system) 
-without causing integration conflicts. Configuration can be used seamlessly based on terms of a particular runtime
+This allow _reuse_ and _unification_ of how configuration is managed across application boundaries without causing
+integration conflicts. Configuration can be used seamlessly based on terms of a particular runtime
 environment without being constrained to Java SE, EE, OSGi, CDI, Spring or other programming models or frameworks.
 
 Developers are not forced to learn new technology, query languages or define complex schema models upfront.
