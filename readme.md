@@ -54,7 +54,7 @@ and can be reused in different runtime environments with good tooling support al
 Configuration is strongly-typed and express the intents and rules under which circumstances
 the application can promise correct behaviour. Violations are handled reliably and does not disturb application
 behaviour. Valid changes are applied and exposed to applications in a consistent way. Developers should feel 
-confident, safe and encouraged to make functionality configurable in order to make their application (more) flexible. 
+confident and unburdened to make their application (more) flexible through configuration.
 
 * Extendability and Portability  
 As applications are developed in different shapes and sizes; configuration should enable, not limit, a diversity 
