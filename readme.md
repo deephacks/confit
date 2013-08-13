@@ -886,7 +886,4 @@ heap based indexes based on [cqengine](https://code.google.com/p/cqengine/).
 
 ## Licensing
 
-This distribution, as a whole, is licensed under the terms of the Apache License, Version 2.0 (see license.txt).
-
-
-
+This distribution, as a whole, is licensed under the terms of the Apache License, Version 2.0 (see license.txt)
