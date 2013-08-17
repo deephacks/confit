@@ -87,39 +87,39 @@ List fields of these types.
 Class A is a singleton, which means that there can be only one instance of this class.
 
 ```java
-    @Config(name = "A")
-    public class A {
-      private String value;
-      private Integer integer;
-      private Double decimal;
-      private List<String> stringList;
-      private List<TimeUnit> enumList;
-      private List<URL> customList;
-      private DurationTime customType;
+@Config(name = "A")
+public class A {
+  private String value;
+  private Integer integer;
+  private Double decimal;
+  private List<String> stringList;
+  private List<TimeUnit> enumList;
+  private List<URL> customList;
+  private DurationTime customType;
+  private B singleReference;
 
-      private B singleReference;
-      private List<B> listReferences;
-      private Map<String, B> mapReferences;
-    }
+  private List<B> listReferences;
+  private Map<String, B> mapReferences;
+}
 ```
 
 Class B can have multiple instances, hence the @Id annotation which is used to identify instances.
 
 ```java
-    @Config(name = "B")
-    public class B {
-      @Id
-      private String id;
+@Config(name = "B")
+public class B {
+  @Id
+  private String id;
+  
+  public (String id) { this.id = id; } 
       
-      public (String id) { this.id = id; } 
-      
-      private Integer integer;
-      private Double decimal;
-      private List<String> stringList;
-      private List<TimeUnit> enumList;
-      private List<URL> customList;
-      private DurationTime customType;
-    }
+  private Integer integer;
+  private Double decimal;
+  private List<String> stringList;
+  private List<TimeUnit> enumList;
+  private List<URL> customList;
+  private DurationTime customType;
+}
 ```
 
 ### Read
@@ -128,11 +128,11 @@ Configurable classes are accessed using the ConfigContext, which is the applicat
 fetching configuration.
 
 ```java
-    ConfigContext config = ConfigContext.get();
-    // get a singleton instance
-    A a = config.get(A.class);
-    // list all instances
-    Collection<B> list = config.list(B.class);
+ConfigContext config = ConfigContext.get();
+// get a singleton instance
+A a = config.get(A.class);
+// list all instances
+Collection<B> list = config.list(B.class);
 ```
 
 ### Create
@@ -140,29 +140,29 @@ fetching configuration.
 AdminContext is used to create, update and delete configuration. 
 
 ```java
-    AdminContext admin = AdminContext.get();
-    A a = new A();
-    // set some values on 'a' ...
-    
-    // create 'a'
-    admin.createObject(a);
-    
-    // we can now read configured values
-    a = config.get(A.class);
+AdminContext admin = AdminContext.get();
+A a = new A();
+// set some values on 'a' ...
+
+// create 'a'
+admin.createObject(a);
+
+// we can now read configured values
+a = config.get(A.class);
 ```
 
 We can also create instances of class B. 
 
 ```java    
-    B one = new B("1");
-    B two = new B("2");
-    B three = new B("3");
+B one = new B("1");
+B two = new B("2");
+B three = new B("3");
+
+admin.createObjects(Arrays.asList(one, two, three));
     
-    admin.createObjects(Arrays.asList(one, two, three));
-    
-    Optional<B> optionalOne = config.get("1", B.class);
-    Optional<B> optionalTwo = config.get("2", B.class);
-    Optional<B> optionalThree = config.get("3", B.class);
+Optional<B> optionalOne = config.get("1", B.class);
+Optional<B> optionalTwo = config.get("2", B.class);
+Optional<B> optionalThree = config.get("3", B.class);
 ```    
 
 ### Update
@@ -174,15 +174,15 @@ There are two types of update operations, set and merge.
 
 
 ```java
-    // empty instance
-    A a = new A();
+// empty instance
+A a = new A();
 
-    // reset any previous field values instance 'a' may have
-    admin.setObject(a);
+// reset any previous field values instance 'a' may have
+admin.setObject(a);
 
-    a.setValue("someValue");
-    // will set field 'value' to 'someValue' and keep other fields untouched
-    admin.mergeObject(a);
+a.setValue("someValue");
+// will set field 'value' to 'someValue' and keep other fields untouched
+admin.mergeObject(a);
 
 ```
 
@@ -192,8 +192,8 @@ There are two types of update operations, set and merge.
 Deleting an instance does not cascade with regards to references that instances may have.
 
 ```java
-    A a = new A();
-    admin.deleteObject(a);
+A a = new A();
+admin.deleteObject(a);
 ```
 
 There is no explicit operation for deleting individual properties but this can be achieved by
@@ -208,27 +208,27 @@ merged with the instance if no configuration exist for those particular fields.
 
 
 ```java
-    @Config(name = "A")
-    public class A {
-      private Integer integer = 10;
-      private Double decimal = 10.0;
-      private List<String> stringList = Lists.newArrayList("a", "b", "c");
-    }
+@Config(name = "A")
+public class A {
+  private Integer integer = 10;
+  private Double decimal = 10.0;
+  private List<String> stringList = Lists.newArrayList("a", "b", "c");
+}
 ```
 
 
 ```java
-    A a = new A();
-    a.setInteger(30);
-    admin.createObject(a);
-    
-    a = admin.get(A.class);
-    // returns the provisioned value 30
-    a.getInteger();
-    // returns the default value 10.0
-    a.getDecimal();
-    // returns the list a,b,c
-    a.getStringList();
+A a = new A();
+a.setInteger(30);
+admin.createObject(a);
+
+a = admin.get(A.class);
+// returns the provisioned value 30
+a.getInteger();
+// returns the default value 10.0
+a.getDecimal();
+// returns the list a,b,c
+a.getStringList();
 ```
 
 Default values cannot be declared on fields that contain references, only simple values are allowed.
@@ -244,30 +244,30 @@ and then perform the operation using AdminContext.
 
 
 ```java
-    A a = new A();
-    B one = new B("1");
-    B two = new B("2");
-    B three = new B("3");
+A a = new A();
+B one = new B("1");
+B two = new B("2");
+B three = new B("3");
+
+a.setListReferences(one, two, three);
+// create instance and references in a single operation
+admin.createObjects(Arrays.asList(a, one, two, three));
     
-    a.setListReferences(one, two, three);
-    // create instance and references in a single operation
-    admin.createObjects(Arrays.asList(a, one, two, three));
-    
-    // merge 'a' list references to the single instance 'three'
-    a.setListReferences(three);
-    admin.mergeObject(a);
+// merge 'a' list references to the single instance 'three'
+a.setListReferences(three);
+admin.mergeObject(a);
 ```
 
 AdminContext will do referential checks to make sure that instances exist, or throw an exception otherwise.
 The same is true when trying to delete instances already referenced by others.
 
 ```java
-    a.setListReferences(four);
-    // fails if 'four' have not been created earlier
-    admin.createObject(a);
+a.setListReferences(four);
+// fails if 'four' have not been created earlier
+admin.createObject(a);
 
-    // fails if 'a' reference 'two'
-    admin.deleteObject(two);
+// fails if 'a' reference 'two'
+admin.deleteObject(two);
 ```
 
 ### Validation
@@ -276,12 +276,12 @@ Bean validation 1.1 is enabled by adding an implementation to classpath, like
 [hibernate-validator](http://www.hibernate.org/subprojects/validator.html) for example.
 
 ```xml
-    <dependency>
-      <groupId>org.hibernate</groupId>
-      <artifactId>hibernate-validator</artifactId>
-      <version>5.0.0.Final</version>
-      <scope>compile</scope>
-    </dependency>
+<dependency>
+  <groupId>org.hibernate</groupId>
+  <artifactId>hibernate-validator</artifactId>
+  <version>5.0.0.Final</version>
+  <scope>compile</scope>
+</dependency>
 ```
 
 Creating, updating or deleting instances are now validated according to constraint annotations declared 
@@ -291,24 +291,24 @@ may also be used.
 
 
 ```java
-    @Config(name = "C")
-    public class C {
-      @NotNull
-      private String value;
+@Config(name = "C")
+public class C {
+  @NotNull
+  private String value;
       
-      @Size(max = 3)
-      private List<String> stringList;
+  @Size(max = 3)
+  private List<String> stringList;
 
-      @Size(max = 3)
-      private List<B> listReferences;
-    }
+  @Size(max = 3)
+  private List<B> listReferences;
+}
 ```
 
 
 ```java
-    C c = new C();
-    // fails since field 'value' is 'null'
-    admin.createObject(c);
+C c = new C();
+// fails since field 'value' is 'null'
+admin.createObject(c);
 ```
 
 
@@ -326,29 +326,29 @@ documentation and at the same time giving users a type safe way of accessing it.
 Say you want to configure a ISO8601 DateTime, an IP address, a duration or whatever.
 
 ```java
-    public class DurationTime {
-      private int hours;
-      private int minutes;
-      private long seconds;
-      private String duration;
+public class DurationTime {
+  private int hours;
+  private int minutes;
+  private long seconds;
+  private String duration;
       
-      public DurationTime(String duration) {
-        // like PT15H for a 15 hour period
-        this.duration = duration;
-      }
+  public DurationTime(String duration) {
+    // like PT15H for a 15 hour period
+    this.duration = duration;
+  }
       
-      public DurationTime(int hours, int minutes, int seconds) {
-        this.hours = hours;
-        this.minutes = minutes;
-        this.seconds = seconds;
-      }
+  public DurationTime(int hours, int minutes, int seconds) {
+    this.hours = hours;
+    this.minutes = minutes;
+    this.seconds = seconds;
+  }
       
-      // other methods ...
+  // other methods ...
       
-      public String toString() {
-        return duration;
-      }
-    }
+  public String toString() {
+    return duration;
+  }
+}
 ```    
 
 This class is accepted directly when declared on configurable fields because it has a default String constructor 
@@ -360,27 +360,27 @@ example of how Boolean values are converted internally (which is similar to how 
 
 
 ```java
-    static final class StringToBooleanConverter implements Converter<String, Boolean> {
-        private static final Set<String> trueValues = new HashSet<String>();
-        private static final Set<String> falseValues = new HashSet<String>();
+static final class StringToBooleanConverter implements Converter<String, Boolean> {
+    private static final Set<String> trueValues = new HashSet<String>();
+    private static final Set<String> falseValues = new HashSet<String>();
 
-        static {
-            trueValues.addAll(Arrays.asList("true", "on", "yes", "y", "1"));
-            falseValues.addAll(Arrays.asList("false", "off", "no", "n", "0"));
-        }
+    static {
+        trueValues.addAll(Arrays.asList("true", "on", "yes", "y", "1"));
+        falseValues.addAll(Arrays.asList("false", "off", "no", "n", "0"));
+    }
 
-        @Override
-        public Boolean convert(String source, Class<? extends Boolean> specificType) {
-            final String value = source.trim();
-            if (trueValues.contains(value)) {
-                return Boolean.TRUE;
-            } else if (falseValues.contains(value)) {
-                return Boolean.FALSE;
-            } else {
-                throw new ConversionException("Invalid boolean value '" + source + "'");
-            }
+    @Override
+    public Boolean convert(String source, Class<? extends Boolean> specificType) {
+        final String value = source.trim();
+        if (trueValues.contains(value)) {
+            return Boolean.TRUE;
+        } else if (falseValues.contains(value)) {
+            return Boolean.FALSE;
+        } else {
+            throw new ConversionException("Invalid boolean value '" + source + "'");
         }
     }
+}
 
 ```
 
@@ -480,10 +480,10 @@ The simplest persistence module is the YAML provider where configuration is writ
 updated or updated.
 
 ```xml
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-provider-yaml</artifactId>
-      </dependency>
+  <dependency>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-provider-yaml</artifactId>
+  </dependency>
 ```
 
 #### JPA
@@ -495,20 +495,20 @@ have been tested.
 Here is an example that use hibernate.
 
 ```xml
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-provider-jpa20</artifactId>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate.javax.persistence</groupId>
-        <artifactId>hibernate-jpa-2.0-api</artifactId>
-        <version>1.0.0.Final</version>
-      </dependency>
-      <dependency>
-        <groupId>org.hibernate</groupId>
-        <artifactId>hibernate-entitymanager</artifactId>
-        <version>4.0.0.Final</version>        
-      </dependency>
+  <dependency>
+    <groupId>org.deephacks</groupId>
+    <artifactId>confit-provider-jpa20</artifactId>
+  </dependency>
+  <dependency>
+    <groupId>org.hibernate.javax.persistence</groupId>
+    <artifactId>hibernate-jpa-2.0-api</artifactId>
+    <version>1.0.0.Final</version>
+  </dependency>
+  <dependency>
+    <groupId>org.hibernate</groupId>
+    <artifactId>hibernate-entitymanager</artifactId>
+    <version>4.0.0.Final</version>        
+  </dependency>
 ```
 
 #### HBase
@@ -527,22 +527,22 @@ must be deployed on every region server and the easiest way to do this is to put
 or append it to HBASE_CLASSPATH.
 
 ```xml
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-provider-hbase</artifactId>
-      </dependency>
-      <!-- hadoop is also needed for hdfs storage -->
-      <dependency>
-        <groupId>org.apache.hbase</groupId>
-        <artifactId>hbase</artifactId>
-        <version>0.94.7</version>
-      </dependency>
-      <!-- custom hbase filter used for queries -->
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-provider-hbase-filter</artifactId>
-        <version>${version.confit}</version>
-      </dependency>
+<dependency>
+  <groupId>org.deephacks</groupId>
+  <artifactId>confit-provider-hbase</artifactId>
+</dependency>
+<!-- hadoop is also needed for hdfs storage -->
+<dependency>
+  <groupId>org.apache.hbase</groupId>
+  <artifactId>hbase</artifactId>
+  <version>0.94.7</version>
+</dependency>
+<!-- custom hbase filter used for queries -->
+<dependency>
+  <groupId>org.deephacks</groupId>
+  <artifactId>confit-provider-hbase-filter</artifactId>
+  <version>${version.confit}</version>
+</dependency>
 ```
 
 #### Mongodb
@@ -559,11 +559,11 @@ operations and in memory queries/indexes can be used to reduce number of instanc
 Caching and queries are enabled using the following dependency.
 
 ```xml
-      <dependency>
-        <groupId>org.deephacks</groupId>
-        <artifactId>confit-provider-cached</artifactId>
-        <version>${version.confit}</version>
-      </dependency>
+<dependency>
+  <groupId>org.deephacks</groupId>
+  <artifactId>confit-provider-cached</artifactId>
+  <version>${version.confit}</version>
+</dependency>
 ```
 
 * Queries and indexes
@@ -573,14 +573,14 @@ a @Index annotation. This build indexes on targeted fields and allow retrieval o
 particular criterias immediately in constant time.
 
 ```java
-    @Config(name = "Employee")
-    public Employee {
-      @Index
-      private Double salary;
+@Config(name = "Employee")
+public Employee {
+  @Index
+  private Double salary;
 
-      @Index
-      private String email;
-    }
+  @Index
+  private String email;
+}
 
 ```
 
@@ -588,12 +588,12 @@ particular criterias immediately in constant time.
 Example query using ConfigContext.
 
 ```java
-   ConfigResultSet<Employee> result = config.newQuery(Employee.class).add(
-               and(lessThan("salary", 10000.0),not(contains("email", "gmail")))).retrieve();
+ConfigResultSet<Employee> result = config.newQuery(Employee.class).add(
+       and(lessThan("salary", 10000.0),not(contains("email", "gmail")))).retrieve();
 
-   for (Employee e : result) {
-     // do something with each instance
-   }
+for (Employee e : result) {
+  // do something with each instance
+}
 
 ```
 
@@ -620,30 +620,31 @@ With the iteration approach all instances are stored in a collection (not using 
 simply iterated over to find the correct instance. 
 
 ```java
-   // list of 10000 instances not stored as configuration
-   ArrayList<B> instances = .. // creation omitted for brevity
+// list of 10000 instances not stored as configuration
+ArrayList<B> instances = .. // creation omitted for brevity
    
-   List<B> found = new ArrayList();
-   Stopwatch time = new Stopwatch().start();
-   for (B b : instances) {
-     if (b.getValue().equals("someValue")) {
-       found.add(b);
-     }
-   }
-   long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
+List<B> found = new ArrayList();
+Stopwatch time = new Stopwatch().start();
+for (B b : instances) {
+  if (b.getValue().equals("someValue")) {
+    found.add(b);
+  }
+}
+
+long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
 
 ```
 
 The same test using the configuration query approach.
 
 ```java
-    // asssuming AdminContext have been provisioned with the same 10000 instances
-    Stopwatch time = new Stopwatch().start();
-    ConfigResultSet<B> result = config.newQuery(B.class).add(equal("value", "someValue")).retrieve();
-    // force retrieval since the result set is lazy, which
-    // includes deserializing instances from the off-heap cache
-    List<B> found = Lists.newArrayList(result);
-    long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
+// asssuming AdminContext have been provisioned with the same 10000 instances
+Stopwatch time = new Stopwatch().start();
+ConfigResultSet<B> result = config.newQuery(B.class).add(equal("value", "someValue")).retrieve();
+// force retrieval since the result set is lazy, which
+// includes deserializing instances from the off-heap cache
+List<B> found = Lists.newArrayList(result);
+long elapsed = time.elapsed(TimeUnit.MICROSECONDS);
 ```
 
 The result from the benchmark show that iteration have a latency of ~2500 microseconds and the query 
@@ -669,18 +670,17 @@ responsible for implementing such features if needed (maybe using page caching o
 Example query using AdminContext.
 
 ```java
-    BeanQuery query = admin.newQuery("Employee")
-                             .add(lessThan("salary", 10000.0))
-                             .add(contains("email", "gmail"))
-                             .setMaxResults(50)
-    // first page
-    BeanQueryResult result = query.retrieve();
+BeanQuery query = admin.newQuery("Employee")
+                         .add(lessThan("salary", 10000.0))
+                         .add(contains("email", "gmail"))
+                         .setMaxResults(50)
+// first page
+BeanQueryResult result = query.retrieve();
     
-    // page forward by using same query and next first result of first page
-    BeanQueryResult next = query.setFirstResult(result.nextFirstResult())
-                             .setMaxResults(50)
-                             .retrieve();
-
+// page forward by using same query and next first result of first page
+BeanQueryResult next = query.setFirstResult(result.nextFirstResult())
+                         .setMaxResults(50)
+                         .retrieve();
 
 ```
 
@@ -700,34 +700,34 @@ Observers are created by implementing ConfigObserver and registering them with C
 
 
 ```java
-    config.registerObserver(new Observer());
+config.registerObserver(new Observer());
 ```
 
 Example of an observer.
 
 ```java
-    public class Observer implements ConfigObserver {
+public class Observer implements ConfigObserver {
 
-      public void notify(ConfigChanges changes) {
-        
-        // iterate changes affecting class A
-        for (ConfigChange<A> change : changes.getChanges(A.class)) {
-          // if not present: create notification
-          Optional<A> before = change.getBefore();
-          
-          // if not present: delete notification
-          Optional<A> after = change.getAfter();
-          
-          // if both were present: update notification 
-          // may compare before and after to take certain actions
-        }
-        
-        // iterate changes affecting class B
-        for (ConfigChange<B> change : changes.getChanges(B.class)) {
-          // ...
-        }
-      }
+  public void notify(ConfigChanges changes) {
+    
+    // iterate changes affecting class A
+    for (ConfigChange<A> change : changes.getChanges(A.class)) {
+      // if not present: create notification
+      Optional<A> before = change.getBefore();
+      
+      // if not present: delete notification
+      Optional<A> after = change.getAfter();
+      
+      // if both were present: update notification 
+      // may compare before and after to take certain actions
     }
+        
+    // iterate changes affecting class B
+    for (ConfigChange<B> change : changes.getChanges(B.class)) {
+      // ...
+    }
+  }
+}
 ```
 ### Remote administration using REST
 
@@ -738,11 +738,11 @@ without burdening users with HTTP or JAX-RS details.
 
 
 ```java
-    // the client proxy implement AdminContext seamlessly
-    AdminContext admin = AdminContextJaxrsProxy.get("localhost", 8080);
-    
-    admin.createObject(new A());
-    admin.createObjects(Arrays.asList(new B("1"), new B("2")));
+// the client proxy implement AdminContext seamlessly
+AdminContext admin = AdminContextJaxrsProxy.get("localhost", 8080);
+
+admin.createObject(new A());
+admin.createObjects(Arrays.asList(new B("1"), new B("2")));
 ```
 
 Configuration can also be administrated from a shell using curl and the REST interface.
@@ -806,20 +806,20 @@ Configuration is loaded when it is first accessed by the CDI bean, then cached f
 
 
 ```java
-    public class Service {
-       @Inject
-       private ConfigContext config;
+public class Service {
+   @Inject
+   private ConfigContext config;
+   
+   @Inject
+   private A configuration;
        
-       @Inject
-       private A configuration;
-       
-       public void execute(String identifier) {
-            configuration.getValue();
-            Optional<B> optional = config.get(identifier, B.class);
-           // etc ...
-       }
-    
-    }
+   public void execute(String identifier) {
+        configuration.getValue();
+        Optional<B> optional = config.get(identifier, B.class);
+       // etc ...
+   }
+
+}
 ```
 
 ### Writing custom service providers
