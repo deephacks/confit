@@ -125,14 +125,19 @@ public class HBeanTable {
         scan.setFilter(list);
 
         Set<HBeanRow> rows = new HashSet<>();
+        ResultScanner scanner = null;
         try {
-            ResultScanner scanner = table.getScanner(scan);
+            scanner = table.getScanner(scan);
             for (Result r : scanner) {
                 HBeanRow row = new HBeanRow(r.raw(), uids);
                 rows.add(row);
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
         }
         return rows;
     }
