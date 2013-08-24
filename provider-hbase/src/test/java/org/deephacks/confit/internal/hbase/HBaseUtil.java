@@ -26,13 +26,25 @@ import org.apache.hadoop.hbase.client.ResultScanner;
 import org.apache.hadoop.hbase.client.RetriesExhaustedException;
 import org.apache.hadoop.hbase.client.Scan;
 import org.apache.hadoop.hbase.master.HMaster;
+import org.apache.hadoop.hbase.master.HMasterCommandLine;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static org.deephacks.confit.test.JUnitUtils.getMavenProjectChildFile;
+
 public class HBaseUtil {
     private static final Configuration conf = HBaseConfiguration.create();
-
+    private static final String ZOOKEEPER_DATA_DIR_PROP = "hbase.zookeeper.property.dataDir";
+    private static final File ZOOKEEPER_DATA_DIR = getMavenProjectChildFile(HBaseUtil.class, "target/zk");
+    private static final String HBASE_ROOT_DIR_PROP = "hbase.rootdir";
+    private static final String HBASE_TMP_DIR_PROP = "hbase.tmp.dir";
+    private static final File HBASE_DATA_DIR = getMavenProjectChildFile(HBaseUtil.class, "target/hbase");
     /**
      * Use this to create HBaseBeanManager tables manually. A standalone
      * HBase master (or a distributed cluster) must be running locally.
@@ -55,7 +67,14 @@ public class HBaseUtil {
                 @Override
                 public void run() {
                     try {
-                        HMaster.main(new String[] { "start" });
+                        HMasterCommandLine master = new HMasterCommandLine(HMaster.class);
+                        File hbaseDir = recreateDir(HBASE_DATA_DIR);
+                        File zkDir = recreateDir(ZOOKEEPER_DATA_DIR);
+                        conf.set(HBASE_TMP_DIR_PROP, hbaseDir.getAbsolutePath());
+                        conf.set(HBASE_ROOT_DIR_PROP, hbaseDir.getAbsolutePath());
+                        conf.set(ZOOKEEPER_DATA_DIR_PROP, zkDir.getAbsolutePath());
+                        master.setConf(conf);
+                        master.run(new String[] { "start" });
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
@@ -138,5 +157,17 @@ public class HBaseUtil {
         }
         admin.createTable(desc);
         admin.close();
+    }
+
+    private static File recreateDir(File dir) {
+        dir.mkdirs();
+        Path path = Paths.get(dir.toURI());
+        try {
+            File file = Files.createTempDirectory(path, dir.getName()).toFile();
+            System.out.println("Created directory " + file.getAbsolutePath());
+            return file;
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
