@@ -19,6 +19,8 @@ import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.internal.core.config.DefaultBeanManager;
 import org.deephacks.confit.query.ConfigResultSet;
+import org.deephacks.confit.spi.CacheManager;
+import org.deephacks.confit.spi.Lookup;
 import org.deephacks.confit.test.ConfigTestData.Child;
 import org.deephacks.confit.test.ConfigTestData.Grandfather;
 import org.deephacks.confit.test.ConfigTestData.Parent;
@@ -56,6 +58,8 @@ public class ConfigQueryTest {
 
     static {
         runtime.register(Grandfather.class, Parent.class, Child.class);
+        // should not be needed but Travis CI fails mysteriously without registering it
+        Lookup.get().register(CacheManager.class, new CachedCacheManager());
     }
 
     @Before
