@@ -349,12 +349,13 @@ public class IntegrationConfigTests {
         createDefault();
         // try merge a invalid single reference
         Bean b = Bean.create(BeanId.create("p1", PARENT_SCHEMA_NAME));
-        b.addReference("prop6", BeanId.create("non_existing_child_ref", ""));
+        b.addReference("prop6", BeanId.create("non_existing_child_ref", CHILD_SCHEMA_NAME));
         try {
             admin.merge(b);
             fail("Should not be possible to merge invalid reference");
         } catch (AbortRuntimeException e) {
             if (e.getEvent().getCode() != CFG301 && e.getEvent().getCode() != CFG304) {
+                e.printStackTrace();
                 fail("Should not be possible to merge invalid reference");
             }
             assertThat(observer.getChanges().size(), is(0));
@@ -362,25 +363,27 @@ public class IntegrationConfigTests {
 
         // try merge a invalid reference on collection
         b = Bean.create(BeanId.create("p2", PARENT_SCHEMA_NAME));
-        b.addReference("prop7", BeanId.create("non_existing_child_ref", ""));
+        b.addReference("prop7", BeanId.create("non_existing_child_ref", CHILD_SCHEMA_NAME));
         try {
             admin.merge(b);
             fail("Should not be possible to merge invalid reference");
             assertThat(observer.getChanges().size(), is(0));
         } catch (AbortRuntimeException e) {
             if (e.getEvent().getCode() != CFG301 && e.getEvent().getCode() != CFG304) {
+                e.printStackTrace();
                 fail("Should not be possible to merge invalid reference");
             }
         }
 
         // try set a invalid single reference
         b = Bean.create(BeanId.create("parent4", PARENT_SCHEMA_NAME));
-        b.addReference("prop6", BeanId.create("non_existing_child_ref", ""));
+        b.addReference("prop6", BeanId.create("non_existing_child_ref", CHILD_SCHEMA_NAME));
         try {
             admin.set(b);
             fail("Should not be possible to merge beans that does not exist");
         } catch (AbortRuntimeException e) {
             if (e.getEvent().getCode() != CFG301 && e.getEvent().getCode() != CFG304) {
+                e.printStackTrace();
                 fail("Should not be possible to merge invalid reference");
             }
             assertThat(observer.getChanges().size(), is(0));
@@ -388,12 +391,13 @@ public class IntegrationConfigTests {
 
         // try merge a invalid single reference
         b = Bean.create(BeanId.create("p1", PARENT_SCHEMA_NAME));
-        b.addReference("prop6", BeanId.create("non_existing_child_ref", ""));
+        b.addReference("prop6", BeanId.create("non_existing_child_ref", CHILD_SCHEMA_NAME));
         try {
             admin.set(b);
             fail("Should not be possible to merge invalid reference");
         } catch (AbortRuntimeException e) {
             if (e.getEvent().getCode() != CFG301 && e.getEvent().getCode() != CFG304) {
+                e.printStackTrace();
                 fail("Should not be possible to merge invalid reference");
             }
             assertThat(observer.getChanges().size(), is(0));

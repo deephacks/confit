@@ -50,7 +50,8 @@ public final class Schema implements Serializable {
     private final String description;
     private Multimap<Class<? extends AbstractSchemaProperty>, AbstractSchemaProperty> properties = HashMultimap
             .create();
-    private Class<Object>[] referenceSchemaTypes;
+    private transient Set<String> referenceNames = new HashSet<>();
+    private transient Set<String> propertyNames = new HashSet<>();
 
     private Schema(final SchemaId id, final String type, final String name, final String description) {
         this.id = Preconditions.checkNotNull(id);
@@ -134,7 +135,21 @@ public final class Schema implements Serializable {
      * @param property property
      */
     public void add(AbstractSchemaProperty property) {
-        properties.put(property.getClass(), property);
+        Class type = property.getClass();
+        properties.put(type, property);
+        if (SchemaProperty.class.isAssignableFrom(type)) {
+            propertyNames.add(property.getName());
+        } else if (SchemaPropertyList.class.isAssignableFrom(type)) {
+            propertyNames.add(property.getName());
+        } else if (SchemaPropertyRef.class.isAssignableFrom(type)) {
+            referenceNames.add(property.getName());
+        } else if (SchemaPropertyRefList.class.isAssignableFrom(type)) {
+            referenceNames.add(property.getName());
+        } else if (SchemaPropertyRefMap.class.isAssignableFrom(type)) {
+            referenceNames.add(property.getName());
+        } else {
+            throw new IllegalArgumentException("Unknown property type " + type.getName());
+        }
     }
 
     /**
@@ -203,31 +218,14 @@ public final class Schema implements Serializable {
      * Returns all property names that exist for this schema.
      */
     public Set<String> getPropertyNames() {
-        Set<String> names = new HashSet<>();
-        for (AbstractSchemaProperty prop : get(SchemaProperty.class)) {
-            names.add(prop.getName());
-        }
-        for (AbstractSchemaProperty prop : get(SchemaPropertyList.class)) {
-            names.add(prop.getName());
-        }
-        return names;
+        return propertyNames;
     }
 
     /**
      * Returns all reference names that exist for this schema.
      */
     public Set<String> getReferenceNames() {
-        Set<String> names = new HashSet<>();
-        for (AbstractSchemaProperty prop : get(SchemaPropertyRef.class)) {
-            names.add(prop.getName());
-        }
-        for (AbstractSchemaProperty prop : get(SchemaPropertyRefList.class)) {
-            names.add(prop.getName());
-        }
-        for (AbstractSchemaProperty prop : get(SchemaPropertyRefMap.class)) {
-            names.add(prop.getName());
-        }
-        return names;
+        return referenceNames;
     }
 
     public Set<Class<?>> getReferenceSchemaTypes() {
@@ -266,11 +264,11 @@ public final class Schema implements Serializable {
     }
 
     public boolean isReference(String property) {
-        return getReferenceNames().contains(property);
+        return referenceNames.contains(property);
     }
 
     public boolean isProperty(String property) {
-        return getPropertyNames().contains(property);
+        return propertyNames.contains(property);
     }
 
     /**

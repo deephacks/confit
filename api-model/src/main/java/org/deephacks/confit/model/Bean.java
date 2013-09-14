@@ -15,6 +15,7 @@ package org.deephacks.confit.model;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ComparisonChain;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -47,12 +48,15 @@ import static org.deephacks.confit.model.Events.CFG310_CIRCULAR_REF;
  */
 public final class Bean implements Serializable {
     private static final long serialVersionUID = 887497852221101546L;
-    private final BeanId id;
+    private BeanId id;
     private boolean isDefault = false;
     private transient Schema schema;
     private HashMap<String, List<String>> properties = new HashMap<>();
     private HashMap<String, List<BeanId>> references = new HashMap<>();
-    private BeanId beanId;
+
+    private Bean() {
+
+    }
 
     private Bean(BeanId id, boolean isDefault) {
         Preconditions.checkNotNull(id);
@@ -300,7 +304,7 @@ public final class Bean implements Serializable {
      * @param propertyName name of the property as defined by the bean's schema.
      * @param refs the reference as defined by the bean's schema.
      */
-    public void addReference(final String propertyName, final List<BeanId> refs) {
+    public void addReference(final String propertyName, final Collection<BeanId> refs) {
         Preconditions.checkNotNull(refs);
         Preconditions.checkNotNull(propertyName);
         checkCircularReference(refs.toArray(new BeanId[refs.size()]));
@@ -495,12 +499,16 @@ public final class Bean implements Serializable {
     /**
      * Identifies bean instances of a particular schema. Instances are unique per id and schema.
      */
-    public final static class BeanId implements Serializable {
+    public final static class BeanId implements Serializable, Comparable<BeanId> {
         private static final long serialVersionUID = -9020756683867340095L;
-        private final String instanceId;
-        private final String schemaName;
-        private final boolean isSingleton;
+        private String instanceId;
+        private String schemaName;
+        private boolean isSingleton;
         private Bean bean;
+
+        private BeanId() {
+
+        }
 
         private BeanId(final String instanceId, final String schemaName) {
             this.instanceId = Preconditions.checkNotNull(instanceId);
@@ -617,6 +625,12 @@ public final class Bean implements Serializable {
             return true;
         }
 
+        @Override
+        public int compareTo(BeanId that) {
+            return ComparisonChain.start()
+                    .compare(this.schemaName, that.schemaName)
+                    .compare(this.instanceId, that.instanceId)
+                    .result();
+        }
     }
-
 }

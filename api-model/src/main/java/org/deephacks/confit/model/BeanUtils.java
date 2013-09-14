@@ -13,13 +13,12 @@
  */
 package org.deephacks.confit.model;
 
-import java.util.Collection;
-import java.util.Map;
-
-import org.deephacks.confit.model.Bean.BeanId;
-
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
+import org.deephacks.confit.model.Bean.BeanId;
+
+import java.util.Collection;
+import java.util.Map;
 
 public class BeanUtils {
     public static final Map<BeanId, Bean> uniqueIndex(Collection<Bean> beans) {
@@ -32,5 +31,4 @@ public class BeanUtils {
 
         });
     }
-
 }

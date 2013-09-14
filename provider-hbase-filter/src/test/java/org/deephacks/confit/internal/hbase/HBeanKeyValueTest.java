@@ -27,7 +27,7 @@ import java.util.Random;
 import static org.junit.Assert.*;
 import static org.junit.matchers.JUnitMatchers.hasItems;
 
-public class HBeanTest {
+public class HBeanKeyValueTest {
     private int randomFieldsNum = 100;
 
     @Test

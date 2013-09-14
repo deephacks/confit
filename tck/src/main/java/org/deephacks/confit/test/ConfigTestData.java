@@ -16,6 +16,7 @@ package org.deephacks.confit.test;
 import org.deephacks.confit.Config;
 import org.deephacks.confit.Id;
 import org.deephacks.confit.Index;
+import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.test.validation.FirstUpper;
 
@@ -379,6 +380,9 @@ public class ConfigTestData {
             prop20.put(p.id, p);
         }
 
+        public Bean toBean() {
+            return ConversionUtils.toBean(this);
+        }
     }
 
     public static final String PARENT_SCHEMA_NAME = "ParentSchemaName";
@@ -614,6 +618,9 @@ public class ConfigTestData {
             this.id = id;
         }
 
+        public Bean toBean() {
+            return ConversionUtils.toBean(this);
+        }
     }
 
     public static final String CHILD_SCHEMA_NAME = "ChildSchemaName";
@@ -798,6 +805,10 @@ public class ConfigTestData {
 
         public void setProp19(List<TimeUnit> prop19) {
             this.prop19 = prop19;
+        }
+
+        public Bean toBean() {
+            return ConversionUtils.toBean(this);
         }
     }
 
