@@ -21,7 +21,7 @@ public class MapdbUtil {
                 .checksumEnable()
                 .make();
         Lookup.get().register(DB.class, db);
-        storage = db.getTreeMap(MapdbBeanManager.TREEMAP_NAME);
+        storage = db.getTreeMap(MapdbBeanManager.TREEMAP_BEANS);
         storage.clear();
     }
 

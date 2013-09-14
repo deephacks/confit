@@ -160,11 +160,12 @@ public class MapdbBeanManager extends BeanManager {
 
     private Map<BeanId, Bean> getDirectSuccessors(Bean bean) {
         Map<BeanId, Bean> successors = new HashMap<>();
-        for (Bean b : values()) {
-            List<BeanId> refs = b.getReferences();
-            if (refs.contains(bean.getId())) {
-                successors.put(b.getId(), b);
+        for (BeanId id : bean.getReferences()) {
+            Bean successor = get(id);
+            if (successor == null) {
+                throw Events.CFG301_MISSING_RUNTIME_REF(id);
             }
+            successors.put(successor.getId(), successor);
         }
         return successors;
     }
