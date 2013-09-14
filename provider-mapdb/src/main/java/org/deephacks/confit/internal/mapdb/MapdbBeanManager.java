@@ -33,16 +33,16 @@ import java.util.concurrent.ConcurrentNavigableMap;
 import static org.deephacks.confit.model.Events.*;
 
 public class MapdbBeanManager extends BeanManager {
-    public static final String TREEMAP_NAME = "confit.beans";
+    public static final String TREEMAP_BEANS = "confit.beans";
     private static final SchemaManager schemaManager = SchemaManager.lookup();
-    private final ConcurrentNavigableMap<BeanId, byte[]> storage;
+    private final ConcurrentNavigableMap<BeanId, byte[]> beansStorage;
     private final BeanSerialization serialization;
 
     public MapdbBeanManager() {
         DB db = Lookup.get().lookup(DB.class);
         Preconditions.checkNotNull(db);
         serialization = new BeanSerialization(new MapdbUniqueId(4, true, db));
-        storage = db.getTreeMap(TREEMAP_NAME);
+        beansStorage = db.getTreeMap(TREEMAP_BEANS);
     }
 
     @Override
@@ -111,7 +111,7 @@ public class MapdbBeanManager extends BeanManager {
         Map<BeanId, Bean> beansToValidate = new HashMap<>();
         for (Bean bean : beans) {
             Map<BeanId, Bean> predecessors = new HashMap<>();
-            // beans read from xml storage will only have their basic properties initialized...
+            // beans read from beansStorage will only have their basic properties initialized...
             // ... but we also need set the direct references/predecessors for beans to validate
             Map<BeanId, Bean> beansToValidateSubset = getDirectSuccessors(bean);
             beansToValidateSubset.put(bean.getId(), bean);
@@ -171,15 +171,9 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public Optional<Bean> getSingleton(String schemaName) throws IllegalArgumentException {
-        for (Bean bean : values()) {
-            if (bean.getId().getSchemaName().equals(schemaName)) {
-                if (!bean.getId().isSingleton()) {
-                    throw new IllegalArgumentException("Schema [" + schemaName
-                            + "] is not a lookup.");
-                }
-                BeanId singletonId = bean.getId();
-                return getEagerly(singletonId);
-            }
+        Optional<Bean> bean = getEagerly(BeanId.createSingleton(schemaName));
+        if (bean.isPresent()) {
+            return bean;
         }
         return Optional.of(Bean.create(BeanId.createSingleton(schemaName)));
     }
@@ -230,11 +224,11 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public void create(Collection<Bean> set) {
-        // first check uniqueness towards storage
+        // first check uniqueness towards beansStorage
         for (Bean bean : set) {
             checkUniquness(bean);
         }
-        // references may not exist in storage, but are provided
+        // references may not exist in beansStorage, but are provided
         // as part of the transactions, so add them before validating references.
         for (Bean bean : set) {
             checkReferencesExist(bean, set);
@@ -272,7 +266,7 @@ public class MapdbBeanManager extends BeanManager {
     public void set(Collection<Bean> set) {
         // TODO: check that provided beans are unique among themselves.
 
-        // references may not exist in storage, but are provided
+        // references may not exist in beansStorage, but are provided
         // as part of the transactions, so add them before validating references.
         for (Bean bean : set) {
             Bean existing = get(bean.getId());
@@ -309,7 +303,7 @@ public class MapdbBeanManager extends BeanManager {
 
     private void replace(Bean target, Bean replace) {
         if (target == null) {
-            // bean did not exist in storage, create it.
+            // bean did not exist in beansStorage, create it.
             target = replace;
         }
         checkReferencesExist(replace, new ArrayList<Bean>());
@@ -349,13 +343,13 @@ public class MapdbBeanManager extends BeanManager {
             checkDeleteDefault(get(BeanId.create(instance, schemaName)));
             checkNoReferencesExist(BeanId.create(instance, schemaName));
             BeanId id = BeanId.create(instance, schemaName);
-            if (storage.get(id) == null) {
+            if (beansStorage.get(id) == null) {
                 throw Events.CFG304_BEAN_DOESNT_EXIST(id);
             }
         }
         for (String instance : instanceIds) {
             BeanId id = BeanId.create(instance, schemaName);
-            storage.remove(id);
+            beansStorage.remove(id);
         }
         return deleted;
     }
@@ -407,7 +401,7 @@ public class MapdbBeanManager extends BeanManager {
             if (beanId.getInstanceId() == null) {
                 continue;
             }
-            if (storage.get(beanId) == null && additionalMap.get(beanId) == null) {
+            if (beansStorage.get(beanId) == null && additionalMap.get(beanId) == null) {
                 missingReferences.add(beanId);
             }
         }
@@ -462,7 +456,7 @@ public class MapdbBeanManager extends BeanManager {
     }
 
     public void clear() {
-        storage.clear();
+        beansStorage.clear();
     }
 
     public class DefaultBeanQuery implements BeanQuery {
@@ -530,25 +524,28 @@ public class MapdbBeanManager extends BeanManager {
     }
 
     private void put(Bean bean) {
-        storage.put(bean.getId(), serialization.write(bean));
+        beansStorage.put(bean.getId(), serialization.write(bean));
     }
 
     private Bean get(BeanId beanId) {
+        byte[] data = beansStorage.get(beanId);
+        if (data == null) {
+            return null;
+        }
         Schema schema = schemaManager.getSchema(beanId.getSchemaName());
-        byte[] data = storage.get(beanId);
         return serialization.read(data, beanId, schema);
     }
 
     private Bean remove(BeanId beanId) {
         Bean bean = toBean(beanId);
-        storage.remove(beanId);
+        beansStorage.remove(beanId);
         return bean;
     }
 
 
     private Collection<Bean> values() {
         ArrayList<Bean> beans = new ArrayList<>();
-        for (BeanId id : storage.keySet()) {
+        for (BeanId id : beansStorage.keySet()) {
             Bean bean = toBean(id);
             beans.add(bean);
         }
@@ -557,7 +554,7 @@ public class MapdbBeanManager extends BeanManager {
 
     private Bean toBean(BeanId id) {
         Schema schema = schemaManager.getSchema(id.getSchemaName());
-        byte[] data = storage.get(id);
+        byte[] data = beansStorage.get(id);
         if (data == null) {
             return null;
         }
