@@ -24,6 +24,7 @@ import org.deephacks.confit.model.Schema.SchemaPropertyList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
+import org.deephacks.confit.spi.Conversion;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.spi.serialization.ValueSerialization.ValueReader;
 import org.deephacks.confit.spi.serialization.ValueSerialization.ValueWriter;
@@ -40,7 +41,6 @@ public class BeanSerialization {
     private static final Conversion conversion = Conversion.get();
     private static final SchemaManager schemaManager = SchemaManager.lookup();
     private final UniqueId propertyIds;
-
 
     public BeanSerialization(UniqueId propertyIds) {
         this.propertyIds = propertyIds;
