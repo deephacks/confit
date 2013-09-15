@@ -315,7 +315,6 @@ public class BeanQueryTest {
             ids.add(g.getId().getInstanceId());
         }
         assertThat(ids, hasItems(new String[]{"g1"}));
-
     }
 
     @Test
@@ -335,6 +334,7 @@ public class BeanQueryTest {
                     .setFirstResult(nextFirstResult)
                     .setMaxResults(1)
                     .retrieve();
+            System.out.println(result.get().get(0).getId());
             assertThat(result.get().size(), is(1));
             instanceId = result.get().get(0).getId().getInstanceId();
             assertTrue(!seen.contains(instanceId));

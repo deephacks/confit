@@ -16,10 +16,7 @@ package org.deephacks.confit.internal.mapdb;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import org.deephacks.confit.admin.query.BeanQuery;
-import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
-import org.deephacks.confit.admin.query.BeanQueryBuilder.LogicalRestriction;
-import org.deephacks.confit.admin.query.BeanQueryBuilder.PropertyRestriction;
-import org.deephacks.confit.admin.query.BeanQueryResult;
+import org.deephacks.confit.internal.mapdb.query.DefaultBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
@@ -36,6 +33,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -487,15 +485,8 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public BeanQuery newQuery(Schema schema) {
-        Map<BeanId, Bean> beans = list(schema.getName());
-        ArrayList<Bean> sorted = new ArrayList<>(beans.values());
-        Collections.sort(sorted, new Comparator<Bean>() {
-            @Override
-            public int compare(Bean b1, Bean b2) {
-                return b1.getId().getInstanceId().compareTo(b2.getId().getInstanceId());
-            }
-        });
-        return new DefaultBeanQuery(schema, sorted);
+        LinkedHashMap<BeanId, byte[]> sorted  = mapDB.listBinary(schema.getName());
+        return new DefaultBeanQuery(schema, sorted, mapDB.getUniqueIds());
     }
 
     private void checkNoReferencesExist(BeanId deleted) {
@@ -573,70 +564,5 @@ public class MapdbBeanManager extends BeanManager {
             }
         }
         return false;
-    }
-
-    public class DefaultBeanQuery implements BeanQuery {
-        private final ArrayList<Bean> beans;
-        private final Schema schema;
-        private int maxResults = Integer.MAX_VALUE;
-        private int firstResult;
-
-        public DefaultBeanQuery(Schema schema, ArrayList<Bean> beans) {
-            this.beans = beans;
-            this.schema = schema;
-        }
-
-        @Override
-        public BeanQuery add(BeanRestriction restriction) {
-            if (restriction instanceof PropertyRestriction) {
-                throw new UnsupportedOperationException("Not implemented yet");
-            } else if (restriction instanceof LogicalRestriction) {
-                throw new UnsupportedOperationException("Not implemented yet");
-            }
-            throw new UnsupportedOperationException("Could not identify restriction: " + restriction);
-        }
-
-        @Override
-        public BeanQuery setFirstResult(String firstResult) {
-            try {
-                this.firstResult = Integer.parseInt(firstResult);
-            } catch (Exception e) {
-                throw new IllegalArgumentException("Could not parse firstResult into an integer.");
-            }
-            return this;
-        }
-
-        @Override
-        public BeanQuery setMaxResults(int maxResults) {
-            this.maxResults = maxResults;
-            return this;
-        }
-
-        @Override
-        public BeanQueryResult retrieve() {
-            final ArrayList<Bean> result = new ArrayList<>();
-            int firstResult = 0;
-            for (int i = 0; i < beans.size(); i++) {
-                firstResult = i + 1;
-                if (i >= firstResult && result.size() < maxResults) {
-                    result.add(beans.get(i));
-                }
-                if (result.size() > maxResults) {
-                    break;
-                }
-            }
-            final String nextFirstResult = Integer.toString(firstResult);
-            return new BeanQueryResult() {
-                @Override
-                public List<Bean> get() {
-                    return result;
-                }
-
-                @Override
-                public String nextFirstResult() {
-                    return nextFirstResult;
-                }
-            };
-        }
     }
 }

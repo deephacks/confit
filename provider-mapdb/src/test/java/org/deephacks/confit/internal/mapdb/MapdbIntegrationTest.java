@@ -8,6 +8,7 @@ import org.deephacks.confit.test.integration.IntegrationConfigTests;
 import org.deephacks.confit.test.integration.IntegrationNotificationTests;
 import org.deephacks.confit.test.integration.IntegrationTestsBuilder;
 import org.deephacks.confit.test.integration.IntegrationValidationTests;
+import org.deephacks.confit.test.query.BeanQueryTest;
 import org.junit.runner.RunWith;
 
 import java.util.List;
@@ -24,7 +25,7 @@ public class MapdbIntegrationTest implements FeatureTests {
         MapdbBeanManager manager = new MapdbBeanManager();
         return IntegrationTestsBuilder.named(MapdbIntegrationTest.class.getSimpleName())
                 .using(manager)
-                // .addTest(BeanQueryTest.class)
+                .addTest(BeanQueryTest.class)
                 .addTest(IntegrationNotificationTests.class)
                 .addTest(IntegrationConfigTests.class)
                 .addTest(IntegrationValidationTests.class)

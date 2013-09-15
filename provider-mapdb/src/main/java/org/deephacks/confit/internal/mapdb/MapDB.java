@@ -26,6 +26,7 @@ import org.mapdb.TxRollbackException;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 public class MapDB {
@@ -158,6 +159,20 @@ public class MapDB {
         return beans;
     }
 
+    public LinkedHashMap<BeanId, byte[]> listBinary(String schemaName) {
+        LinkedHashMap<BeanId, byte[]> beans = new LinkedHashMap<>();
+        BinaryBeanId min = BinaryBeanId.getMinId(schemaName, uniqueIds);
+        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName, uniqueIds);
+
+        final ConcurrentNavigableMap<BinaryBeanId, byte[]> schemaInstances
+                = getBeanStorage().subMap(min, true, max, true);
+        for (BinaryBeanId id : schemaInstances.keySet()) {
+            beans.put(id.getBeanId(uniqueIds), schemaInstances.get(id));
+        }
+        return beans;
+    }
+
+
     private Bean toBean(BeanId id) {
         Schema schema = schemaManager.getSchema(id.getSchemaName());
         byte[] data = getBeanStorage().get(new BinaryBeanId(id, uniqueIds));
@@ -180,4 +195,9 @@ public class MapDB {
     public void clear() {
         getBeanStorage().clear();
     }
+
+    public UniqueIds getUniqueIds() {
+        return uniqueIds;
+    }
+
 }
