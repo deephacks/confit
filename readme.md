@@ -530,6 +530,7 @@ or append it to HBASE_CLASSPATH.
 <dependency>
   <groupId>org.deephacks</groupId>
   <artifactId>confit-provider-hbase</artifactId>
+  <version>${version.confit}</version>
 </dependency>
 <!-- hadoop is also needed for hdfs storage -->
 <dependency>
@@ -544,6 +545,23 @@ or append it to HBASE_CLASSPATH.
   <version>${version.confit}</version>
 </dependency>
 ```
+
+#### MapDB
+
+MapDB is very minimalistic MVCC storage engine that offers persitence in different data structures
+such as trees and queues. Confit store configuration in a ConcurrentNavigableMap for the purpose of
+fast lookup and queries. MapDB does not have replication/clustering or a network protocol but can 
+still be a good fit for smaller deployments.
+
+
+```xml
+<dependency>
+  <groupId>org.deephacks</groupId>
+  <artifactId>confit-provider-mapdb</artifactId>
+  <version>${version.confit}</version>
+</dependency>
+```
+
 
 #### Mongodb
 
