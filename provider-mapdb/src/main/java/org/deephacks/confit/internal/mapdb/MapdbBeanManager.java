@@ -14,9 +14,7 @@ import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.spi.Lookup;
-import org.deephacks.confit.spi.SchemaManager;
-import org.deephacks.confit.spi.serialization.BeanSerialization;
-import org.mapdb.DB;
+import org.mapdb.TxMaker;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,34 +26,32 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.ConcurrentNavigableMap;
 
 import static org.deephacks.confit.model.Events.*;
 
 public class MapdbBeanManager extends BeanManager {
-    public static final String TREEMAP_BEANS = "confit.beans";
-    private static final SchemaManager schemaManager = SchemaManager.lookup();
-    private final ConcurrentNavigableMap<BeanId, byte[]> beansStorage;
-    private final BeanSerialization serialization;
-
-    private static final ThreadLocal<Map<BeanId, Bean>> THREAD_CACHE = new ThreadLocal<>();
+    private final MapDB mapDB;
 
     public MapdbBeanManager() {
-        DB db = Lookup.get().lookup(DB.class);
-        Preconditions.checkNotNull(db);
-        serialization = new BeanSerialization(new MapdbUniqueId(4, true, db));
-        beansStorage = db.getTreeMap(TREEMAP_BEANS);
+        TxMaker txMaker = Lookup.get().lookup(TxMaker.class);
+        Preconditions.checkNotNull(txMaker);
+        mapDB = new MapDB(txMaker);
     }
 
     @Override
     public Optional<Bean> getEager(BeanId id) {
         try {
-            return getEagerly(id);
-        } finally {
-            clearCache();
+            Optional<Bean> bean = getEagerly(id);
+            mapDB.commit();
+            return bean;
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
-
 
     private Optional<Bean> getEagerly(BeanId id) {
         HashMap<BeanId, Bean> found = new HashMap<>();
@@ -72,7 +68,7 @@ public class MapdbBeanManager extends BeanManager {
             return;
         }
         seen.add(id);
-        Bean bean = found.get(id) == null ? get(id) : found.get(id);
+        Bean bean = found.get(id) == null ? mapDB.get(id) : found.get(id);
         if (bean == null) {
             return;
         }
@@ -82,7 +78,7 @@ public class MapdbBeanManager extends BeanManager {
             if (ref.getBean() != null) {
                 continue;
             }
-            Bean refBean = found.get(ref) == null ? get(ref) : found.get(ref);
+            Bean refBean = found.get(ref) == null ? mapDB.get(ref) : found.get(ref);
             if (refBean == null) {
                 throw CFG301_MISSING_RUNTIME_REF(bean.getId(), ref);
             }
@@ -96,20 +92,25 @@ public class MapdbBeanManager extends BeanManager {
     @Override
     public Optional<Bean> getLazy(BeanId id) throws AbortRuntimeException {
         try {
-            Bean bean = get(id);
+            Bean bean = mapDB.get(id);
             if (bean == null) {
                 return Optional.absent();
             }
             for (BeanId ref : bean.getReferences()) {
-                Bean refBean = get(ref);
+                Bean refBean = mapDB.get(ref);
                 if (refBean == null) {
                     throw CFG301_MISSING_RUNTIME_REF(ref);
                 }
                 ref.setBean(refBean);
             }
+            mapDB.commit();
             return Optional.of(bean);
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -119,48 +120,58 @@ public class MapdbBeanManager extends BeanManager {
      */
     @Override
     public Map<BeanId, Bean> getBeanToValidate(Collection<Bean> beans) throws AbortRuntimeException {
-        Map<BeanId, Bean> beansToValidate = new HashMap<>();
-        for (Bean bean : beans) {
-            Map<BeanId, Bean> predecessors = new HashMap<>();
-            // beans read from beansStorage will only have their basic properties initialized...
-            // ... but we also need set the direct references/predecessors for beans to validate
-            Map<BeanId, Bean> beansToValidateSubset = getDirectSuccessors(bean);
-            beansToValidateSubset.put(bean.getId(), bean);
-            for (Bean toValidate : beansToValidateSubset.values()) {
-                predecessors.putAll(getDirectPredecessors(toValidate));
-            }
+        try {
+            Map<BeanId, Bean> beansToValidate = new HashMap<>();
+            for (Bean bean : beans) {
+                Map<BeanId, Bean> predecessors = new HashMap<>();
+                // beans read from beansStorage will only have their basic properties initialized...
+                // ... but we also need set the direct references/predecessors for beans to validate
+                Map<BeanId, Bean> beansToValidateSubset = getDirectSuccessors(bean);
+                beansToValidateSubset.put(bean.getId(), bean);
+                for (Bean toValidate : beansToValidateSubset.values()) {
+                    predecessors.putAll(getDirectPredecessors(toValidate));
+                }
 
-            for (Bean predecessor : predecessors.values()) {
-                for (BeanId ref : predecessor.getReferences()) {
-                    Bean b = get(ref);
-                    if (b == null) {
-                        throw CFG301_MISSING_RUNTIME_REF(predecessor.getId());
+                for (Bean predecessor : predecessors.values()) {
+                    for (BeanId ref : predecessor.getReferences()) {
+                        Bean b = mapDB.get(ref);
+                        if (b == null) {
+                            throw CFG301_MISSING_RUNTIME_REF(predecessor.getId());
+                        }
+                        ref.setBean(b);
                     }
-                    ref.setBean(b);
                 }
-            }
-            for (Bean toValidate : beansToValidateSubset.values()) {
-                // list references of beansToValidate should now
-                // be available in predecessors.
-                for (BeanId ref : toValidate.getReferences()) {
-                    Bean predecessor = predecessors.get(ref);
-                    if (predecessor == null) {
-                        throw new IllegalStateException("Bug in algorithm. Reference [" + ref
-                                + "] of [" + toValidate.getId()
-                                + "] should be available in predecessors.");
+                for (Bean toValidate : beansToValidateSubset.values()) {
+                    // list references of beansToValidate should now
+                    // be available in predecessors.
+                    for (BeanId ref : toValidate.getReferences()) {
+                        Bean predecessor = predecessors.get(ref);
+                        if (predecessor == null) {
+                            throw new IllegalStateException("Bug in algorithm. Reference [" + ref
+                                    + "] of [" + toValidate.getId()
+                                    + "] should be available in predecessors.");
+                        }
+                        ref.setBean(predecessor);
                     }
-                    ref.setBean(predecessor);
                 }
+                beansToValidate.putAll(predecessors);
             }
-            beansToValidate.putAll(predecessors);
+            mapDB.commit();
+            return beansToValidate;
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
-        return beansToValidate;
     }
+
 
     private Map<BeanId, Bean> getDirectPredecessors(Bean bean) {
         Map<BeanId, Bean> predecessors = new HashMap<>();
         for (BeanId ref : bean.getReferences()) {
-            Bean predecessor = get(ref);
+            Bean predecessor = mapDB.get(ref);
             if (predecessor == null) {
                 throw CFG304_BEAN_DOESNT_EXIST(ref);
             }
@@ -172,7 +183,7 @@ public class MapdbBeanManager extends BeanManager {
     private Map<BeanId, Bean> getDirectSuccessors(Bean bean) {
         Map<BeanId, Bean> successors = new HashMap<>();
         for (BeanId id : bean.getReferences()) {
-            Bean successor = get(id);
+            Bean successor = mapDB.get(id);
             if (successor == null) {
                 throw Events.CFG301_MISSING_RUNTIME_REF(id);
             }
@@ -188,9 +199,14 @@ public class MapdbBeanManager extends BeanManager {
             if (bean.isPresent()) {
                 return bean;
             }
+            mapDB.commit();
             return Optional.of(Bean.create(BeanId.createSingleton(schemaName)));
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -198,15 +214,20 @@ public class MapdbBeanManager extends BeanManager {
     public Map<BeanId, Bean> list(String name) {
         try {
             Map<BeanId, Bean> result = new HashMap<>();
-            for (Bean b : values()) {
+            for (Bean b : mapDB.values()) {
                 if (b.getId().getSchemaName().equals(name)) {
                     Optional<Bean> bean = getEagerly(b.getId());
                     result.put(bean.get().getId(), bean.get());
                 }
             }
+            mapDB.commit();
             return result;
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -215,7 +236,7 @@ public class MapdbBeanManager extends BeanManager {
             throws AbortRuntimeException {
         try {
             Map<BeanId, Bean> result = new HashMap<>();
-            for (Bean bean : values()) {
+            for (Bean bean : mapDB.values()) {
                 String schema = bean.getId().getSchemaName();
                 if (!schema.equals(schemaName)) {
                     continue;
@@ -226,9 +247,14 @@ public class MapdbBeanManager extends BeanManager {
                     }
                 }
             }
+            mapDB.commit();
             return result;
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -237,9 +263,14 @@ public class MapdbBeanManager extends BeanManager {
         try {
             checkUniquness(bean);
             checkReferencesExist(bean, new ArrayList<Bean>());
-            put(bean);
-        } finally {
-            clearCache();
+            mapDB.put(bean);
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -256,10 +287,15 @@ public class MapdbBeanManager extends BeanManager {
                 checkReferencesExist(bean, set);
             }
             for (Bean bean : set) {
-                put(bean);
+                mapDB.put(bean);
             }
-        } finally {
-            clearCache();
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -274,9 +310,14 @@ public class MapdbBeanManager extends BeanManager {
                 // ignore and return silently.
                 return;
             }
-            put(bean);
-        } finally {
-            clearCache();
+            mapDB.put(bean);
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -284,14 +325,19 @@ public class MapdbBeanManager extends BeanManager {
     public void set(final Bean bean) {
         try {
 
-            Bean existing = get(bean.getId());
+            Bean existing = mapDB.get(bean.getId());
             if (existing == null) {
                 throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
             }
             checkReferencesExist(bean, new ArrayList<Bean>());
-            put(bean);
-        } finally {
-            clearCache();
+            mapDB.put(bean);
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -301,30 +347,40 @@ public class MapdbBeanManager extends BeanManager {
             // references may not exist in beansStorage, but are provided
             // as part of the transactions, so add them before validating references.
             for (Bean bean : set) {
-                Bean existing = get(bean.getId());
+                Bean existing = mapDB.get(bean.getId());
                 if (existing == null) {
                     throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
                 }
-                put(bean);
+                mapDB.put(bean);
             }
             for (Bean bean : set) {
                 checkReferencesExist(bean, set);
             }
-        } finally {
-            clearCache();
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
     @Override
     public void merge(Bean bean) {
         try {
-            Bean b = get(bean.getId());
+            Bean b = mapDB.get(bean.getId());
             if (b == null) {
                 throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
             }
             replace(b, bean);
-        } finally {
-            clearCache();
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -332,15 +388,20 @@ public class MapdbBeanManager extends BeanManager {
     public void merge(Collection<Bean> bean) {
         try {
             for (Bean replace : bean) {
-                Bean target = get(replace.getId());
+                Bean target = mapDB.get(replace.getId());
                 if (target == null) {
                     throw Events.CFG304_BEAN_DOESNT_EXIST(replace.getId());
                 }
                 replace(target, replace);
-                put(target);
+                mapDB.put(target);
             }
-        } finally {
-            clearCache();
+            mapDB.commit();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -375,11 +436,16 @@ public class MapdbBeanManager extends BeanManager {
     public Bean delete(BeanId id) {
         try {
             checkNoReferencesExist(id);
-            checkDeleteDefault(get(id));
-            Bean bean = remove(id);
+            checkDeleteDefault(mapDB.get(id));
+            Bean bean = mapDB.remove(id);
+            mapDB.commit();
             return bean;
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -388,20 +454,25 @@ public class MapdbBeanManager extends BeanManager {
         try {
             Collection<Bean> deleted = new ArrayList<>();
             for (String instance : instanceIds) {
-                checkDeleteDefault(get(BeanId.create(instance, schemaName)));
+                checkDeleteDefault(mapDB.get(BeanId.create(instance, schemaName)));
                 checkNoReferencesExist(BeanId.create(instance, schemaName));
                 BeanId id = BeanId.create(instance, schemaName);
-                if (beansStorage.get(id) == null) {
+                if (mapDB.get(id) == null) {
                     throw Events.CFG304_BEAN_DOESNT_EXIST(id);
                 }
             }
             for (String instance : instanceIds) {
                 BeanId id = BeanId.create(instance, schemaName);
-                beansStorage.remove(id);
+                mapDB.remove(id);
             }
+            mapDB.commit();
             return deleted;
-        } finally {
-            clearCache();
+        } catch (AbortRuntimeException e) {
+            mapDB.rollback(e);
+            throw e;
+        } catch (Throwable e) {
+            mapDB.rollback(e);
+            throw new RuntimeException(e);
         }
     }
 
@@ -420,7 +491,7 @@ public class MapdbBeanManager extends BeanManager {
 
     private void checkNoReferencesExist(BeanId deleted) {
         Collection<BeanId> hasReferences = new ArrayList<>();
-        for (Bean b : values()) {
+        for (Bean b : mapDB.values()) {
             if (hasReferences(b, deleted)) {
                 hasReferences.add(b.getId());
             }
@@ -430,10 +501,10 @@ public class MapdbBeanManager extends BeanManager {
         }
     }
 
-    private void checkReferencesExist(final Bean bean, Collection<Bean> additional) {
-        HashMap<BeanId, Bean> additionalMap = new HashMap<>();
-        for (Bean b : additional) {
-            additionalMap.put(b.getId(), b);
+    private void checkReferencesExist(final Bean bean, Collection<Bean> inflight) {
+        HashMap<BeanId, Bean> inflightBeans = new HashMap<>();
+        for (Bean b : inflight) {
+            inflightBeans.put(b.getId(), b);
         }
         ArrayList<BeanId> allRefs = new ArrayList<>();
         for (String name : bean.getReferenceNames()) {
@@ -452,7 +523,7 @@ public class MapdbBeanManager extends BeanManager {
             if (beanId.getInstanceId() == null) {
                 continue;
             }
-            if (beansStorage.get(beanId) == null && additionalMap.get(beanId) == null) {
+            if (mapDB.get(beanId) == null && inflightBeans.get(beanId) == null) {
                 missingReferences.add(beanId);
             }
         }
@@ -462,7 +533,7 @@ public class MapdbBeanManager extends BeanManager {
     }
 
     private void checkUniquness(Bean bean) {
-        Bean found = get(bean.getId());
+        Bean found = mapDB.get(bean.getId());
         if (found != null) {
             throw CFG303_BEAN_ALREADY_EXIST(bean.getId());
         }
@@ -493,10 +564,6 @@ public class MapdbBeanManager extends BeanManager {
             }
         }
         return false;
-    }
-
-    public void clear() {
-        beansStorage.clear();
     }
 
     public class DefaultBeanQuery implements BeanQuery {
@@ -563,63 +630,4 @@ public class MapdbBeanManager extends BeanManager {
             };
         }
     }
-
-    private void put(Bean bean) {
-        beansStorage.put(bean.getId(), serialization.write(bean));
-    }
-
-    private Bean get(BeanId beanId) {
-        Map<BeanId, Bean> cache = getCache();
-        Bean cached = cache.get(beanId);
-        if (cached != null) {
-            return cached;
-        }
-        byte[] data = beansStorage.get(beanId);
-        if (data == null) {
-            return null;
-        }
-        Schema schema = schemaManager.getSchema(beanId.getSchemaName());
-        Bean bean = serialization.read(data, beanId, schema);
-        cache.put(beanId, bean);
-        return bean;
-    }
-
-    private Bean remove(BeanId beanId) {
-        Bean bean = toBean(beanId);
-        beansStorage.remove(beanId);
-        return bean;
-    }
-
-
-    private Collection<Bean> values() {
-        ArrayList<Bean> beans = new ArrayList<>();
-        for (BeanId id : beansStorage.keySet()) {
-            Bean bean = toBean(id);
-            beans.add(bean);
-        }
-        return beans;
-    }
-
-    private Bean toBean(BeanId id) {
-        Schema schema = schemaManager.getSchema(id.getSchemaName());
-        byte[] data = beansStorage.get(id);
-        if (data == null) {
-            return null;
-        }
-        return serialization.read(data, id, schema);
-    }
-
-    private void clearCache() {
-        THREAD_CACHE.set(null);
-    }
-
-    private Map<BeanId, Bean> getCache() {
-        Map<BeanId, Bean> cache = THREAD_CACHE.get();
-        if (cache == null) {
-            cache = new HashMap<>();
-            THREAD_CACHE.set(cache);
-        }
-        return cache;
-    }
-
 }

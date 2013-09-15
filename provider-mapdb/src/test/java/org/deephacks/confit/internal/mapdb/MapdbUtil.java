@@ -1,31 +1,33 @@
 package org.deephacks.confit.internal.mapdb;
 
-import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.spi.Lookup;
-import org.mapdb.DB;
 import org.mapdb.DBMaker;
+import org.mapdb.TxMaker;
 
 import java.io.File;
-import java.util.concurrent.ConcurrentNavigableMap;
+import java.io.IOException;
 
 public class MapdbUtil {
-    public static final File MAPDB_TEMP_FILE = new File(System.getProperty("java.io.tmpdir"), "config.mapdb");
-    private static ConcurrentNavigableMap<BeanId, String> storage;
-    public static DB db;
-
+    public static File MAPDB_TEMP_FILE;
+    public static MapDB mapDB;
 
     public static void create() {
-        db = DBMaker.newFileDB(MAPDB_TEMP_FILE)
-                .asyncWriteDisable()
-                .cacheDisable()
-                .checksumEnable()
-                .make();
-        Lookup.get().register(DB.class, db);
-        storage = db.getTreeMap(MapdbBeanManager.TREEMAP_BEANS);
-        storage.clear();
+        try {
+            MAPDB_TEMP_FILE = File.createTempFile("confit.mapdb", "tmp");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+        TxMaker db = DBMaker.newFileDB(MAPDB_TEMP_FILE)
+                .makeTxMaker();
+        Lookup.get().register(TxMaker.class, db);
+        mapDB = new MapDB(db);
+        mapDB.clear();
+        mapDB.commit();
     }
 
     public static void delete() {
-        storage.clear();
+        mapDB.clear();
+        mapDB.commit();
     }
 }
