@@ -38,6 +38,8 @@ public class MapdbBeanManager extends BeanManager {
     private final ConcurrentNavigableMap<BeanId, byte[]> beansStorage;
     private final BeanSerialization serialization;
 
+    private static final ThreadLocal<Map<BeanId, Bean>> THREAD_CACHE = new ThreadLocal<>();
+
     public MapdbBeanManager() {
         DB db = Lookup.get().lookup(DB.class);
         Preconditions.checkNotNull(db);
@@ -47,8 +49,13 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public Optional<Bean> getEager(BeanId id) {
-        return getEagerly(id);
+        try {
+            return getEagerly(id);
+        } finally {
+            clearCache();
+        }
     }
+
 
     private Optional<Bean> getEagerly(BeanId id) {
         HashMap<BeanId, Bean> found = new HashMap<>();
@@ -88,18 +95,22 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public Optional<Bean> getLazy(BeanId id) throws AbortRuntimeException {
-        Bean bean = get(id);
-        if (bean == null) {
-            return Optional.absent();
-        }
-        for (BeanId ref : bean.getReferences()) {
-            Bean refBean = get(ref);
-            if (refBean == null) {
-                throw CFG301_MISSING_RUNTIME_REF(ref);
+        try {
+            Bean bean = get(id);
+            if (bean == null) {
+                return Optional.absent();
             }
-            ref.setBean(refBean);
+            for (BeanId ref : bean.getReferences()) {
+                Bean refBean = get(ref);
+                if (refBean == null) {
+                    throw CFG301_MISSING_RUNTIME_REF(ref);
+                }
+                ref.setBean(refBean);
+            }
+            return Optional.of(bean);
+        } finally {
+            clearCache();
         }
-        return Optional.of(bean);
     }
 
     /**
@@ -172,133 +183,164 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public Optional<Bean> getSingleton(String schemaName) throws IllegalArgumentException {
-        Optional<Bean> bean = getEagerly(BeanId.createSingleton(schemaName));
-        if (bean.isPresent()) {
-            return bean;
+        try {
+            Optional<Bean> bean = getEagerly(BeanId.createSingleton(schemaName));
+            if (bean.isPresent()) {
+                return bean;
+            }
+            return Optional.of(Bean.create(BeanId.createSingleton(schemaName)));
+        } finally {
+            clearCache();
         }
-        return Optional.of(Bean.create(BeanId.createSingleton(schemaName)));
     }
 
     @Override
     public Map<BeanId, Bean> list(String name) {
-        Map<BeanId, Bean> result = new HashMap<>();
-        for (Bean b : values()) {
-            if (b.getId().getSchemaName().equals(name)) {
-                Optional<Bean> bean = getEagerly(b.getId());
-                result.put(bean.get().getId(), bean.get());
+        try {
+            Map<BeanId, Bean> result = new HashMap<>();
+            for (Bean b : values()) {
+                if (b.getId().getSchemaName().equals(name)) {
+                    Optional<Bean> bean = getEagerly(b.getId());
+                    result.put(bean.get().getId(), bean.get());
+                }
             }
+            return result;
+        } finally {
+            clearCache();
         }
-        return result;
     }
 
     @Override
     public Map<BeanId, Bean> list(String schemaName, Collection<String> ids)
             throws AbortRuntimeException {
-        Map<BeanId, Bean> result = new HashMap<>();
-        for (Bean bean : values()) {
-            String schema = bean.getId().getSchemaName();
-            if (!schema.equals(schemaName)) {
-                continue;
-            }
-            for (String id : ids) {
-                if (bean.getId().getInstanceId().equals(id)) {
-                    result.put(bean.getId(), bean);
+        try {
+            Map<BeanId, Bean> result = new HashMap<>();
+            for (Bean bean : values()) {
+                String schema = bean.getId().getSchemaName();
+                if (!schema.equals(schemaName)) {
+                    continue;
+                }
+                for (String id : ids) {
+                    if (bean.getId().getInstanceId().equals(id)) {
+                        result.put(bean.getId(), bean);
+                    }
                 }
             }
+            return result;
+        } finally {
+            clearCache();
         }
-        return result;
     }
 
     @Override
     public void create(Bean bean) {
-        checkReferencesExist(bean, new ArrayList<Bean>());
-        if (!bean.isDefault()) {
+        try {
             checkUniquness(bean);
+            checkReferencesExist(bean, new ArrayList<Bean>());
             put(bean);
-        } else {
-            Bean stored = get(bean.getId());
-            if (stored == null) {
-                put(bean);
-            }
+        } finally {
+            clearCache();
         }
     }
 
     @Override
     public void create(Collection<Bean> set) {
-        // first check uniqueness towards beansStorage
-        for (Bean bean : set) {
-            checkUniquness(bean);
-        }
-        // references may not exist in beansStorage, but are provided
-        // as part of the transactions, so add them before validating references.
-        for (Bean bean : set) {
-            checkReferencesExist(bean, set);
-        }
-        for (Bean bean : set) {
-            put(bean);
+        try {
+            // first check uniqueness towards beansStorage
+            for (Bean bean : set) {
+                checkUniquness(bean);
+            }
+            // references may not exist in beansStorage, but are provided
+            // as part of the transactions, so add them before validating references.
+            for (Bean bean : set) {
+                checkReferencesExist(bean, set);
+            }
+            for (Bean bean : set) {
+                put(bean);
+            }
+        } finally {
+            clearCache();
         }
     }
 
     @Override
     public void createSingleton(BeanId singleton) {
-        Bean bean = Bean.create(singleton);
         try {
-            checkUniquness(bean);
-        } catch (AbortRuntimeException e) {
-            // ignore and return silently.
-            return;
+
+            Bean bean = Bean.create(singleton);
+            try {
+                checkUniquness(bean);
+            } catch (AbortRuntimeException e) {
+                // ignore and return silently.
+                return;
+            }
+            put(bean);
+        } finally {
+            clearCache();
         }
-        put(bean);
     }
 
     @Override
-    public void set(Bean bean) {
-        Bean existing = get(bean.getId());
-        if (existing == null) {
-            throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
+    public void set(final Bean bean) {
+        try {
 
-        }
-        checkReferencesExist(bean, new ArrayList<Bean>());
-        checkInstanceExist(bean);
-        put(bean);
-    }
-
-    @Override
-    public void set(Collection<Bean> set) {
-        // TODO: check that provided beans are unique among themselves.
-
-        // references may not exist in beansStorage, but are provided
-        // as part of the transactions, so add them before validating references.
-        for (Bean bean : set) {
             Bean existing = get(bean.getId());
             if (existing == null) {
                 throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
             }
+            checkReferencesExist(bean, new ArrayList<Bean>());
             put(bean);
+        } finally {
+            clearCache();
         }
-        for (Bean bean : set) {
-            checkReferencesExist(bean, set);
+    }
+
+    @Override
+    public void set(Collection<Bean> set) {
+        try {
+            // references may not exist in beansStorage, but are provided
+            // as part of the transactions, so add them before validating references.
+            for (Bean bean : set) {
+                Bean existing = get(bean.getId());
+                if (existing == null) {
+                    throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
+                }
+                put(bean);
+            }
+            for (Bean bean : set) {
+                checkReferencesExist(bean, set);
+            }
+        } finally {
+            clearCache();
         }
     }
 
     @Override
     public void merge(Bean bean) {
-        Bean b = get(bean.getId());
-        if (b == null) {
-            throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
+        try {
+            Bean b = get(bean.getId());
+            if (b == null) {
+                throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
+            }
+            replace(b, bean);
+        } finally {
+            clearCache();
         }
-        replace(b, bean);
     }
 
     @Override
     public void merge(Collection<Bean> bean) {
-        for (Bean replace : bean) {
-            Bean target = get(replace.getId());
-            if (target == null) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(replace.getId());
+        try {
+            for (Bean replace : bean) {
+                Bean target = get(replace.getId());
+                if (target == null) {
+                    throw Events.CFG304_BEAN_DOESNT_EXIST(replace.getId());
+                }
+                replace(target, replace);
+                put(target);
             }
-            replace(target, replace);
-            put(target);
+        } finally {
+            clearCache();
         }
     }
 
@@ -331,28 +373,36 @@ public class MapdbBeanManager extends BeanManager {
 
     @Override
     public Bean delete(BeanId id) {
-        checkNoReferencesExist(id);
-        checkDeleteDefault(get(id));
-        Bean bean = remove(id);
-        return bean;
+        try {
+            checkNoReferencesExist(id);
+            checkDeleteDefault(get(id));
+            Bean bean = remove(id);
+            return bean;
+        } finally {
+            clearCache();
+        }
     }
 
     @Override
     public Collection<Bean> delete(String schemaName, Collection<String> instanceIds) {
-        Collection<Bean> deleted = new ArrayList<>();
-        for (String instance : instanceIds) {
-            checkDeleteDefault(get(BeanId.create(instance, schemaName)));
-            checkNoReferencesExist(BeanId.create(instance, schemaName));
-            BeanId id = BeanId.create(instance, schemaName);
-            if (beansStorage.get(id) == null) {
-                throw Events.CFG304_BEAN_DOESNT_EXIST(id);
+        try {
+            Collection<Bean> deleted = new ArrayList<>();
+            for (String instance : instanceIds) {
+                checkDeleteDefault(get(BeanId.create(instance, schemaName)));
+                checkNoReferencesExist(BeanId.create(instance, schemaName));
+                BeanId id = BeanId.create(instance, schemaName);
+                if (beansStorage.get(id) == null) {
+                    throw Events.CFG304_BEAN_DOESNT_EXIST(id);
+                }
             }
+            for (String instance : instanceIds) {
+                BeanId id = BeanId.create(instance, schemaName);
+                beansStorage.remove(id);
+            }
+            return deleted;
+        } finally {
+            clearCache();
         }
-        for (String instance : instanceIds) {
-            BeanId id = BeanId.create(instance, schemaName);
-            beansStorage.remove(id);
-        }
-        return deleted;
     }
 
     @Override
@@ -409,17 +459,6 @@ public class MapdbBeanManager extends BeanManager {
         if (missingReferences.size() > 0) {
             throw CFG301_MISSING_RUNTIME_REF(bean.getId(), missingReferences);
         }
-    }
-
-    private void checkInstanceExist(Bean bean) {
-        Collection<Bean> beans = values();
-        for (Bean existingBean : beans) {
-            if (existingBean.getId().equals(bean.getId())) {
-                return;
-            }
-        }
-        throw CFG304_BEAN_DOESNT_EXIST(bean.getId());
-
     }
 
     private void checkUniquness(Bean bean) {
@@ -496,6 +535,7 @@ public class MapdbBeanManager extends BeanManager {
             this.maxResults = maxResults;
             return this;
         }
+
         @Override
         public BeanQueryResult retrieve() {
             final ArrayList<Bean> result = new ArrayList<>();
@@ -529,12 +569,19 @@ public class MapdbBeanManager extends BeanManager {
     }
 
     private Bean get(BeanId beanId) {
+        Map<BeanId, Bean> cache = getCache();
+        Bean cached = cache.get(beanId);
+        if (cached != null) {
+            return cached;
+        }
         byte[] data = beansStorage.get(beanId);
         if (data == null) {
             return null;
         }
         Schema schema = schemaManager.getSchema(beanId.getSchemaName());
-        return serialization.read(data, beanId, schema);
+        Bean bean = serialization.read(data, beanId, schema);
+        cache.put(beanId, bean);
+        return bean;
     }
 
     private Bean remove(BeanId beanId) {
@@ -561,4 +608,18 @@ public class MapdbBeanManager extends BeanManager {
         }
         return serialization.read(data, id, schema);
     }
+
+    private void clearCache() {
+        THREAD_CACHE.set(null);
+    }
+
+    private Map<BeanId, Bean> getCache() {
+        Map<BeanId, Bean> cache = THREAD_CACHE.get();
+        if (cache == null) {
+            cache = new HashMap<>();
+            THREAD_CACHE.set(cache);
+        }
+        return cache;
+    }
+
 }
