@@ -548,10 +548,13 @@ or append it to HBASE_CLASSPATH.
 
 #### MapDB
 
-MapDB is very minimalistic MVCC storage engine that offers persitence in different data structures
-such as trees and queues. Confit store configuration in a ConcurrentNavigableMap for the purpose of
-fast lookup and queries. MapDB does not have replication/clustering or a network protocol but can 
-still be a good fit for smaller deployments.
+MapDB is very minimalistic MVCC storage engine that offers persistence using different data structures
+such as trees and queues, where confit store configuration in a ConcurrentNavigableMap for the purpose
+of fast lookup and queries. 
+
+
+MapDB have support for ACID transcations, caching, checksums and compression, but lacks 
+replication/clustering and a network protocol but can still be a good fit for smaller deployments.
 
 
 ```xml
