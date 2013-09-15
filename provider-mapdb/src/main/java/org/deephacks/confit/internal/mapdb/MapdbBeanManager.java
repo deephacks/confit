@@ -214,7 +214,7 @@ public class MapdbBeanManager extends BeanManager {
     public Map<BeanId, Bean> list(String name) {
         try {
             Map<BeanId, Bean> result = new HashMap<>();
-            for (Bean b : mapDB.values()) {
+            for (Bean b : mapDB.list(name)) {
                 if (b.getId().getSchemaName().equals(name)) {
                     Optional<Bean> bean = getEagerly(b.getId());
                     result.put(bean.get().getId(), bean.get());
@@ -236,11 +236,7 @@ public class MapdbBeanManager extends BeanManager {
             throws AbortRuntimeException {
         try {
             Map<BeanId, Bean> result = new HashMap<>();
-            for (Bean bean : mapDB.values()) {
-                String schema = bean.getId().getSchemaName();
-                if (!schema.equals(schemaName)) {
-                    continue;
-                }
+            for (Bean bean : mapDB.list(schemaName)) {
                 for (String id : ids) {
                     if (bean.getId().getInstanceId().equals(id)) {
                         result.put(bean.getId(), bean);

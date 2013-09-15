@@ -5,6 +5,8 @@ import org.deephacks.confit.model.Bean.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.spi.serialization.BeanSerialization;
+import org.deephacks.confit.spi.serialization.BinaryBeanId;
+import org.deephacks.confit.spi.serialization.UniqueIds;
 import org.mapdb.DB;
 import org.mapdb.TxMaker;
 import org.mapdb.TxRollbackException;
@@ -22,13 +24,18 @@ public class MapDB {
     private final TxMaker txMaker;
     private static final ThreadLocal<DB> tx = new ThreadLocal<>();
     private final BeanSerialization serialization;
+    private final UniqueIds uniqueIds;
 
     public MapDB(TxMaker txMaker) {
         this.txMaker = txMaker;
-        serialization = new BeanSerialization(new MapdbUniqueId(4, true, this));
+        MapdbUniqueId instanceIds = new MapdbUniqueId(8, true, this);
+        MapdbUniqueId propertyIds = new MapdbUniqueId(4, true, this);
+        MapdbUniqueId schemaIds = new MapdbUniqueId(4, true, this);
+        uniqueIds = new UniqueIds(instanceIds, schemaIds, propertyIds);
+        serialization = new BeanSerialization(propertyIds);
     }
 
-    private ConcurrentNavigableMap<BeanId, byte[]> getBeanStorage() {
+    private ConcurrentNavigableMap<BinaryBeanId, byte[]> getBeanStorage() {
         DB db = getDb();
         return db.getTreeMap(BEANS);
     }
@@ -108,7 +115,7 @@ public class MapDB {
     }
 
     public Bean get(BeanId id) {
-        byte[] data = getBeanStorage().get(id);
+        byte[] data = getBeanStorage().get(new BinaryBeanId(id, uniqueIds));
         if (data == null) {
             return null;
         }
@@ -118,8 +125,21 @@ public class MapDB {
 
     public Collection<Bean> values() {
         ArrayList<Bean> beans = new ArrayList<>();
-        for (BeanId id : getBeanStorage().keySet()) {
-            Bean bean = toBean(id);
+        for (BinaryBeanId id : getBeanStorage().keySet()) {
+            Bean bean = toBean(id.getBeanId(uniqueIds));
+            beans.add(bean);
+        }
+        return beans;
+    }
+
+    public Collection<Bean> list(String schemaName) {
+        ArrayList<Bean> beans = new ArrayList<>();
+        BinaryBeanId min = BinaryBeanId.getMinId(schemaName, uniqueIds);
+        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName, uniqueIds);
+        final ConcurrentNavigableMap<BinaryBeanId, byte[]> schemaInstances
+                = getBeanStorage().subMap(min, true, max, true);
+        for (BinaryBeanId id : schemaInstances.keySet()) {
+            Bean bean = toBean(id.getBeanId(uniqueIds));
             beans.add(bean);
         }
         return beans;
@@ -127,7 +147,7 @@ public class MapDB {
 
     private Bean toBean(BeanId id) {
         Schema schema = schemaManager.getSchema(id.getSchemaName());
-        byte[] data = getBeanStorage().get(id);
+        byte[] data = getBeanStorage().get(new BinaryBeanId(id, uniqueIds));
         if (data == null) {
             return null;
         }
@@ -136,17 +156,15 @@ public class MapDB {
 
     public Bean remove(BeanId id) {
         Bean bean = get(id);
-        getBeanStorage().remove(id);
+        getBeanStorage().remove(new BinaryBeanId(id, uniqueIds));
         return bean;
     }
 
     public void put(Bean bean) {
-        getBeanStorage().put(bean.getId(), serialization.write(bean));
+        getBeanStorage().put(new BinaryBeanId(bean.getId(), uniqueIds), serialization.write(bean));
     }
 
     public void clear() {
-        getIdToName().clear();
-        getNameToId().clear();
         getBeanStorage().clear();
     }
 }
