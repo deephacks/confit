@@ -81,6 +81,7 @@
     <module>provider-yaml</module>
     <module>provider-cached</module>
     <module>provider-mapdb</module>
+    <module>provider-berkeleydb</module>
     <module>admin-jaxrs</module>
     <module>tck</module>
     <module>perf</module>

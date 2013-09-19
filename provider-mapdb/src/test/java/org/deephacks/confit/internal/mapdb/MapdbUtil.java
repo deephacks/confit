@@ -13,7 +13,7 @@ public class MapdbUtil {
 
     public static void create() {
         try {
-            MAPDB_TEMP_FILE = File.createTempFile("confit.mapdb", "tmp");
+            MAPDB_TEMP_FILE = File.createTempFile("confit.berkeley", "tmp");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
