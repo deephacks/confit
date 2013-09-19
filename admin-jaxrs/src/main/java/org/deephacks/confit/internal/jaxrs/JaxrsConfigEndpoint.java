@@ -14,6 +14,7 @@
 package org.deephacks.confit.internal.jaxrs;
 
 import com.google.common.base.Optional;
+
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder.BeanRestriction;
@@ -24,6 +25,7 @@ import org.deephacks.confit.internal.jaxrs.JaxrsSchemas.JaxrsSchema;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.ClassLoaderHolder;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 
@@ -38,6 +40,7 @@ import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response.Status;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -85,7 +88,7 @@ public class JaxrsConfigEndpoint {
     @Path("getSingleton/{className}")
     public JaxrsObject getSingleton(@PathParam("className") String className) throws AbortRuntimeException {
         try {
-            Optional<?> optional = admin.get(Class.forName(className));
+            Optional<?> optional = admin.get(Class.forName(className, true, ClassLoaderHolder.getClassLoader()));
             if (optional.isPresent()) {
                 return new JaxrsObject(optional.get());
             }
@@ -101,7 +104,7 @@ public class JaxrsConfigEndpoint {
     public JaxrsObject getObject(@PathParam("className") String className,
                             @PathParam("id") String id) throws AbortRuntimeException {
         try {
-            Optional<?> optional = admin.get(Class.forName(className), id);
+            Optional<?> optional = admin.get(Class.forName(className, true, ClassLoaderHolder.getClassLoader()), id);
             if (optional.isPresent()) {
                 return new JaxrsObject(optional.get());
             }
@@ -124,7 +127,7 @@ public class JaxrsConfigEndpoint {
     @Path("listObjects/{className}")
     public JaxrsObjects listObjects(@PathParam("className") String className) throws AbortRuntimeException {
         try {
-            Collection<?> objects = admin.list(Class.forName(className));
+            Collection<?> objects = admin.list(Class.forName(className, true, ClassLoaderHolder.getClassLoader()));
             return new JaxrsObjects(objects);
         } catch (ClassNotFoundException e) {
             throw Events.CFG101_SCHEMA_NOT_EXIST(className);

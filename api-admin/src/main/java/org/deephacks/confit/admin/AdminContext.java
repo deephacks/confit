@@ -14,11 +14,13 @@
 package org.deephacks.confit.admin;
 
 import com.google.common.base.Optional;
+
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.admin.query.BeanQueryBuilder;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
 import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.ClassLoaderHolder;
 import org.deephacks.confit.model.Schema;
 
 import java.util.Collection;
@@ -374,5 +376,14 @@ public abstract class AdminContext {
      * @return Used for composing a query in conjuction with {@link BeanQueryBuilder}.
      */
     public abstract BeanQuery newQuery(String schemaName);
+    
+    /**
+     * Sets the class loader in {@link ClassLoaderHolder}.
+     *
+     * @param classLoader the new class loader
+     */
+    public void setClassLoader(ClassLoader classLoader) {
+    	ClassLoaderHolder.setClassLoader(classLoader);
+    }
 
 }
