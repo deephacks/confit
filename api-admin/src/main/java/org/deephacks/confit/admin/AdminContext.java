@@ -382,7 +382,7 @@ public abstract class AdminContext {
      *
      * @param classLoader the new class loader
      */
-    public void setClassLoader(ClassLoader classLoader) {
+    public static void setClassLoader(ClassLoader classLoader) {
     	ClassLoaderHolder.setClassLoader(classLoader);
     }
 
