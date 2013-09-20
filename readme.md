@@ -1,7 +1,6 @@
 ![confit](https://raw.github.com/deephacks/confit/master/confit-logo-website.png)
 
 [![Build Status](https://travis-ci.org/deephacks/confit.png?branch=master)](https://travis-ci.org/deephacks/confit)
-
 [![Coverage Status](https://coveralls.io/repos/deephacks/confit/badge.png?branch=master)](https://coveralls.io/r/deephacks/confit?branch=master)
 
 The mission of the project is to provide a simple (yet feature rich) and typesafe way to configure Java applications.
