@@ -115,27 +115,6 @@ public class ConfigCoreContextTest extends ConfigDefaultSetup {
         }
 
     }
-    @Config(name = "transient", desc = "")
-    static class TransientConfig {
-        @Id(desc = "")
-        private String id;
-
-        @Config(desc = "")
-        private transient String test = "test";
-    }
-    /**
-     * Test that transient @Property cannot be registered.
-     */
-    @Test
-    @SuppressWarnings("unused")
-    public void test_transient_modifier() {
-        try {
-            config.register(TransientConfig.class);
-            fail("Transient properties should not be allowed");
-        } catch (AbortRuntimeException e) {
-            assertThat(e.getEvent().getCode(), is(CFG108));
-        }
-    }
 
     /**
      * Test that non-final static @Property cannot be registered.

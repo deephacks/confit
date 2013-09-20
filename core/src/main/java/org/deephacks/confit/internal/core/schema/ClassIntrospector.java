@@ -62,6 +62,9 @@ class ClassIntrospector {
             if (Modifier.isFinal(f.getModifiers()) && Modifier.isStatic(f.getModifiers())) {
                 continue;
             }
+            if (Modifier.isTransient(f.getModifiers())) {
+                continue;
+            }
             wrap.add(new FieldWrap(f));
         }
         return wrap;

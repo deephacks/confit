@@ -84,8 +84,6 @@
     <module>provider-berkeleydb</module>
     <module>admin-jaxrs</module>
     <module>tck</module>
-    <module>perf</module>
-    <module>docbkx</module>
   </modules>
 
 
@@ -177,6 +175,32 @@
             <descriptor>assembly.xml</descriptor>
           </descriptors>
           <tarLongFileMode>gnu</tarLongFileMode>
+        </configuration>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>0.6.3.201306030806</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>prepare-agent</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>report</id>
+            <goals>
+              <goal>report</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+        <version>2.0.0</version>
+        <configuration>
+          <repoToken>HG8pgccaUCplWm4KEjJNKREL54wztBgmR</repoToken>
         </configuration>
       </plugin>
     </plugins>
