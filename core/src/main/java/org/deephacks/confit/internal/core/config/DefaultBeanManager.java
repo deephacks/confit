@@ -8,7 +8,7 @@ import org.deephacks.confit.admin.query.BeanQueryBuilder.PropertyRestriction;
 import org.deephacks.confit.admin.query.BeanQueryResult;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
@@ -204,15 +204,8 @@ public class DefaultBeanManager extends BeanManager {
     @Override
     public void create(Bean bean) {
         checkReferencesExist(bean, new ArrayList<Bean>());
-        if (!bean.isDefault()) {
-            checkUniquness(bean);
-            storage.put(bean);
-        } else {
-            Bean stored = storage.get(bean.getId());
-            if (stored == null) {
-                storage.put(bean);
-            }
-        }
+        checkUniquness(bean);
+        storage.put(bean);
     }
 
     @Override
@@ -324,7 +317,6 @@ public class DefaultBeanManager extends BeanManager {
     @Override
     public Bean delete(BeanId id) {
         checkNoReferencesExist(id);
-        checkDeleteDefault(storage.get(id));
         Bean bean = storage.remove(id);
         return bean;
     }
@@ -333,7 +325,6 @@ public class DefaultBeanManager extends BeanManager {
     public Collection<Bean> delete(String schemaName, Collection<String> instanceIds) {
         Collection<Bean> deleted = new ArrayList<>();
         for (String instance : instanceIds) {
-            checkDeleteDefault(storage.get(BeanId.create(instance, schemaName)));
             checkNoReferencesExist(BeanId.create(instance, schemaName));
             BeanId id = BeanId.create(instance, schemaName);
             if (storage.get(id) == null) {
@@ -421,15 +412,6 @@ public class DefaultBeanManager extends BeanManager {
             if (bean.getId().equals(existing.getId())) {
                 throw CFG303_BEAN_ALREADY_EXIST(bean.getId());
             }
-        }
-    }
-
-    private static void checkDeleteDefault(Bean bean) {
-        if (bean == null) {
-            return;
-        }
-        if (bean.isDefault()) {
-            throw CFG311_DEFAULT_REMOVAL(bean.getId());
         }
     }
 

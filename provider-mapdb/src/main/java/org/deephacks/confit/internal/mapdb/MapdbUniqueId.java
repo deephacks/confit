@@ -13,23 +13,35 @@
  */
 package org.deephacks.confit.internal.mapdb;
 
-import org.deephacks.confit.spi.serialization.UniqueId;
+import org.deephacks.confit.serialization.UniqueIds;
+import org.deephacks.confit.spi.Lookup;
+import org.mapdb.TxMaker;
 
-public class MapdbUniqueId extends UniqueId {
+public class MapdbUniqueId extends UniqueIds {
     private MapDB mapDB;
 
-    public MapdbUniqueId(int width, boolean cache, MapDB mapDB) {
-        super(width, cache);
-        this.mapDB = mapDB;
+    public MapdbUniqueId() {
+        super(true);
+        this.mapDB = new MapDB(Lookup.get().lookup(TxMaker.class));
     }
 
     @Override
-    protected String getNameFromStorage(long id) {
+    protected String getSchemaNameFromStorage(int id) {
         return mapDB.getNameFromStorage(id);
     }
 
     @Override
-    protected Long getIdFromStorage(String name) {
+    protected int getSchemaIdFromStorage(String name) {
+        return mapDB.getIdFromStorage(name).intValue();
+    }
+
+    @Override
+    protected String getInstanceNameFromStorage(long id) {
+        return mapDB.getNameFromStorage(id);
+    }
+
+    @Override
+    protected long getInstanceIdFromStorage(String name) {
         return mapDB.getIdFromStorage(name);
     }
 }

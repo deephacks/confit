@@ -17,7 +17,7 @@ import org.deephacks.confit.Config;
 import org.deephacks.confit.Id;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.ConfigDefaultSetup;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.deephacks.confit.test.DateTime;

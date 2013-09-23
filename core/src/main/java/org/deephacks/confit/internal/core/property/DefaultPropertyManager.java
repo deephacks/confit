@@ -6,7 +6,7 @@ import org.deephacks.confit.internal.core.property.typesafe.Config;
 import org.deephacks.confit.internal.core.property.typesafe.ConfigException;
 import org.deephacks.confit.internal.core.property.typesafe.ConfigFactory;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.PropertyManager;

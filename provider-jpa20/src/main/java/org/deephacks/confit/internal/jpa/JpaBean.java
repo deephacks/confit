@@ -18,7 +18,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.ThreadLocalManager;
 
 import javax.persistence.EmbeddedId;

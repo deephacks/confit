@@ -1,7 +1,7 @@
 package org.deephacks.confit.internal.jaxrs;
 
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefList;

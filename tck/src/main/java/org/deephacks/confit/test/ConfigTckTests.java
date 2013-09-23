@@ -17,7 +17,7 @@ import com.google.common.base.Optional;
 import junit.framework.AssertionFailedError;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.ConfigTestData.Grandfather;
 import org.deephacks.confit.test.ConfigTestData.Person;
 import org.deephacks.confit.test.ConfigTestData.Singleton;

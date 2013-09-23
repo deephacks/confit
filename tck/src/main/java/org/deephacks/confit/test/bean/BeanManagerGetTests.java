@@ -2,7 +2,7 @@ package org.deephacks.confit.test.bean;
 
 import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.spi.BeanManager;
 import org.deephacks.confit.test.FeatureTestsRunner;
 import org.junit.runner.RunWith;

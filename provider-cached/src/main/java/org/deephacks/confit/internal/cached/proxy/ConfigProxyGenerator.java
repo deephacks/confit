@@ -29,7 +29,7 @@ import org.deephacks.confit.model.Schema.SchemaPropertyList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.serialization.Conversion;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;

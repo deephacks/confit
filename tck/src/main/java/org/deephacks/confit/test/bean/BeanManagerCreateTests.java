@@ -38,19 +38,4 @@ public class BeanManagerCreateTests {
             assertThat(r.get(), is(b));
         }
     }
-
-    @Test
-    public void test_create_default() {
-        List<Bean> beans = generateBeans(2, 2);
-        for (Bean bean : beans) {
-            bean.setDefault();
-        }
-        manager.create(beans);
-        for (Bean b : beans) {
-            Optional<Bean> r = manager.getEager(b.getId());
-            assertThat(r.get(), is(b));
-            assertThat(r.get().isDefault(), is(b.isDefault()));
-        }
-    }
-
 }

@@ -14,10 +14,6 @@
   <description>Runtime APIs of Confit</description>
   <dependencies>
     <dependency>
-      <groupId>org.deephacks</groupId>
-      <artifactId>confit-api-model</artifactId>
-    </dependency>
-    <dependency>
       <groupId>javax.enterprise</groupId>
       <artifactId>cdi-api</artifactId>
     </dependency>

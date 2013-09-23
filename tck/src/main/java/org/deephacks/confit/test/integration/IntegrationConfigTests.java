@@ -10,7 +10,7 @@ import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.deephacks.confit.test.FeatureTestsRunner;
 import org.junit.After;

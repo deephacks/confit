@@ -23,7 +23,7 @@ import org.deephacks.confit.internal.hbase.HBeanTable.HBeanNotFoundException;
 import org.deephacks.confit.internal.hbase.query.HBaseBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.BeanUtils;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;

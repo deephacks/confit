@@ -13,8 +13,9 @@
  */
 package org.deephacks.confit.internal.jpa;
 
-import static org.deephacks.confit.model.Events.CFG301_MISSING_RUNTIME_REF;
-import static org.deephacks.confit.model.Events.CFG302_CANNOT_DELETE_BEAN;
+import org.deephacks.confit.model.BeanId;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,9 +23,8 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.deephacks.confit.model.Bean.BeanId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static org.deephacks.confit.model.Events.CFG301_MISSING_RUNTIME_REF;
+import static org.deephacks.confit.model.Events.CFG302_CANNOT_DELETE_BEAN;
 
 /**
  * The purpose of this class is to decouple clients from specific JPA+database specific exceptions

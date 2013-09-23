@@ -19,7 +19,7 @@ import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.internal.jpa.query.JpaBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.ThreadLocalManager;
 import org.deephacks.confit.spi.BeanManager;

@@ -2,7 +2,7 @@ package org.deephacks.confit.internal.core.property;
 
 import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaId;
 import org.deephacks.confit.model.Schema.SchemaProperty;

@@ -14,7 +14,7 @@
 package org.deephacks.confit.test.validation;
 
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.io.PrintStream;
 import java.util.Arrays;

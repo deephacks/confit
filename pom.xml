@@ -102,9 +102,9 @@
               </goals>
             </execution>
             <execution>
-              <id>prepare-agent</id>
+              <id>report</id>
               <goals>
-                <goal>prepare-agent</goal>
+                <goal>report</goal>
               </goals>
             </execution>
           </executions>

@@ -16,7 +16,7 @@ package org.deephacks.confit.internal.cached.proxy;
 
 import org.deephacks.confit.internal.cached.CachedCacheManager;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.util.ArrayList;
 import java.util.Collection;

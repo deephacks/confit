@@ -16,7 +16,7 @@ package org.deephacks.confit.internal.cached;
 import com.google.caliper.Param;
 import com.google.caliper.Runner;
 import com.google.caliper.SimpleBenchmark;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.ConfigTestData.*;
 
 import java.util.ArrayList;

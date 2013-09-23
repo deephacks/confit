@@ -12,7 +12,7 @@ import org.deephacks.confit.internal.cached.proxy.ConfigReferenceHolder;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaProperty;
 import org.deephacks.confit.model.Schema.SchemaPropertyList;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.serialization.Conversion;
 import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
@@ -26,7 +26,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static org.deephacks.confit.internal.cached.UnsafeUtils.*;
+import static org.deephacks.confit.internal.cached.UnsafeUtils.getUnsafe;
 
 /**
  * Serializer that read and write object proxies to a binary off-heap cache.

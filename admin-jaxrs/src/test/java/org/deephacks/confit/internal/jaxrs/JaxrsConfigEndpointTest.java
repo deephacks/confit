@@ -7,7 +7,7 @@ import org.deephacks.confit.internal.core.config.DefaultBeanManager;
 import org.deephacks.confit.jaxrs.AdminContextJaxrsProxy;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.test.ConfigTestData.*;
@@ -21,7 +21,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import static org.deephacks.confit.model.Events.*;
+import static org.deephacks.confit.model.Events.CFG090;
+import static org.deephacks.confit.model.Events.CFG101;
 import static org.deephacks.confit.test.ConfigTestData.*;
 import static org.deephacks.confit.test.ConversionUtils.toBean;
 import static org.deephacks.confit.test.ConversionUtils.toBeans;

@@ -15,12 +15,13 @@ package org.deephacks.confit.spi;
 
 import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.query.ConfigQuery;
 
 import java.util.Collection;
 import java.util.List;
+
 
 /**
  * CacheManager is responsible for maintain cache entries of configurables.

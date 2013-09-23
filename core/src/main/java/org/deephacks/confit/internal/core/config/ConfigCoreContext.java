@@ -18,7 +18,7 @@ import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.query.ConfigQuery;
@@ -74,23 +74,6 @@ public final class ConfigCoreContext extends ConfigContext {
             Schema schema = schemaManager.remove(cls);
             if (cacheManager.isPresent()) {
                 cacheManager.get().removeSchema(schema);
-            }
-        }
-    }
-
-    @Override
-    public void registerDefault(Object... instances) {
-        doLookup();
-        for (Object instance : instances) {
-            Bean bean = schemaManager.convertObject(instance);
-            bean.setDefault();
-            try {
-                beanManager.create(bean);
-            } catch (AbortRuntimeException e) {
-                // ignore if bean already exist
-                if (e.getEvent().getCode() != CFG303) {
-                    throw e;
-                }
             }
         }
     }

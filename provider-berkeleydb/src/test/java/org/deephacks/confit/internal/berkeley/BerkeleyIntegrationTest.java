@@ -12,7 +12,7 @@ import org.deephacks.confit.test.query.BeanQueryTest;
 import java.util.List;
 
 /**
- * TCK tests from MapDB bean manager.
+ * TCK tests from Berkeley DB bean manager.
  */
 //@RunWith(FeatureTestsRunner.class)
 public class BerkeleyIntegrationTest implements FeatureTests {

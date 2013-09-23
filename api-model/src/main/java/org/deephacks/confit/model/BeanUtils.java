@@ -15,7 +15,6 @@ package org.deephacks.confit.model;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
-import org.deephacks.confit.model.Bean.BeanId;
 
 import java.util.Collection;
 import java.util.Map;
@@ -28,7 +27,6 @@ public class BeanUtils {
             public BeanId apply(Bean input) {
                 return input.getId();
             }
-
         });
     }
 }

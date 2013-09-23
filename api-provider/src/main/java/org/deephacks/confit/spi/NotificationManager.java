@@ -5,7 +5,7 @@ import org.deephacks.confit.ConfigChanges;
 import org.deephacks.confit.ConfigChanges.ConfigChange;
 import org.deephacks.confit.ConfigObserver;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 
 import java.util.Arrays;

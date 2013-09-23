@@ -2,15 +2,16 @@ package org.deephacks.confit.internal.core.schema;
 
 import org.deephacks.confit.Config;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.serialization.Conversion;
 import org.deephacks.confit.spi.SchemaManager;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.deephacks.confit.model.Events.CFG101_SCHEMA_NOT_EXIST;
@@ -23,12 +24,6 @@ public class DefaultSchemaManager extends SchemaManager {
     private static final HashMap<String, Schema> NAME_TO_SCHEMA = new HashMap<>();
     private static final HashMap<Class<?>, Schema> CLASS_TO_SCHEMA = new HashMap<>();
     private static final Conversion CONVERSION = Conversion.get();
-    static {
-        CONVERSION.register(new ClassToSchemaConverter());
-        CONVERSION.register(new FieldToSchemaPropertyConverter());
-        CONVERSION.register(new BeanToObjectConverter());
-        CONVERSION.register(new ObjectToBeanConverter());
-    }
     public DefaultSchemaManager() {
     }
 
@@ -39,19 +34,39 @@ public class DefaultSchemaManager extends SchemaManager {
 
     @Override
     public void setSchema(Collection<Bean> beans) {
+        setSchema(beans, new ArrayList<BeanId>());
+    }
+
+    private void setSchema(Collection<Bean> beans, List<BeanId> seen) {
+
         for (Bean bean : beans) {
+            if (contains(seen, bean.getId())) {
+                continue;
+            }
+            seen.add(bean.getId());
             Schema schema = NAME_TO_SCHEMA.get(bean.getId().getSchemaName());
             if (schema == null) {
                 throw CFG101_SCHEMA_NOT_EXIST(bean.getId().getSchemaName());
             }
             bean.set(schema);
             for (BeanId id : bean.getReferences()) {
+                schema = NAME_TO_SCHEMA.get(id.getSchemaName());
+                id.set(schema);
                 Bean refBean = id.getBean();
-                if (refBean != null && refBean.getSchema() == null) {
-                    setSchema(Arrays.asList(refBean));
+                if (refBean != null) {
+                    setSchema(Arrays.asList(refBean), seen);
                 }
             }
         }
+    }
+
+    private boolean contains(List<BeanId> seen, BeanId id) {
+        for (BeanId anId : seen) {
+            if (anId == id) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
@@ -80,8 +95,7 @@ public class DefaultSchemaManager extends SchemaManager {
             if (CLASS_TO_SCHEMA.get(cls) != null) {
                 continue;
             }
-            ClassIntrospector introspector = new ClassIntrospector(cls);
-            Config config = introspector.getAnnotation(Config.class);
+            Config config = cls.getAnnotation(Config.class);
             if (config == null) {
                 throw CFG102_NOT_CONFIGURABLE(cls);
             }
