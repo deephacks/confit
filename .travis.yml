@@ -3,3 +3,6 @@ jdk:
   - oraclejdk7
 
 script: "mvn install"
+
+after_success:
+  - mvn jacoco:report coveralls:jacoco

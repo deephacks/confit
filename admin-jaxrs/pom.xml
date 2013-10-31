@@ -11,6 +11,25 @@
   <artifactId>confit-admin-jaxrs</artifactId>
   <name>Confit JAX-RS Admin</name>
   <description>JAX-RS administrative API for Confit</description>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <!--
+        <configuration>
+          <excludes>
+            <exclude>**/typesafe/**</exclude>
+          </excludes>
+        </configuration>
+        -->
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
   <dependencies>
     <dependency>
       <groupId>org.deephacks</groupId>

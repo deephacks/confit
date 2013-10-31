@@ -13,7 +13,7 @@
  */
 package org.deephacks.confit.internal.cached;
 
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.SchemaManager;
 import org.deephacks.confit.test.ConfigTestData.*;

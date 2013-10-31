@@ -24,7 +24,7 @@ import org.deephacks.confit.internal.jaxrs.JaxrsObjects.JaxrsObject;
 import org.deephacks.confit.internal.jaxrs.JaxrsSchemas.JaxrsSchema;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.ClassLoaderHolder;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;

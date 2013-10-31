@@ -15,9 +15,18 @@ package org.deephacks.confit.model;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ComparisonChain;
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.Multimap;
+import org.deephacks.confit.model.Schema.SchemaProperty;
+import org.deephacks.confit.model.Schema.SchemaPropertyList;
+import org.deephacks.confit.model.Schema.SchemaPropertyRef;
+import org.deephacks.confit.model.Schema.SchemaPropertyRefList;
+import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
+import org.deephacks.confit.serialization.Conversion;
+import org.deephacks.confit.serialization.UniqueIds;
+import org.deephacks.confit.serialization.ValueSerialization.ValueReader;
+import org.deephacks.confit.serialization.ValueSerialization.ValueWriter;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -25,7 +34,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import static com.google.common.base.Objects.equal;
-import static org.deephacks.confit.model.Events.CFG107_MISSING_ID;
 import static org.deephacks.confit.model.Events.CFG310_CIRCULAR_REF;
 
 /**
@@ -41,33 +49,27 @@ import static org.deephacks.confit.model.Events.CFG310_CIRCULAR_REF;
  * </p>
  * <p>
  * Bean only know about two kinds of values, properties and references. All
- * values are treated as a list of plain strings and does not care if certain
+ * values are treated as a list of plain strings and do not care if certain
  * properties in reality are single valued.
  * </p>
  * @author Kristoffer Sjogren
  */
-public final class Bean implements Serializable {
-    private static final long serialVersionUID = 887497852221101546L;
-    private BeanId id;
-    private boolean isDefault = false;
-    private transient Schema schema;
-    private HashMap<String, List<String>> properties = new HashMap<>();
-    private HashMap<String, List<BeanId>> references = new HashMap<>();
+public final class Bean {
+    private static final Conversion conversion = Conversion.get();
+    /** lazy, only needed for binary serialization */
+    private static UniqueIds ids;
+    private final BeanId id;
+    private final HashMap<String, List<String>> properties = new HashMap<>();
+    private final HashMap<String, List<BeanId>> references = new HashMap<>();
 
-    private Bean() {
-
-    }
-
-    private Bean(BeanId id, boolean isDefault) {
+    private Bean(BeanId id) {
         Preconditions.checkNotNull(id);
         // make a defensive copy
         if (id.isSingleton()) {
             this.id = BeanId.createSingleton(id.getSchemaName());
         } else {
-            this.id = BeanId.create(id.instanceId, id.schemaName);
+            this.id = BeanId.create(id.getInstanceId(), id.getSchemaName());
         }
-
-        this.isDefault = isDefault;
     }
 
     /**
@@ -78,18 +80,9 @@ public final class Bean implements Serializable {
      */
     public static Bean create(final BeanId id) {
         Preconditions.checkNotNull(id);
-        return new Bean(id, false);
-    }
-
-    /**
-     * Create a default admin bean instance.
-     *
-     * @param id unique identification of the bean instance.
-     * @return AdminBean
-     */
-    public static Bean createDefault(final BeanId id) {
-        Preconditions.checkNotNull(id);
-        return new Bean(id, true);
+        Bean bean = new Bean(id);
+        bean.set(id.getSchema());
+        return bean;
     }
 
     /**
@@ -106,21 +99,7 @@ public final class Bean implements Serializable {
      * @return the schema that belong to the bean instance.
      */
     public Schema getSchema() {
-        return schema;
-    }
-
-    /**
-     * @return true if this is a default instance.
-     */
-    public boolean isDefault() {
-        return isDefault;
-    }
-
-    /**
-     * Make this bean a default bean.
-     */
-    public void setDefault() {
-        this.isDefault = true;
+        return id.getSchema();
     }
 
     /**
@@ -130,7 +109,7 @@ public final class Bean implements Serializable {
      * @param schema schema
      */
     public void set(final Schema schema) {
-        this.schema = schema;
+        this.id.set(schema);
     }
 
     /**
@@ -459,7 +438,7 @@ public final class Bean implements Serializable {
 
     @Override
     public final String toString() {
-        return Objects.toStringHelper(Bean.class).add("id", id).add("schema", schema)
+        return Objects.toStringHelper(Bean.class).add("id", id).add("schema", getSchema())
                 .add("properties", properties).add("references", references).toString();
     }
 
@@ -495,142 +474,114 @@ public final class Bean implements Serializable {
         return copy;
     }
 
-
-    /**
-     * Identifies bean instances of a particular schema. Instances are unique per id and schema.
-     */
-    public final static class BeanId implements Serializable, Comparable<BeanId> {
-        private static final long serialVersionUID = -9020756683867340095L;
-        private String instanceId;
-        private String schemaName;
-        private boolean isSingleton;
-        private Bean bean;
-
-        private BeanId() {
-
+    public byte[] write() {
+        if (ids == null) {
+            ids = UniqueIds.lookup();
         }
+        Schema schema = getSchema();
+        Preconditions.checkNotNull(schema);
+        ValueWriter writer = new ValueWriter();
 
-        private BeanId(final String instanceId, final String schemaName) {
-            this.instanceId = Preconditions.checkNotNull(instanceId);
-            this.schemaName = Preconditions.checkNotNull(schemaName);
-            this.isSingleton = false;
-        }
-
-        private BeanId(final String instanceId, final String schemaName, final boolean isSingleton) {
-            this.instanceId = Preconditions.checkNotNull(instanceId);
-            this.schemaName = Preconditions.checkNotNull(schemaName);
-            this.isSingleton = isSingleton;
-        }
-
-        /**
-         * Create a bean identification.
-         *
-         * @param instanceId of this bean.
-         * @param schemaName The bean schema name.
-         * @return AdminBeanId
-         */
-        public static BeanId create(final String instanceId, final String schemaName) {
-            if (instanceId == null || "".equals(instanceId)) {
-                throw CFG107_MISSING_ID();
+        for (SchemaProperty property : schema.get(SchemaProperty.class)) {
+            int propId = ids.getSchemaId(property.getFieldName());
+            Object value;
+            if(writer.isBasicType(property.getClassType())) {
+                value = conversion.convert(getSingleValue(property.getFieldName()), property.getClassType());
+            } else {
+                value = getSingleValue(property.getFieldName());
             }
-            return new BeanId(instanceId, schemaName);
+            writer.putValue(propId, value);
         }
-
-        /**
-         * This method should NOT be used by users.
-         *
-         * @param schemaName schema of bean.
-         * @return a singleton id.
-         */
-        public static BeanId createSingleton(final String schemaName) {
-            return new BeanId(schemaName, schemaName, true);
+        for (SchemaPropertyList property : schema.get(SchemaPropertyList.class)) {
+            int propId = ids.getSchemaId(property.getFieldName());
+            Collection<?> values;
+            if(writer.isBasicType(property.getClassType())) {
+                values = conversion.convert(getValues(property.getFieldName()), property.getClassType());
+                writer.putValues(propId, values, property.getClassType());
+            } else {
+                values = getValues(property.getFieldName());
+                writer.putValues(propId, values, String.class);
+            }
         }
-
-        /**
-         * @return the instance id of the bean.
-         */
-        public String getInstanceId() {
-            return instanceId;
+        for (SchemaPropertyRef property : schema.get(SchemaPropertyRef.class)) {
+            int propId = ids.getSchemaId(property.getFieldName());
+            BeanId beanId = getFirstReference(property.getFieldName());
+            if (beanId != null) {
+                writer.putValue(propId, beanId.getInstanceId());
+            }
         }
-
-        /**
-         * @return the schema name of the bean.
-         */
-        public String getSchemaName() {
-            return schemaName;
+        for (SchemaPropertyRefList property : schema.get(SchemaPropertyRefList.class)) {
+            int propId = ids.getSchemaId(property.getFieldName());
+            ArrayList<String> list = new ArrayList<>();
+            List<BeanId> beanIds = getReference(property.getFieldName());
+            if(beanIds != null) {
+                for (BeanId id : beanIds) {
+                    list.add(id.getInstanceId());
+                }
+                writer.putValues(propId, list, String.class);
+            }
         }
-
-        /**
-         * Check for singleton.
-         *
-         * @return true if singleton.
-         */
-        public boolean isSingleton() {
-            return isSingleton;
+        for (SchemaPropertyRefMap property : schema.get(SchemaPropertyRefMap.class)) {
+            int propId = ids.getSchemaId(property.getFieldName());
+            ArrayList<String> list = new ArrayList<>();
+            List<BeanId> beanIds = getReference(property.getFieldName());
+            if(beanIds != null) {
+                for (BeanId id : beanIds) {
+                    list.add(id.getInstanceId());
+                }
+                writer.putValues(propId, list, String.class);
+            }
         }
-
-        /**
-         * Return the bean that is identified by this BeanId. The actual
-         * bean will only be available if the BeanId was initalized by the
-         * from admin context.
-         *
-         * @return bean
-         */
-        public Bean getBean() {
-            return bean;
-        }
-
-        /**
-         * Do not use. Only used by the admin context.
-         *
-         * @param bean bean
-         */
-        public void setBean(Bean bean) {
-            this.bean = bean;
-        }
-
-        @Override
-        public String toString() {
-            return getSchemaName() + "@" + getInstanceId();
-        }
-
-        @Override
-        public int hashCode() {
-            final int prime = 31;
-            int result = 1;
-            result = prime * result + ((instanceId == null) ? 0 : instanceId.hashCode());
-            result = prime * result + ((schemaName == null) ? 0 : schemaName.hashCode());
-            return result;
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (obj == null)
-                return false;
-            if (getClass() != obj.getClass())
-                return false;
-            BeanId other = (BeanId) obj;
-            if (instanceId == null) {
-                if (other.instanceId != null)
-                    return false;
-            } else if (!instanceId.equals(other.instanceId))
-                return false;
-            if (schemaName == null) {
-                if (other.schemaName != null)
-                    return false;
-            } else if (!schemaName.equals(other.schemaName))
-                return false;
-            return true;
-        }
-
-        @Override
-        public int compareTo(BeanId that) {
-            return ComparisonChain.start()
-                    .compare(this.schemaName, that.schemaName)
-                    .compare(this.instanceId, that.instanceId)
-                    .result();
-        }
+        return writer.write();
     }
+
+    public static Bean read(BeanId beanId, byte[] data) {
+        if (ids == null) {
+            ids = UniqueIds.lookup();
+        }
+        Preconditions.checkNotNull(beanId);
+        Preconditions.checkNotNull(data);
+        Schema schema = beanId.getSchema();
+        Preconditions.checkNotNull(schema);
+
+        Bean bean = Bean.create(beanId);
+        ValueReader reader = new ValueReader(data);
+
+        Multimap<String, String> properties = ArrayListMultimap.create();
+        Multimap<String, BeanId> references = ArrayListMultimap.create();
+
+        int[] propertyIds = reader.getIds();
+        for (int id : propertyIds) {
+            String propertyName = ids.getSchemaName(id);
+            Object value = reader.getValue(id);
+            if (schema.isProperty(propertyName)) {
+                if (Collection.class.isAssignableFrom(value.getClass())) {
+                    properties.putAll(propertyName, conversion.convert((Collection)value, String.class));
+                } else {
+                    properties.put(propertyName, conversion.convert(value, String.class));
+                }
+            } else if (schema.isReference(propertyName)) {
+                String schemaName = schema.getReferenceSchemaName(propertyName);
+                if (Collection.class.isAssignableFrom(value.getClass())) {
+                    for (String instanceId : (Collection<String>) value) {
+                        references.put(propertyName, BeanId.create(instanceId, schemaName));
+                    }
+                } else {
+                    String instanceId = (String) value;
+                    references.put(propertyName, BeanId.create(instanceId, schemaName));
+                }
+            } else {
+                throw new IllegalArgumentException("Unrecognized property " + propertyName);
+            }
+        }
+        for (String propertyName : properties.keySet()) {
+            bean.addProperty(propertyName, properties.get(propertyName));
+        }
+        for (String propertyName : references.keySet()) {
+            bean.addReference(propertyName, references.get(propertyName));
+        }
+        bean.set(schema);
+        return bean;
+    }
+
 }

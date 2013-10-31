@@ -19,14 +19,14 @@ import org.deephacks.confit.internal.hbase.BytesUtils.ReferenceList;
 import org.deephacks.confit.internal.hbase.HBeanKeyValue.HBeanReader;
 import org.deephacks.confit.internal.hbase.HBeanKeyValue.HBeanWriter;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaProperty;
 import org.deephacks.confit.model.Schema.SchemaPropertyList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRef;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefList;
 import org.deephacks.confit.model.Schema.SchemaPropertyRefMap;
-import org.deephacks.confit.spi.Conversion;
+import org.deephacks.confit.serialization.Conversion;
 
 import java.util.ArrayList;
 import java.util.Collection;

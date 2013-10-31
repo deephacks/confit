@@ -19,11 +19,10 @@ import org.deephacks.confit.internal.mapdb.query.RestrictionBuilder.DefaultLessT
 import org.deephacks.confit.internal.mapdb.query.RestrictionBuilder.DefaultStringContains;
 import org.deephacks.confit.internal.mapdb.query.RestrictionBuilder.PropertyRestriction;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Schema;
-import org.deephacks.confit.spi.serialization.BeanSerialization;
-import org.deephacks.confit.spi.serialization.UniqueIds;
-import org.deephacks.confit.spi.serialization.ValueSerialization.ValueReader;
+import org.deephacks.confit.serialization.UniqueIds;
+import org.deephacks.confit.serialization.ValueSerialization.ValueReader;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -34,15 +33,14 @@ import static org.deephacks.confit.admin.query.BeanQueryBuilder.equal;
 public class DefaultBeanQuery implements BeanQuery {
         private final LinkedHashMap<BeanId, byte[]> beans;
         private final Schema schema;
-        private final UniqueIds uniqueIds;
+        private final UniqueIds uniqueIds = UniqueIds.lookup();
         private int maxResults = Integer.MAX_VALUE;
         private int firstResult;
         private ArrayList<PropertyRestriction> restrictions = new ArrayList<>();
 
-        public DefaultBeanQuery(Schema schema, LinkedHashMap<BeanId, byte[]> beans, UniqueIds uniqueIds) {
+        public DefaultBeanQuery(Schema schema, LinkedHashMap<BeanId, byte[]> beans) {
             this.beans = beans;
             this.schema = schema;
-            this.uniqueIds = uniqueIds;
         }
 
         @Override
@@ -133,10 +131,10 @@ public class DefaultBeanQuery implements BeanQuery {
             int iterations = 0;
             for (BeanId id : beans.keySet()) {
                 if (iterations >= firstResult && result.size() < maxResults) {
+                    id.set(schema);
                     byte[] current = beans.get(id);
                     if (matches(current)) {
-                        BeanSerialization serialization = new BeanSerialization(uniqueIds.getPropertyIds());
-                        Bean match = serialization.read(current, id, schema);
+                        Bean match = Bean.read(id, current);
                         result.add(match);
                     }
                 }
@@ -162,7 +160,7 @@ public class DefaultBeanQuery implements BeanQuery {
     private boolean matches(byte[] current) {
         for (PropertyRestriction restriction : restrictions) {
             String propertyName = restriction.getPropertyName();
-            int id = (int) uniqueIds.getPropertyIds().getId(propertyName);
+            int id = uniqueIds.getSchemaId(propertyName);
             ValueReader reader = new ValueReader(current);
             if (schema.isProperty(propertyName)) {
                 if (!restriction.evaluate(reader.getValue(id))) {

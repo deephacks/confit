@@ -3,7 +3,7 @@ package org.deephacks.confit.test.cdi;
 import org.deephacks.confit.ConfigContext;
 import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -12,8 +12,8 @@ import javax.inject.Inject;
 import javax.inject.Singleton;
 
 import static org.deephacks.confit.test.ConversionUtils.toBean;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.CoreMatchers.*;
+import static org.junit.Assert.*;
 
 @Singleton
 @RunWith(CdiFeatureTestsRunner.class)

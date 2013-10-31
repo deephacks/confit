@@ -19,7 +19,7 @@ import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.internal.mapdb.query.DefaultBeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
@@ -29,8 +29,6 @@ import org.mapdb.TxMaker;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -443,7 +441,6 @@ public class MapdbBeanManager extends BeanManager {
     public Bean delete(BeanId id) {
         try {
             checkNoReferencesExist(id);
-            checkDeleteDefault(mapDB.get(id));
             Bean bean = mapDB.remove(id);
             mapDB.commit();
             return bean;
@@ -461,7 +458,6 @@ public class MapdbBeanManager extends BeanManager {
         try {
             Collection<Bean> deleted = new ArrayList<>();
             for (String instance : instanceIds) {
-                checkDeleteDefault(mapDB.get(BeanId.create(instance, schemaName)));
                 checkNoReferencesExist(BeanId.create(instance, schemaName));
                 BeanId id = BeanId.create(instance, schemaName);
                 if (mapDB.get(id) == null) {
@@ -486,7 +482,7 @@ public class MapdbBeanManager extends BeanManager {
     @Override
     public BeanQuery newQuery(Schema schema) {
         LinkedHashMap<BeanId, byte[]> sorted  = mapDB.listBinary(schema.getName());
-        return new DefaultBeanQuery(schema, sorted, mapDB.getUniqueIds());
+        return new DefaultBeanQuery(schema, sorted);
     }
 
     private void checkNoReferencesExist(BeanId deleted) {
@@ -536,15 +532,6 @@ public class MapdbBeanManager extends BeanManager {
         Bean found = mapDB.get(bean.getId());
         if (found != null) {
             throw CFG303_BEAN_ALREADY_EXIST(bean.getId());
-        }
-    }
-
-    private static void checkDeleteDefault(Bean bean) {
-        if (bean == null) {
-            return;
-        }
-        if (bean.isDefault()) {
-            throw CFG311_DEFAULT_REMOVAL(bean.getId());
         }
     }
 

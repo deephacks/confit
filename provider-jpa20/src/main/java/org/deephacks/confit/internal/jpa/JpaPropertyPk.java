@@ -13,17 +13,15 @@
  */
 package org.deephacks.confit.internal.jpa;
 
-import static com.google.common.base.Objects.equal;
-import static com.google.common.base.Objects.toStringHelper;
-
-import java.io.Serializable;
+import com.google.common.base.Objects;
+import org.deephacks.confit.model.BeanId;
 
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
+import java.io.Serializable;
 
-import org.deephacks.confit.model.Bean.BeanId;
-
-import com.google.common.base.Objects;
+import static com.google.common.base.Objects.equal;
+import static com.google.common.base.Objects.toStringHelper;
 
 @Embeddable
 public class JpaPropertyPk implements Serializable {

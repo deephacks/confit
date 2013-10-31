@@ -16,7 +16,7 @@ package org.deephacks.confit.internal.jpa;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.util.ArrayList;
 import java.util.HashMap;

@@ -17,7 +17,7 @@ import org.deephacks.confit.Config;
 import org.deephacks.confit.Id;
 import org.deephacks.confit.Index;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.validation.FirstUpper;
 
 import javax.validation.constraints.Max;

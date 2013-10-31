@@ -13,8 +13,6 @@
  */
 package org.deephacks.confit.model;
 
-import org.deephacks.confit.model.Bean.BeanId;
-
 import java.io.File;
 import java.lang.reflect.Field;
 import java.text.MessageFormat;

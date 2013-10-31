@@ -1,6 +1,7 @@
 ![confit](https://raw.github.com/deephacks/confit/master/confit-logo-website.png)
 
 [![Build Status](https://travis-ci.org/deephacks/confit.png?branch=master)](https://travis-ci.org/deephacks/confit)
+[![Coverage Status](https://coveralls.io/repos/deephacks/confit/badge.png?branch=master)](https://coveralls.io/r/deephacks/confit?branch=master)
 
 The mission of the project is to provide a simple (yet feature rich) and typesafe way to configure Java applications.
 
@@ -81,7 +82,7 @@ and is available in Maven Central.
 ### Define
 
 Configurable classes are annotated with the @Config annotation and all fields will treated as configurable
-as long they are not final or static. All basic Java object data types and all enums are supported, including 
+as long they are not final, transient or static. All basic Java object data types and all enums are supported, including 
 List fields of these types.
 
 Class A is a singleton, which means that there can be only one instance of this class.

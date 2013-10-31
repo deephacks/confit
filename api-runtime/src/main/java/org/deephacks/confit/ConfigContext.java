@@ -81,17 +81,6 @@ public abstract class ConfigContext {
     public abstract void register(final Class<?>... configurable);
 
     /**
-     * Register default configurable instances.
-     *
-     * Each default instance must have a unique id.
-     *
-     * Schema must registered before any default instances can be registered.
-     *
-     * @param instances {@link Config} instances.
-     */
-    public abstract void registerDefault(final Object... instances);
-
-    /**
      * Remove a configurable class. This will make the schema unavailable for provisioning
      * in an administrative context.
      * <p>

@@ -11,6 +11,7 @@
   <artifactId>confit-provider-hbase</artifactId>
   <name>Confit Provider HBase</name>
   <description>HBase Configuration Provider</description>
+
   <build>
     <plugins>
       <!--
@@ -28,6 +29,14 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+      </plugin>
+      <plugin>
+        <groupId>org.eluder.coveralls</groupId>
+        <artifactId>coveralls-maven-plugin</artifactId>
       </plugin>
     </plugins>
   </build>

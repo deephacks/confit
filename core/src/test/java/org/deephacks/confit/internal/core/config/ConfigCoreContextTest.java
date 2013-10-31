@@ -17,7 +17,7 @@ import org.deephacks.confit.Config;
 import org.deephacks.confit.Id;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.test.ConfigDefaultSetup;
 import org.deephacks.confit.test.ConfigTestData.*;
 import org.deephacks.confit.test.DateTime;
@@ -114,27 +114,6 @@ public class ConfigCoreContextTest extends ConfigDefaultSetup {
             assertThat(e.getEvent().getCode(), is(CFG306));
         }
 
-    }
-    @Config(name = "transient", desc = "")
-    static class TransientConfig {
-        @Id(desc = "")
-        private String id;
-
-        @Config(desc = "")
-        private transient String test = "test";
-    }
-    /**
-     * Test that transient @Property cannot be registered.
-     */
-    @Test
-    @SuppressWarnings("unused")
-    public void test_transient_modifier() {
-        try {
-            config.register(TransientConfig.class);
-            fail("Transient properties should not be allowed");
-        } catch (AbortRuntimeException e) {
-            assertThat(e.getEvent().getCode(), is(CFG108));
-        }
     }
 
     /**

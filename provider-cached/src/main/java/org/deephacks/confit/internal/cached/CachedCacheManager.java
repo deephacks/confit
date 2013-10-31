@@ -21,7 +21,7 @@ import org.deephacks.confit.internal.cached.proxy.ConfigProxyGenerator;
 import org.deephacks.confit.internal.cached.query.ConfigIndex;
 import org.deephacks.confit.internal.cached.query.ConfigIndexedCollection;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.query.ConfigQuery;

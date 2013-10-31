@@ -15,7 +15,7 @@ package org.deephacks.confit.internal.core.yaml;
 
 import com.google.common.base.Strings;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.util.ArrayList;
 import java.util.Collection;

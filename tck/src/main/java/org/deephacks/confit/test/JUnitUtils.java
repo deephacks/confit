@@ -3,7 +3,7 @@ package org.deephacks.confit.test;
 import com.google.common.base.Charsets;
 import com.google.common.io.CharStreams;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.io.File;
 import java.io.IOException;

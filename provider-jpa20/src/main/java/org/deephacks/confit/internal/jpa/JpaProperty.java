@@ -16,7 +16,7 @@ package org.deephacks.confit.internal.jpa;
 import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.ThreadLocalManager;
 
 import javax.persistence.Column;

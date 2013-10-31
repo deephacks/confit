@@ -7,7 +7,7 @@ import com.googlecode.cqengine.index.navigable.NavigableIndex;
 import com.googlecode.cqengine.query.Query;
 import com.googlecode.cqengine.resultset.ResultSet;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.util.Iterator;
 

@@ -22,7 +22,7 @@ import com.google.common.io.Files;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.BeanManager;
@@ -219,20 +219,13 @@ public class YamlBeanManager extends BeanManager {
     public void create(Bean bean) {
         Map<BeanId, Bean> values = readValuesAsMap();
         checkReferencesExist(bean, values);
-        if (!bean.isDefault()) {
-            checkUniquness(bean, values);
-            values.put(bean.getId(), bean);
-        } else {
-            Bean stored = values.get(bean.getId());
-            if (stored == null) {
-                values.put(bean.getId(), bean);
-            }
-        }
+        checkUniquness(bean, values);
+        values.put(bean.getId(), bean);
         writeValues(values);
     }
 
     @Override
-    public void create(Collection<Bean> set) {
+    public void create(Collection <Bean> set) {
         Map<BeanId, Bean> beans = readValuesAsMap();
         // first check uniquness towards storage
         for (Bean bean : set) {
@@ -358,7 +351,6 @@ public class YamlBeanManager extends BeanManager {
     public Bean delete(BeanId id) {
         Map<BeanId, Bean> beans = readValuesAsMap();
         checkNoReferencesExist(id, beans);
-        checkDeleteDefault(beans.get(id));
         Bean deleted = beans.remove(id);
         writeValues(beans);
         return deleted;
@@ -369,7 +361,6 @@ public class YamlBeanManager extends BeanManager {
         Map<BeanId, Bean> beans = readValuesAsMap();
         ArrayList<Bean> deleted = new ArrayList<>();
         for (String instance : instanceIds) {
-            checkDeleteDefault(beans.get(BeanId.create(instance, schemaName)));
             checkNoReferencesExist(BeanId.create(instance, schemaName), beans);
             Bean bean = beans.remove(BeanId.create(instance, schemaName));
             deleted.add(bean);
@@ -442,15 +433,6 @@ public class YamlBeanManager extends BeanManager {
             if (bean.getId().equals(existing.getId())) {
                 throw CFG303_BEAN_ALREADY_EXIST(bean.getId());
             }
-        }
-    }
-
-    private static void checkDeleteDefault(Bean bean) {
-        if (bean == null) {
-            return;
-        }
-        if (bean.isDefault()) {
-            throw CFG311_DEFAULT_REMOVAL(bean.getId());
         }
     }
 

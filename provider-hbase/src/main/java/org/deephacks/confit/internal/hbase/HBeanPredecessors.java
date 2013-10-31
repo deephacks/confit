@@ -16,7 +16,7 @@ package org.deephacks.confit.internal.hbase;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import org.apache.hadoop.hbase.KeyValue;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 
 import java.util.ArrayList;
 import java.util.Arrays;

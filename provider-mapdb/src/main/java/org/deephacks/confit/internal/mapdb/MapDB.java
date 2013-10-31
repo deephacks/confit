@@ -14,12 +14,10 @@
 package org.deephacks.confit.internal.mapdb;
 
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
+import org.deephacks.confit.model.BeanId.BinaryBeanId;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.spi.SchemaManager;
-import org.deephacks.confit.spi.serialization.BeanSerialization;
-import org.deephacks.confit.spi.serialization.BinaryBeanId;
-import org.deephacks.confit.spi.serialization.UniqueIds;
 import org.mapdb.DB;
 import org.mapdb.TxMaker;
 import org.mapdb.TxRollbackException;
@@ -30,23 +28,16 @@ import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentNavigableMap;
 
 public class MapDB {
-    private static final SchemaManager schemaManager = SchemaManager.lookup();
     public static final String BEANS = "confit.beans";
     public static final String ID_TO_NAME = "confit.id_to_name";
     public static final String NAME_TO_ID = "confit.name_to_id";
     public static final String PROPERTY_COUNTER = "confit.property_counter";
+    private static final SchemaManager schemaManager = SchemaManager.lookup();
     private final TxMaker txMaker;
     private static final ThreadLocal<DB> tx = new ThreadLocal<>();
-    private final BeanSerialization serialization;
-    private final UniqueIds uniqueIds;
 
     public MapDB(TxMaker txMaker) {
         this.txMaker = txMaker;
-        MapdbUniqueId instanceIds = new MapdbUniqueId(8, true, this);
-        MapdbUniqueId propertyIds = new MapdbUniqueId(4, true, this);
-        MapdbUniqueId schemaIds = new MapdbUniqueId(4, true, this);
-        uniqueIds = new UniqueIds(instanceIds, schemaIds, propertyIds);
-        serialization = new BeanSerialization(propertyIds);
     }
 
     private ConcurrentNavigableMap<BinaryBeanId, byte[]> getBeanStorage() {
@@ -129,18 +120,19 @@ public class MapDB {
     }
 
     public Bean get(BeanId id) {
-        byte[] data = getBeanStorage().get(new BinaryBeanId(id, uniqueIds));
+        byte[] data = getBeanStorage().get(new BinaryBeanId(id));
         if (data == null) {
             return null;
         }
         Schema schema = schemaManager.getSchema(id.getSchemaName());
-        return serialization.read(data, id, schema);
+        id.set(schema);
+        return Bean.read(id, data);
     }
 
     public Collection<Bean> values() {
         ArrayList<Bean> beans = new ArrayList<>();
         for (BinaryBeanId id : getBeanStorage().keySet()) {
-            Bean bean = toBean(id.getBeanId(uniqueIds));
+            Bean bean = toBean(id.getBeanId());
             beans.add(bean);
         }
         return beans;
@@ -148,12 +140,12 @@ public class MapDB {
 
     public Collection<Bean> list(String schemaName) {
         ArrayList<Bean> beans = new ArrayList<>();
-        BinaryBeanId min = BinaryBeanId.getMinId(schemaName, uniqueIds);
-        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName, uniqueIds);
+        BinaryBeanId min = BinaryBeanId.getMinId(schemaName);
+        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName);
         final ConcurrentNavigableMap<BinaryBeanId, byte[]> schemaInstances
                 = getBeanStorage().subMap(min, true, max, true);
         for (BinaryBeanId id : schemaInstances.keySet()) {
-            Bean bean = toBean(id.getBeanId(uniqueIds));
+            Bean bean = toBean(id.getBeanId());
             beans.add(bean);
         }
         return beans;
@@ -161,43 +153,40 @@ public class MapDB {
 
     public LinkedHashMap<BeanId, byte[]> listBinary(String schemaName) {
         LinkedHashMap<BeanId, byte[]> beans = new LinkedHashMap<>();
-        BinaryBeanId min = BinaryBeanId.getMinId(schemaName, uniqueIds);
-        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName, uniqueIds);
+        BinaryBeanId min = BinaryBeanId.getMinId(schemaName);
+        BinaryBeanId max = BinaryBeanId.getMaxId(schemaName);
 
         final ConcurrentNavigableMap<BinaryBeanId, byte[]> schemaInstances
                 = getBeanStorage().subMap(min, true, max, true);
         for (BinaryBeanId id : schemaInstances.keySet()) {
-            beans.put(id.getBeanId(uniqueIds), schemaInstances.get(id));
+            beans.put(id.getBeanId(), schemaInstances.get(id));
         }
         return beans;
     }
 
 
     private Bean toBean(BeanId id) {
-        Schema schema = schemaManager.getSchema(id.getSchemaName());
-        byte[] data = getBeanStorage().get(new BinaryBeanId(id, uniqueIds));
+        byte[] data = getBeanStorage().get(new BinaryBeanId(id));
         if (data == null) {
             return null;
         }
-        return serialization.read(data, id, schema);
+        Schema schema = schemaManager.getSchema(id.getSchemaName());
+        id.set(schema);
+        return Bean.read(id, data);
     }
 
     public Bean remove(BeanId id) {
         Bean bean = get(id);
-        getBeanStorage().remove(new BinaryBeanId(id, uniqueIds));
+        getBeanStorage().remove(new BinaryBeanId(id));
         return bean;
     }
 
     public void put(Bean bean) {
-        getBeanStorage().put(new BinaryBeanId(bean.getId(), uniqueIds), serialization.write(bean));
+        getBeanStorage().put(new BinaryBeanId(bean.getId()), bean.write());
     }
 
     public void clear() {
         getBeanStorage().clear();
-    }
-
-    public UniqueIds getUniqueIds() {
-        return uniqueIds;
     }
 
 }

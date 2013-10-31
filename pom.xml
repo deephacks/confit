@@ -66,6 +66,7 @@
 
     <maven.compiler.source>1.7</maven.compiler.source>
     <maven.compiler.target>1.7</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
   </properties>
 
@@ -81,14 +82,43 @@
     <module>provider-yaml</module>
     <module>provider-cached</module>
     <module>provider-mapdb</module>
+    <module>provider-berkeleydb</module>
     <module>admin-jaxrs</module>
     <module>tck</module>
-    <module>perf</module>
-    <module>docbkx</module>
   </modules>
 
 
   <build>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.jacoco</groupId>
+          <artifactId>jacoco-maven-plugin</artifactId>
+          <version>0.6.3.201306030806</version>
+          <executions>
+            <execution>
+              <goals>
+                <goal>prepare-agent</goal>
+              </goals>
+            </execution>
+            <execution>
+              <id>report</id>
+              <goals>
+                <goal>report</goal>
+              </goals>
+            </execution>
+          </executions>
+        </plugin>
+        <plugin>
+          <groupId>org.eluder.coveralls</groupId>
+          <artifactId>coveralls-maven-plugin</artifactId>
+          <version>2.0.0</version>
+          <configuration>
+            <repoToken>HG8pgccaUCplWm4KEjJNKREL54wztBgmR</repoToken>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
     <plugins>
       <plugin>
         <artifactId>maven-compiler-plugin</artifactId>

@@ -20,7 +20,7 @@ import org.deephacks.confit.admin.AdminContext;
 import org.deephacks.confit.admin.query.BeanQuery;
 import org.deephacks.confit.model.AbortRuntimeException;
 import org.deephacks.confit.model.Bean;
-import org.deephacks.confit.model.Bean.BeanId;
+import org.deephacks.confit.model.BeanId;
 import org.deephacks.confit.model.BeanUtils;
 import org.deephacks.confit.model.Events;
 import org.deephacks.confit.model.Schema;
