@@ -103,7 +103,7 @@ public final class Schema implements Serializable {
      */
     public Class<?> getClassType() {
         try {
-            return Class.forName(getType());
+            return Class.forName(getType(), true, ClassLoaderHolder.getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }
@@ -495,7 +495,7 @@ public final class Schema implements Serializable {
                 return collectionTypeCls;
             }
             try {
-                collectionTypeCls = Class.forName(collectionType);
+                collectionTypeCls = Class.forName(collectionType, true, ClassLoaderHolder.getClassLoader());
                 return collectionTypeCls;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e);
@@ -507,7 +507,7 @@ public final class Schema implements Serializable {
                 return cls;
             }
             try {
-                cls = Class.forName(type);
+                cls = Class.forName(type, true, ClassLoaderHolder.getClassLoader());
                 return cls;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e);
@@ -641,7 +641,7 @@ public final class Schema implements Serializable {
                 return collectionTypeCls;
             }
             try {
-                collectionTypeCls = Class.forName(collectionType);
+                collectionTypeCls = Class.forName(collectionType, true, ClassLoaderHolder.getClassLoader());
                 return collectionTypeCls;
             } catch (ClassNotFoundException e) {
                 throw new IllegalStateException(e);
@@ -750,7 +750,7 @@ public final class Schema implements Serializable {
     public static Class<?> getClassTypeFromName(String name) {
         try {
             Class<?> primitive = PRIMITIVE_TYPES.get(name);
-            return  primitive != null ? primitive : Class.forName(name);
+            return  primitive != null ? primitive : Class.forName(name, true, ClassLoaderHolder.getClassLoader());
         } catch (ClassNotFoundException e) {
             throw new IllegalStateException(e);
         }

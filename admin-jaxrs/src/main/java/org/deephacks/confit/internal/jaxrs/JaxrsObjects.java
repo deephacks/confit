@@ -8,6 +8,7 @@ import org.codehaus.jackson.map.JsonSerializer;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jackson.map.introspect.VisibilityChecker;
 import org.codehaus.jackson.map.module.SimpleModule;
+import org.deephacks.confit.model.ClassLoaderHolder;
 import org.deephacks.confit.spi.Lookup;
 
 import java.lang.reflect.GenericArrayType;
@@ -114,7 +115,7 @@ public class JaxrsObjects {
 
         public Object toObject() {
             try {
-                Class<?> clazz = Class.forName(className);
+                Class<?> clazz = Class.forName(className, true, ClassLoaderHolder.getClassLoader());
                 Object value = mapper.convertValue(object, clazz);
                 if (value == null) {
                     return clazz.newInstance();

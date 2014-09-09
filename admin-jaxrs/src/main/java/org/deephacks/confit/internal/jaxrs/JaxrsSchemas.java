@@ -1,5 +1,6 @@
 package org.deephacks.confit.internal.jaxrs;
 
+import org.deephacks.confit.model.ClassLoaderHolder;
 import org.deephacks.confit.model.Schema;
 import org.deephacks.confit.model.Schema.SchemaId;
 
@@ -391,7 +392,7 @@ public class JaxrsSchemas {
 
             public Class<?> getClassType() {
                 try {
-                    return Class.forName(classType);
+                    return Class.forName(classType, true, ClassLoaderHolder.getClassLoader());
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -428,7 +429,7 @@ public class JaxrsSchemas {
 
             public Class<?> getClassType() {
                 try {
-                    return Class.forName(classType);
+                    return Class.forName(classType, true, ClassLoaderHolder.getClassLoader());
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
@@ -481,7 +482,7 @@ public class JaxrsSchemas {
 
             public Class<?> getClassType() {
                 try {
-                    return Class.forName(classType);
+                    return Class.forName(classType, true, ClassLoaderHolder.getClassLoader());
                 } catch (ClassNotFoundException e) {
                     throw new RuntimeException(e);
                 }
